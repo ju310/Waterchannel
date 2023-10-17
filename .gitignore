@@ -1,0 +1,15 @@
+--pychache--/
+*.pdf
+*.py[cod]
+*$py.class
+*.png
+*.hdf5
+*.gif
+*.mp4
+*.bcf
+*.nav
+*.run.xml
+*.snm
+*.synctex.gz
+*.toc
+*.txt
