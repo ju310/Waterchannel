@@ -3,7 +3,7 @@
 """
 Created on Tue Oct 17 12:27:32 2023.
 
-@author: cja8741
+@author: Judith Angel
 
 Reconstruct the bathymetry in a water channel using the gradient descent
 method.

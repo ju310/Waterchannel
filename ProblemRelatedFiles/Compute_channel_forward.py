@@ -3,7 +3,7 @@
 """
 Created on Tue May 23 13:47:22 2023
 
-@author: cja8741
+@author: Judith Angel
 Sensor 1 at 1.5m.
 Sensor 2 at 3.5m.
 Sensor 3 at 6m.

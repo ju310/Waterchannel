@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Thu Aug 25 14:23:29 2022.
+Created on Tue Oct 17 12:25:37 2023.
 
-@author: cja8741
+@author: Judith Angel
 Parameter file for gradient descent. The initial condition, observation and
 the exact control are being read from a hdf5 file.
 """

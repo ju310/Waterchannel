@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Thu Aug 25 16:24:35 2022.
+Created on Tue Oct 17 13:40:16 2023.
 
-@author: cja8741
+@author: Judith Angel
 """
 import numpy as np
 import dedalus.public as d3

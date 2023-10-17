@@ -1,3 +1,9 @@
+"""
+@author: Daniel Ruprecht
+
+Read measurement data.
+"""
+
 import numpy as np
 from scipy.interpolate import CubicSpline
 
