@@ -86,8 +86,6 @@ if save and size == 1:
     f.create_dataset("b_exact", data=b_exact)
     bs = f.create_dataset("bs", shape=(jmax+1, b.size), dtype=np.float64)
     vs = f.create_dataset("vs", shape=(jmax, b.size), dtype=np.float64)
-    v_es = f.create_dataset("v_es", shape=(jmax, b.size), dtype=np.float64)
-    v_Js = f.create_dataset("v_Js", shape=(jmax, b.size), dtype=np.float64)
     if saveall:
         qs = f.create_dataset("qs", shape=(jmax, pa.t_array.size, b.size, 2),
                               dtype=np.float64)
@@ -113,8 +111,6 @@ while j < jmax:
     if save:
 
         vs[j] = v
-        v_es[j] = P.v_e
-        v_Js[j] = P.v_J
 
         if saveall:
 
@@ -250,8 +246,6 @@ if save is True:
                 f.create_dataset("b_exact", data=b_exact)
                 f.create_dataset("bs", data=bs)
                 f.create_dataset("vs", data=vs)
-                f.create_dataset("v_es", data=v_es)
-                f.create_dataset("v_Js", data=v_Js)
                 f.create_dataset("qs", data=qs)
                 f.create_dataset("ps", data=ps)
                 f.create_dataset("obs", data=P.y_d)
