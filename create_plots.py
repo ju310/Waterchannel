@@ -348,7 +348,7 @@ def update_plot10(i):
 
     plt.clf()
     plt.plot(x, b_exact, "k", label="exact")
-    plt.plot(x, bs[-1], "tab:orange", label="computed")
+    plt.plot(x, bs[j-1], "tab:orange", label="computed")
     plt.plot(x, obs[i], "k*")
     plt.plot(x, H[i], "tab:orange")
     plt.ylim([0, Hmax+0.01])
@@ -363,53 +363,42 @@ anim10 = FuncAnimation(fig10, update_plot10, frames=np.arange(
 if save:
     anim10.save(path + "/Hb.gif", dpi=150, fps=2)
 
-fig, axs = plt.subplots(3)
-pos1 = np.argmin(abs(x-pos[0]))
-pos2 = np.argmin(abs(x-pos[1]))
-pos3 = np.argmin(abs(x-pos[2]))
+########################
+# ----- Surface elevation and observation at sensor positions ----- #
+
+pos_n = len(pos)
+posi = np.zeros((pos_n), dtype=int)
+fig, axs = plt.subplots(pos_n)
+
+for i in range(pos_n):
+
+    posi[i] = np.argmin(abs(x-pos[i]))
+
 fig.tight_layout(pad=2.0)
-axs[0].plot(t[start:], H[start:, pos1], "y")
-axs[0].plot(t[start:], obs[start:, pos1], "k--")
-axs[0].set_xlabel('Time [s]')
-axs[0].set_ylabel('H [m]')
-axs[0].set_title(f"Sensor 2 at {round(x[pos1], 1)}m")
 
-axs[1].plot(t[start:], H[start:, pos2], "y")
-axs[1].plot(t[start:], obs[start:, pos2], "k--")
-axs[1].set_xlabel('Time [s]')
-axs[1].set_ylabel('H [m]')
-axs[1].set_title(f"Sensor 3 at {round(x[pos2], 1)}m")
+for i in range(pos_n):
 
-axs[2].plot(t[start:], H[start:, pos3], "y",
-            label="simulation")
-axs[2].plot(t[start:], obs[start:, pos3], "k--",
-            label="observation")
-axs[2].set_xlabel('Time [s]')
-axs[2].set_ylabel('H [m]')
-axs[2].legend(loc="lower left")
-axs[2].set_title(f"Sensor 4 at {round(x[pos3], 1)}m")
+    axs[i].plot(t[start:], H[start:, posi[i]], "y")
+    axs[i].plot(t[start:], obs[start:, posi[i]], "k--")
+    axs[i].set_xlabel('Time [s]')
+    axs[i].set_ylabel('H [m]')
+    axs[i].set_title(f"Sensor {i+2} at {round(x[posi[i]], 1)}m")
+
 plt.tight_layout()
 if save:
     plt.savefig(path + "/H_Hobs.pdf", bbox_inches='tight')
 plt.show()
 
-fig, axs = plt.subplots(3)
+fig, axs = plt.subplots(pos_n)
 fig.tight_layout(pad=2.0)
-axs[0].plot(t[start:], H[start:, pos1]-obs[start:, pos1])
-axs[0].set_xlabel('Time [s]')
-axs[0].set_ylabel(r'$H - H_{obs} \ [m]$')
-axs[0].set_title(f"Sensor 2 at {round(x[pos1], 1)}m")
 
-axs[1].plot(t[start:], H[start:, pos2]-obs[start:, pos2])
-axs[1].set_xlabel('Time [s]')
-axs[1].set_ylabel(r'$H - H_{obs} \ [m]$')
-axs[1].set_title(f"Sensor 3 at {round(x[pos2], 1)}m")
+for i in range(pos_n):
 
-axs[2].plot(t[start:], H[start:, pos3]-obs[start:, pos3],
-            label="simulation")
-axs[2].set_xlabel('Time [s]')
-axs[2].set_ylabel(r'$H - H_{obs} \ [m]$')
-axs[2].set_title(f"Sensor 4 at {round(x[pos3], 1)}m")
+    axs[i].plot(t[start:], H[start:, posi[i]]-obs[start:, posi[i]])
+    axs[i].set_xlabel('Time [s]')
+    axs[i].set_ylabel(r'$H - H_{obs} \ [m]$')
+    axs[i].set_title(f"Sensor {i+2} at {round(x[posi[i]], 1)}m")
+
 plt.tight_layout()
 if save:
     plt.savefig(path + "/H-Hobs.pdf", bbox_inches='tight')
