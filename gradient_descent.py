@@ -15,19 +15,25 @@ from datetime import datetime
 from taylortest import CheckGradient
 from mpi4py import MPI
 import logging
+import importlib
 
 from ProblemRelatedFiles.grad_descent_aux import OptProblem
-from ProblemRelatedFiles.params import params
 
 for system in ['subsystems', 'solvers']:
     logging.getLogger(system).setLevel(logging.WARNING)  # Suppress output.
+
+oldOptAgain = True  # Set to True if you want to run an old optimisation again
+# with exactly the same parameters.
+folder = "nonlinSWE_2023_10_12_02_56_PM"  # Folder with old optimisation data.
+params = importlib.import_module("ProblemRelatedFiles."
+                                 + oldOptAgain*(folder + ".") + "params")
 
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 size = comm.Get_size()
 save = False
 saveall = False
-pa = params()  # Object containing all parameters.
+pa = params.params()  # Object containing all parameters.
 P = OptProblem(pa, comm, save)
 
 # Create folder for plots and data.
@@ -39,8 +45,9 @@ if save is True:
             "%Y_%m_%d_%I_%M_%p")
         os.mkdir("ProblemRelatedFiles/" + newfolder)
 
-        # Save parameter file in a new folder.
-        with open("ProblemRelatedFiles/params.py", "r") as f:
+        # Save parameter file.
+        with open("ProblemRelatedFiles/" + oldOptAgain*(folder + "/")
+                  + "params.py", "r") as f:
             parameters = f.read()
 
         with open(f"ProblemRelatedFiles/{newfolder}/params.py", "w") as file:
@@ -127,7 +134,7 @@ while j < jmax:
 
     # --- Value of functional for initial step size ---
     alpha_j = pa.alpha
-    f_new = P.f(b - alpha_j*v)
+    f_new = P.f(P.proj(b - alpha_j*v))
 
     # --- Backtracking line search with Armijo rule ---
 
@@ -146,7 +153,7 @@ while j < jmax:
             if breaker:
                 break
 
-        f_new = P.f(b - alpha_j*v)
+        f_new = P.f(P.proj(b - alpha_j*v))
 
     if save:
 
@@ -159,7 +166,7 @@ while j < jmax:
     j += 1
     P.PDE.j = j
     f_vals[j] = f_new
-    b = b - alpha_j*v
+    b = P.proj(b - alpha_j*v)
 
     if save and rank == 0:
         f_err1s[j] = P.f_err1
@@ -172,22 +179,20 @@ while j < jmax:
 
 end = MPI.Wtime()
 
-if rank == 0:
+print("Elapsed time:", end-start, "s")
 
-    print("Elapsed time:", end-start, "s")
-
-    if np.linalg.norm(b_exact.flatten()) > 1e-16:
-        print("Relative error (2-norm) to exact optimal control:",
-              np.linalg.norm((b-b_exact).flatten())
-              / np.linalg.norm(b_exact.flatten()))
-        if save is True:
-            with open(f"ProblemRelatedFiles/{newfolder}/data.txt", "w") as ft:
-                ft.write("Relative error (2-norm) to exact optimal control:" +
-                         str(np.linalg.norm((b-b_exact).flatten())
-                             / np.linalg.norm(b_exact.flatten())))
-    else:
-        print("Absolute error (max-norm)to exact optimal control:",
-              np.amax(b-b_exact))
+if np.linalg.norm(b_exact.flatten()) > 1e-16:
+    print("Relative error (2-norm) to exact optimal control:",
+          np.linalg.norm((b-b_exact).flatten())
+          / np.linalg.norm(b_exact.flatten()))
+    if save is True:
+        with open(f"ProblemRelatedFiles/{newfolder}/data.txt", "w") as ft:
+            ft.write("Relative error (2-norm) to exact optimal control:" +
+                     str(np.linalg.norm((b-b_exact).flatten())
+                         / np.linalg.norm(b_exact.flatten())))
+else:
+    print("Absolute error (max-norm)to exact optimal control:",
+          np.amax(b-b_exact))
 
 # -----------------------------------------------------------------------------
 # -------------------- CREATE PLOTS AND SAVE DATA -----------------------------
@@ -208,80 +213,32 @@ if save is True:
 
         f.close()
 
-    if P.withParareal:
+# Talyor test for gradient
+# for i in range(len(vs)):
 
-        allqs = []
-        allps = []
-        for i in range(j):
-
-            qBuf = np.zeros((P.t_array.size, pa.M, 2))
-            comm.Gather(qs[i][1:], qBuf[1:], root=0)
-            qBuf[0, :, 0] = pa.ic
-            allqs.append(qBuf)
-
-            pBuf = np.zeros((P.t_array.size, pa.M, 2))
-            if rank == size-1:
-                comm.Send(ps[i][-1], dest=0)
-            if rank == 0:
-                comm.Recv(pBuf[-1], source=size-1)
-            pTimeSlice = ps[i][:-1]
-            comm.Gather(pTimeSlice, pBuf[:-1], root=0)
-            allps.append(pBuf)
-
-        qs = allqs.copy()
-        ps = allps.copy()
-
-        if rank == 0:
-
-            with h5py.File("ProblemRelatedFiles/" + newfolder
-                           + "/gradient_data.hdf5", "w") as f:
-
-                f.create_dataset("f_vals", data=f_vals)
-                f.create_dataset("f_err1s", data=f_err1s)
-                f.create_dataset("f_err2s", data=f_err2s)
-                f.create_dataset("f_regs", data=f_regs)
-                f.create_dataset("f_b_exct", data=f_b_exct)
-                f.create_dataset("alpha_js", data=alpha_js)
-                f.create_dataset("v_norms", data=v_norms)
-                f.create_dataset("b_exact", data=b_exact)
-                f.create_dataset("bs", data=bs)
-                f.create_dataset("vs", data=vs)
-                f.create_dataset("qs", data=qs)
-                f.create_dataset("ps", data=ps)
-                f.create_dataset("obs", data=P.y_d)
-                f.create_dataset("x", data=x_coord)
-                f.create_dataset("t", data=P.PDE.t_array)
-                f.attrs["jmax"] = j
-
-# if size == 1 and P.PDE.bc == "waterchannel":
-
-#     for i in range(len(vs)):
-
-#         cg = CheckGradient(P.f, P.dx*vs[i], bs[i])
-#         # Need gradient*dx because of discrete scalar product
-#         # in gradienttest.py.
-#         gradientchecks.append(cg.check_order_2())
-#         print(f"Iteration {i}: {cg.check_order_2()}")
+#     cg = CheckGradient(P.f, P.dx*vs[i], bs[i])
+#     # Need gradient*dx because of discrete scalar product
+#     # in taylortest.py.
+#     gradientchecks.append(cg.check_order_2())
+#     print(f"Iteration {i}: {cg.check_order_2()}")
 
 
 if save is True:
 
-    if rank == 0:
+    with open("ProblemRelatedFiles/" + newfolder + "/data.txt", "w") as f2:
 
-        with open("ProblemRelatedFiles/" + newfolder + "/data.txt", "w") as f2:
-
-            f2.write("Running time is " + str(end-start)
-                     + ", relative error to exact control is "
-                     + str(np.linalg.norm((b-b_exact).flatten())
-                           / np.linalg.norm(b_exact.flatten()))
-                     + ", norm of exact control is "
-                     + str(np.linalg.norm(b_exact.flatten())) + f", j = {j}"
-                     + f"\nValue of objective functional: {f_vals[j]}"
-                     + f"\nValue mismatch [0,T]: {P.f_err1}"
-                     + f"\nValue mismatch at T: {P.f_err2}"
-                     + f"\nValue regularisation term: {P.f_reg}"
-                     + f"\nOutput gradient check: {gradientchecks}"
-                     + f"\nHyperdiffusion coefficient D = {pa.D}"
-                     + f"\nBottom friction coefficient kappa = {P.PDE.kappa}"
-                     + f"\ntime step = {P.dt}"
-                     + f"\ngrid points in space = {P.M}")
+        f2.write("Running time is " + str(end-start)
+                 + ", relative error to exact control is "
+                 + str(np.linalg.norm((b-b_exact).flatten())
+                       / np.linalg.norm(b_exact.flatten()))
+                 + ", norm of exact control is "
+                 + str(np.linalg.norm(b_exact.flatten())) + f", j = {j}"
+                 + f"\nValue of objective functional: {f_vals[j]}"
+                 + f"\nValue mismatch [0,T]: {P.f_err1}"
+                 + f"\nValue mismatch at T: {P.f_err2}"
+                 + f"\nValue regularisation term: {P.f_reg}"
+                 + f"\nOutput gradient check: {gradientchecks}"
+                 + f"\nHyperdiffusion coefficient D = {pa.D}"
+                 + f"\nBottom friction coefficient kappa = {P.PDE.kappa}"
+                 + f"\ntime step = {P.dt}"
+                 + f"\ngrid points in space = {P.M}")

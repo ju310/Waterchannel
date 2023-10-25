@@ -7,12 +7,8 @@ Created on Tue Oct 17 13:36:28 2023.
 """
 import numpy as np
 import dedalus.public as d3
-import matplotlib.pyplot as plt
 from scipy import integrate as intgr
-from mpi4py import MPI
-
 from ProblemRelatedFiles.problems import nonlinSWE
-from dedalus.extras.plot_tools import quad_mesh, pad_limits
 
 
 class OptProblem:
@@ -188,3 +184,26 @@ class OptProblem:
     def trpz(self, f, dt):
 
         return dt*(np.sum(f, axis=0) - 0.5*(f[0]+f[-1]))
+
+    def proj(self, b):
+        """
+        Projection of bathymetry on set of admissible controls.
+
+        Parameters
+        ----------
+        b : numpy array
+            Bathymetry.
+
+        Returns
+        -------
+        b : numpy array
+            Projected bathymetry.
+
+        """
+        minVal = 0  # TODO: Copy this to waterchannel repo.
+        mask = b < minVal
+        b[mask] = 0
+        mask = b > self.PDE.H
+        b[mask] = self.PDE.H
+
+        return b
