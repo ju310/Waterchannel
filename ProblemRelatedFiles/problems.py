@@ -18,7 +18,7 @@ for system in ['subsystems', 'solvers']:
 class nonlinSWE:
     """Class for nonlinear shallow water equations."""
 
-    def __init__(self, pa, t_array, comm, y_d, save=False):
+    def __init__(self, pa, t_array, y_d, save=False):
 
         self.j = 0  # Gradient descent iteration counter.
         self.save = save
@@ -37,7 +37,6 @@ class nonlinSWE:
         self.current_b = pa.b_start.copy()
         self.b_exact = pa.b_exact
         self.t_array = t_array
-        self.comm = comm
         self.xcoord = d3.Coordinate('x')
         self.dist = d3.Distributor(self.xcoord, dtype=np.float64)
         self.xbasis = d3.Chebyshev(

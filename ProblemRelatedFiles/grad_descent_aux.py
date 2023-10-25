@@ -13,9 +13,8 @@ from ProblemRelatedFiles.problems import nonlinSWE
 
 class OptProblem:
 
-    def __init__(self, pa, comm, save=False):
+    def __init__(self, pa, save=False):
 
-        self.comm = comm
         self.T_N = pa.T_N
         self.N = int(pa.T_N/pa.dt) + 1
         self.lambd = pa.lambd
@@ -30,7 +29,7 @@ class OptProblem:
         self.M = pa.M
         self.dx = (self.xmax-self.xmin)/(self.M-1)
         self.g = pa.g
-        self.PDE = nonlinSWE(pa, self.t_array, comm, self.y_d, save)
+        self.PDE = nonlinSWE(pa, self.t_array, self.y_d, save)
         self.b_field = self.PDE.dist.Field(bases=self.PDE.xbasis)
         self.bx_field = self.PDE.dist.Field(bases=self.PDE.xbasis)
         self.bxx_field = self.PDE.dist.Field(bases=self.PDE.xbasis)
@@ -122,7 +121,6 @@ class OptProblem:
         self.bx_field["g"] = d3.Differentiate(
             self.b_field, self.PDE.xcoord).evaluate()['g']
         self.bx_field.change_scales(1)
-        b_x = np.copy(self.bx_field["g"])
         self.bxx_field.change_scales(3/2)
         self.bxx_field["g"] = d3.Differentiate(
             self.bx_field, self.PDE.xcoord).evaluate()['g']

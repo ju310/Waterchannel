@@ -12,8 +12,8 @@ import numpy as np
 import h5py
 import os
 from datetime import datetime
+from timeit import default_timer as timer
 from taylortest import CheckGradient
-from mpi4py import MPI
 import logging
 import importlib
 
@@ -28,30 +28,25 @@ folder = "nonlinSWE_2023_10_12_02_56_PM"  # Folder with old optimisation data.
 params = importlib.import_module("ProblemRelatedFiles."
                                  + oldOptAgain*(folder + ".") + "params")
 
-comm = MPI.COMM_WORLD
-rank = comm.Get_rank()
-size = comm.Get_size()
 save = False
 saveall = False
 pa = params.params()  # Object containing all parameters.
-P = OptProblem(pa, comm, save)
+P = OptProblem(pa, save)
 
 # Create folder for plots and data.
 if save is True:
 
-    if rank == 0:
+    newfolder = f"{P.problem}" + "_" + datetime.now().strftime(
+        "%Y_%m_%d_%I_%M_%p")
+    os.mkdir("ProblemRelatedFiles/" + newfolder)
 
-        newfolder = f"{P.problem}" + "_" + datetime.now().strftime(
-            "%Y_%m_%d_%I_%M_%p")
-        os.mkdir("ProblemRelatedFiles/" + newfolder)
+    # Save parameter file.
+    with open("ProblemRelatedFiles/" + oldOptAgain*(folder + "/")
+              + "params.py", "r") as f:
+        parameters = f.read()
 
-        # Save parameter file.
-        with open("ProblemRelatedFiles/" + oldOptAgain*(folder + "/")
-                  + "params.py", "r") as f:
-            parameters = f.read()
-
-        with open(f"ProblemRelatedFiles/{newfolder}/params.py", "w") as file:
-            file.write(parameters)
+    with open(f"ProblemRelatedFiles/{newfolder}/params.py", "w") as file:
+        file.write(parameters)
 
 b = pa.b_start
 y_d = P.y_d
@@ -59,12 +54,10 @@ y_d = P.y_d
 # --- Exact bathymetry. ---
 b_exact = pa.b_exact
 f_b_exct = P.f(b_exact)
-if rank == 0:
-    print("f(b_exact) =", f_b_exct)
-    print("Regularisation term: ", P.f_reg)
+print("f(b_exact) =", f_b_exct)
+print("Regularisation term: ", P.f_reg)
 
-comm.Barrier()
-start = MPI.Wtime()
+start = timer()
 j = 0
 jmax = pa.jmax
 
@@ -79,7 +72,7 @@ breaker = False
 min_found = False
 x_coord = P.PDE.dist.local_grid(P.PDE.xbasis)
 
-if save and size == 1:
+if save:
 
     f = h5py.File("ProblemRelatedFiles/" + newfolder
                   + "/gradient_data.hdf5", "w")
@@ -127,10 +120,8 @@ while j < jmax:
     if np.amax(abs(v)) < pa.tol:
 
         min_found = True
-        if rank == 0:
-            print(f"Found a minimum after {j} iterations.")
-            min_found = comm.bcast(min_found, root=0)
-            break
+        print(f"Found a minimum after {j} iterations.")
+        break
 
     # --- Value of functional for initial step size ---
     alpha_j = pa.alpha
@@ -146,9 +137,7 @@ while j < jmax:
         if alpha_j < 1e-13:
 
             breaker = True
-            if rank == 0:
-                print("Bad search direction")
-                breaker = comm.bcast(breaker, root=0)
+            print("Bad search direction")
 
             if breaker:
                 break
@@ -168,7 +157,7 @@ while j < jmax:
     f_vals[j] = f_new
     b = P.proj(b - alpha_j*v)
 
-    if save and rank == 0:
+    if save:
         f_err1s[j] = P.f_err1
         f_err2s[j] = P.f_err2
         f_regs[j] = P.f_reg
@@ -177,7 +166,7 @@ while j < jmax:
     if min_found is True:
         break
 
-end = MPI.Wtime()
+end = timer()
 
 print("Elapsed time:", end-start, "s")
 
@@ -203,15 +192,13 @@ else:
 
 if save is True:
 
-    if size == 1:
+    f.create_dataset("f_vals", data=f_vals)
+    f.attrs["jmax"] = j
 
-        f.create_dataset("f_vals", data=f_vals)
-        f.attrs["jmax"] = j
+    if not saveall:
+        f.create_dataset("q", data=P.q)
 
-        if not saveall:
-            f.create_dataset("q", data=P.q)
-
-        f.close()
+    f.close()
 
 # Talyor test for gradient
 # for i in range(len(vs)):
