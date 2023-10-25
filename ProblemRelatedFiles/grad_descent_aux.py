@@ -135,9 +135,6 @@ class OptProblem:
             + self.mismatch[-1]*self.delta \
             - self.lambd*b_xx
 
-        # Note: For the water channel setup, self.PDE.y_d is on the
-        # finer spatial grid. For all other cases it is self.y_d.
-
         self.L2grad = self.v_e + self.v_J
 
         # Fields
@@ -198,7 +195,7 @@ class OptProblem:
             Projected bathymetry.
 
         """
-        minVal = 0  # TODO: Copy this to waterchannel repo.
+        minVal = 0
         mask = b < minVal
         b[mask] = 0
         mask = b > self.PDE.H

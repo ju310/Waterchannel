@@ -65,7 +65,7 @@ class nonlinSWE:
         lift_basis = self.xbasis.derivative_basis(1)
         self.lift = lambda A, n: d3.Lift(A, lift_basis, n)
 
-        # Forward problem"waterchannel":
+        # Forward problem
 
         def hl_function(*args):
 
@@ -103,7 +103,7 @@ class nonlinSWE:
         Parameters
         ----------
         inpt : numpy array
-            Forward problem: Control.
+            Forward problem: Control (bathymetry).
             Adjoint problem: Solution of forward problem.
         opt : string
             Decide whether to solve the forward ("primal") or the adjoint
@@ -133,7 +133,7 @@ class nonlinSWE:
             self.h_field.change_scales(1)
             self.u_field.change_scales(1)
             self.h_field['g'] = h_0
-            self.u_field['g'] = np.zeros(h_0.size)  # Here: u(0)
+            self.u_field['g'] = np.zeros(h_0.size)
             tempH = self.eval_at_sensor_positions(
                 self.h_field, self.pos) \
                 + self.eval_at_sensor_positions(
@@ -195,8 +195,7 @@ class nonlinSWE:
 
             y_d = self.y_d
 
-            # Define function h. Extrapolation is needed due to possible
-            # rounding errors at the boundary of a time slice.
+            # Define function h.
             h_func = interpolate.interp1d(t_interval, h_array, axis=0,
                                           fill_value="extrapolate")
 
@@ -380,7 +379,6 @@ class nonlinSWE:
             previous value at the positions.
 
         """
-
         x = self.dist.local_grid(self.xbasis)
         H_gauss = np.zeros(H_pos.shape)
         for p in range(len(self.pos)):
