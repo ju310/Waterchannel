@@ -24,8 +24,11 @@ class params:
         # Turn on/off test for gradient descent method. Start with exact b.
         self.test = True
 
-        # Use measurement data or simulated data.
-        self.measurementData = False
+        # Use either measurement data, simulated data everywhere or
+        # simulated data at sensor positions.
+        self.data = "measurements"
+        # self.data = "sim_everywhere"
+        # self.data = "sim_sensor_pos"
 
         # Put noise on observation.
         self.noise = 0
@@ -90,26 +93,24 @@ class params:
         self.xmin = 1.5
         # self.xmax = 20
         self.xmax = 15  # Matches better with measurements.
-        if self.measurementData:
+        if self.data == "measurements":
             self.pos = [3.5, 6, 8.5]  # Sensor positions
-        else:
+        elif self.data == "sim_sensor_pos":
             self.pos = [3.5, 6]
             # self.pos = [2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5]
         self.H = 0.3  # Water level at rest.
         self.lbc = leftbc(pathbc).f  # CubicSpline
 
         # Load observation, exact bathymetry and parameters from hdf5 file.
-        if not self.measurementData:
+        if self.data != "measurements":
 
             with h5py.File(path, "r") as f:
 
                 b_exact_fine = np.array(f["b_exact"])
-                # TODO: Change when using real data.
-                # TODO: Cut of first 3s of data.
-                H_sensor = np.array(f["H_sensor"])
-                # y_d_fine = np.array(f["H_sensor"])
                 self.h_array_full = np.array(f["h"])  # Computed h.
-                # y_d_fine = self.h_array_full.copy() + b_exact_fine
+                if self.data == "sim_everywhere":
+                    h_array_full = np.array(f["h"])  # Computed h (fine grid).
+                    y_d_fine = h_array_full.copy() + b_exact_fine
                 pos_p = np.array(f["pos"])
                 dt_p = f.attrs.get("dt")
                 M_p = f.attrs.get("M")
@@ -175,7 +176,7 @@ class params:
         self.y_d = np.zeros((N, self.M))
         x = dist.local_grid(xbasis)
 
-        if self.measurementData:
+        if self.data == "measurements":
 
             # Load observation data from text file.
             dataObject = data(pathbc+".txt")
@@ -185,7 +186,8 @@ class params:
                 H_sensor = self.H + dataObject.f[p](self.t_array)
                 i = np.argmin(abs(x-self.pos[p]))
                 self.y_d[:, i] = H_sensor
-        else:
+
+        elif self.data == "sim_sensor_pos":
 
             # Put simulation data from hdf5 file on the coarser grid.
 
@@ -201,34 +203,35 @@ class params:
 
             H_field = dist.Field(bases=xbasis)
 
-            if wrongpos:
+            for n in range(N):
 
-                for n in range(N):
-
-                    H_field.change_scales(1)
-                    # Find corresponding index in fine time array.
-                    # This is the best way to do it as we need this loop
-                    # over time anyways.
-                    n_fine = np.argmin(abs(t_array_fine-self.t_array[n]))
-                    H_field["g"] = np.copy(
-                        self.h_array_full[n_fine] + b_exact_fine)
-                    H_pos = eval_at_pos(H_field, self.pos)
-
-                    for p in range(len(self.pos)):
-
-                        i = np.argmin(abs(x-self.pos[p]))
-                        self.y_d[n, i] = H_pos[p]
-
-            else:
-
-                n = np.argmin(abs(self.T_N-t_array_fine))
-                y_d_func = interpolate.CubicSpline(
-                    t_array_fine[:n+1], H_sensor[:n+1], axis=0)
+                H_field.change_scales(1)
+                # Find corresponding index in fine time array.
+                # This is the best way to do it as we need this loop
+                # over time anyways.
+                n_fine = np.argmin(abs(t_array_fine-self.t_array[n]))
+                H_field["g"] = np.copy(
+                    self.h_array_full[n_fine] + b_exact_fine)
+                H_pos = eval_at_pos(H_field, self.pos)
 
                 for p in range(len(self.pos)):
 
                     i = np.argmin(abs(x-self.pos[p]))
-                    self.y_d[:, i] = y_d_func(self.t_array)[:, p]
+                    self.y_d[n, i] = H_pos[p]
+
+        elif self.data == "sim_everywhere":
+
+            self.y_d_func = interpolate.CubicSpline(
+                t_array_fine, y_d_fine, axis=0)
+            y_d = self.y_d_func(self.t_array)
+
+            for n in range(N):
+
+                y_d_field = dist.Field(bases=xbasis)
+                y_d_field.change_scales(1)
+                y_d_field['g'] = np.copy(y_d[n])
+                y_d_field.change_scales(self.M/M_fine)
+                self.y_d[n] = np.copy(y_d_field['g'])
 
         for p in range(len(self.pos)):
 
