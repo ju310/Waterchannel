@@ -28,7 +28,7 @@ folder = "nonlinSWE_2023_10_12_02_56_PM"  # Folder with old optimisation data.
 params = importlib.import_module("ProblemRelatedFiles."
                                  + oldOptAgain*(folder + ".") + "params")
 
-save = False
+save = True
 saveall = False
 pa = params.params()  # Object containing all parameters.
 P = OptProblem(pa, save)
