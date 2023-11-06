@@ -134,7 +134,7 @@ while j < jmax:
 
         alpha_j *= pa.beta
 
-        if alpha_j < 1e-13:
+        if alpha_j < 1e-10:
 
             breaker = True
             print("Bad search direction")
