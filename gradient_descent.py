@@ -36,7 +36,7 @@ P = OptProblem(pa, save)
 # Create folder for plots and data.
 if save is True:
 
-    newfolder = f"{P.problem}" + "_" + datetime.now().strftime(
+    newfolder = datetime.now().strftime(
         "%Y_%m_%d_%I_%M_%p")
     os.mkdir("ProblemRelatedFiles/" + newfolder)
 
