@@ -22,12 +22,12 @@ class params:
     def __init__(self):
 
         # Turn on/off test for gradient descent method. Start with exact b.
-        self.test = True
+        self.test = False
 
         # Use either measurement data, simulated data everywhere or
         # simulated data at sensor positions.
-        self.data = "measurements"
-        # self.data = "sim_everywhere"
+        # self.data = "measurements"
+        self.data = "sim_everywhere"
         # self.data = "sim_sensor_pos"
 
         # Put noise on observation.
@@ -148,13 +148,11 @@ class params:
                 "Note that you are not using the same discretisation as in"
                 + "the hdf5 file.")
 
-        wrongpos = False
         for i in range(len(self.pos)):
             if self.pos[i] not in pos_p:
                 warnings.warn(
                     f"Parameter pos={self.pos} does not match the one"
                     + f" from the hdf5 file ({pos_p})")
-                wrongpos = True
                 break
 
         # Scale initial condition, observation and exact control.
