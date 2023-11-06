@@ -28,7 +28,7 @@ folder = "nonlinSWE_2023_10_12_02_56_PM"  # Folder with old optimisation data.
 params = importlib.import_module("ProblemRelatedFiles."
                                  + oldOptAgain*(folder + ".") + "params")
 
-save = False
+save = True
 saveall = False
 pa = params.params()  # Object containing all parameters.
 P = OptProblem(pa, save)
@@ -63,6 +63,7 @@ jmax = pa.jmax
 
 # --- Initialisations ---
 f_vals = np.zeros(jmax+1)
+alpha_j = pa.alpha
 gradientchecks = []
 if pa.test is True:
     f_vals[0] = f_b_exct
@@ -124,7 +125,8 @@ while j < jmax:
         break
 
     # --- Value of functional for initial step size ---
-    alpha_j = pa.alpha
+    if alpha_j < pa.alpha:
+        alpha_j *= 2
     f_new = P.f(P.proj(b - alpha_j*v))
 
     # --- Backtracking line search with Armijo rule ---

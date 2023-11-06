@@ -20,7 +20,6 @@ class OptProblem:
         self.lambd = pa.lambd
         self.gamma = pa.gamma
         self.delta = pa.delta
-        self.P = self.comm.Get_size()
         self.t_array = pa.t_array
         self.dt = self.t_array[1]-self.t_array[0]
         self.y_d = pa.y_d
@@ -64,7 +63,11 @@ class OptProblem:
         self.bx_field.change_scales(1)
         b_x = np.copy(self.bx_field["g"])
 
-        self.mismatch = self.PDE.gauss_peak(self.PDE.H_array-self.y_d)
+        if self.PDE.data != "sim_everywhere":
+            self.mismatch = self.PDE.gauss_peak(self.PDE.H_array-self.y_d)
+        else:
+            self.mismatch = self.y-self.y_d
+
         self.f_err1 = self.gamma*0.5*self.dx*self.dt \
             * np.linalg.norm(self.mismatch)**2
         self.f_err2 = self.delta*0.5*self.dx \

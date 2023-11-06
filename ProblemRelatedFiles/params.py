@@ -44,7 +44,7 @@ class params:
         self.T_N = 10
 
         path = "ProblemRelatedFiles/WaterchannelData/" \
-            + "Tiefe=0,3_A=40_F=0,35_kappa2e-01_bathyTrue_ramp_fine.hdf5"
+            + "sim_data_Tiefe=0,3_A=40_F=0,35_ramp.hdf5"
         pathbc = "ProblemRelatedFiles/WaterchannelData/" \
             + "Tiefe=0,3_A=40_F=0,35.txt"
 
@@ -146,14 +146,15 @@ class params:
         if self.dt != dt_p or self.M != M_p:
             print(
                 "Note that you are not using the same discretisation as in"
-                + "the hdf5 file.")
+                + " the hdf5 file.")
 
-        for i in range(len(self.pos)):
-            if self.pos[i] not in pos_p:
-                warnings.warn(
-                    f"Parameter pos={self.pos} does not match the one"
-                    + f" from the hdf5 file ({pos_p})")
-                break
+        if self.data != "sim_everywhere":
+            for i in range(len(self.pos)):
+                if self.pos[i] not in pos_p:
+                    warnings.warn(
+                        f"Parameter pos={self.pos} does not match the one"
+                        + f" from the hdf5 file ({pos_p})")
+                    break
 
         # Scale initial condition, observation and exact control.
         M_fine = b_exact_fine.size
@@ -226,17 +227,25 @@ class params:
             for n in range(N):
 
                 y_d_field = dist.Field(bases=xbasis)
-                y_d_field.change_scales(1)
+                y_d_field.change_scales(M_fine/self.M)
                 y_d_field['g'] = np.copy(y_d[n])
-                y_d_field.change_scales(self.M/M_fine)
+                y_d_field.change_scales(1)
                 self.y_d[n] = np.copy(y_d_field['g'])
 
-        for p in range(len(self.pos)):
+        if self.data != "sim_everywhere":
 
-            i = np.argmin(abs(x-self.pos[p]))
-            self.y_d[2:, i] += self.noise \
+            for p in range(len(self.pos)):
+
+                i = np.argmin(abs(x-self.pos[p]))
+                self.y_d[2:, i] += self.noise \
+                    * np.random.normal(
+                        0, .05*(np.max(self.y_d-self.H)), N-2)
+
+        else:
+
+            self.y_d[2:] += self.noise \
                 * np.random.normal(
-                    0, .05*(np.max(self.y_d-self.H)), N-2)
+                    0, .05*(np.max(self.y_d-self.H)), (N-2, self.M))
 
         b_field = dist.Field(bases=xbasis)
 

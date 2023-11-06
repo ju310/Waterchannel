@@ -22,7 +22,6 @@ class nonlinSWE:
 
         self.j = 0  # Gradient descent iteration counter.
         self.save = save
-        self.coarse_in_serial = pa.coarse_in_serial
         self.T_N = pa.T_N
         self.N_fine = pa.t_array.size
         self.dt = pa.dt
@@ -33,7 +32,9 @@ class nonlinSWE:
         self.delta = pa.delta
         self.H = pa.H
         self.lbc = pa.lbc
-        self.pos = pa.pos
+        self.data = pa.data
+        if pa.data != "sim_everywhere":
+            self.pos = pa.pos
         self.current_b = pa.b_start.copy()
         self.b_exact = pa.b_exact
         self.t_array = t_array
@@ -134,11 +135,12 @@ class nonlinSWE:
             self.u_field.change_scales(1)
             self.h_field['g'] = h_0
             self.u_field['g'] = np.zeros(h_0.size)
-            tempH = self.eval_at_sensor_positions(
-                self.h_field, self.pos) \
-                + self.eval_at_sensor_positions(
-                    self.b, self.pos)
-            H_list_pos = [tempH]
+            if self.data != "sim_everywhere":
+                tempH = self.eval_at_sensor_positions(
+                    self.h_field, self.pos) \
+                    + self.eval_at_sensor_positions(
+                        self.b, self.pos)
+                H_list_pos = [tempH]
             self.h_field.change_scales(1)
             h_list = [np.copy(self.h_field['g'])]
             self.u_field.change_scales(1)
@@ -151,11 +153,12 @@ class nonlinSWE:
                     solver.step(self.dt)
 
                     # Save solution for h.
-                    tempH = self.eval_at_sensor_positions(
-                        self.h_field, self.pos) \
-                        + self.eval_at_sensor_positions(
-                            self.b, self.pos)
-                    H_list_pos.append(tempH)
+                    if self.data != "sim_everywhere":
+                        tempH = self.eval_at_sensor_positions(
+                            self.h_field, self.pos) \
+                            + self.eval_at_sensor_positions(
+                                self.b, self.pos)
+                        H_list_pos.append(tempH)
                     self.h_field.change_scales(1)
                     h_list.append(np.copy(self.h_field['g']))
 
@@ -175,12 +178,14 @@ class nonlinSWE:
             u_array = np.array(u_list)
 
             # H_array is H at the sensor positions and zero elsewhere.
-            H_array_pos = np.array(H_list_pos)
-            self.H_array = np.zeros(h_array.shape)
-            x = self.dist.local_grid(self.xbasis)
-            for p in range(len(self.pos)):
-                i = np.argmin(abs(x-self.pos[p]))
-                self.H_array[:, i] = H_array_pos[:, p]
+            if self.data != "sim_everywhere":
+
+                H_array_pos = np.array(H_list_pos)
+                self.H_array = np.zeros(h_array.shape)
+                x = self.dist.local_grid(self.xbasis)
+                for p in range(len(self.pos)):
+                    i = np.argmin(abs(x-self.pos[p]))
+                    self.H_array[:, i] = H_array_pos[:, p]
 
             sol = np.concatenate(
                 (h_array[:, :, None], u_array[:, :, None]),
@@ -189,9 +194,15 @@ class nonlinSWE:
         elif opt == "adjoint":
 
             t_interval = self.t_array
-            mismatch = self.gauss_peak(self.H_array-self.y_d)
             h_array = inpt[:, :, 0]
             u_array = inpt[:, :, 1]
+
+            if self.data != "sim_everywhere":
+                mismatch = self.gauss_peak(self.H_array-self.y_d)
+            else:
+                mismatch = h_array + np.tile(
+                    self.current_b, (h_array.shape[0], 1)) \
+                    - self.y_d
 
             y_d = self.y_d
 
@@ -317,8 +328,12 @@ class nonlinSWE:
             solver.sim_time = 0  # Reset sim_time.
 
             # Initial conditions
-            self.p1_field['g'] = self.delta*(self.gauss_peak(
-                self.H_array - self.y_d)[-1])
+            if self.data != "sim_everywhere":
+                self.p1_field['g'] = self.delta*(self.gauss_peak(
+                    self.H_array - self.y_d)[-1])
+            else:
+                self.p1_field['g'] = self.delta*(
+                    inpt[-1, :, 0] + self.current_b - self.y_d[-1])
 
             self.p2_field['g'] = np.zeros(self.current_b.size)
 
