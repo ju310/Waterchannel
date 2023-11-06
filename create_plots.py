@@ -14,14 +14,13 @@ from matplotlib.animation import FuncAnimation
 from dedalus.extras.plot_tools import quad_mesh, pad_limits
 import importlib
 
-folder = "nonlinSWE_2023_10_13_10_45_AM"
-path = "/waterchannel/" \
-    + "ProblemRelatedFiles/" + folder
+folder = "2023_11_06_12_22_PM"
+path = "ProblemRelatedFiles/" + folder
 
 params = importlib.import_module("ProblemRelatedFiles." + folder + ".params")
 pa = params.params()
-pos = pa.pos
-save = True
+# pos = pa.pos
+save = False
 
 with h5py.File(path+"/gradient_data.hdf5", "r") as sol:
 
@@ -103,7 +102,7 @@ if j > 1:
 plt.figure()
 plt.plot(x, b_exact, label="exact")
 plt.plot(x, bs[0], label="computed")
-plt.plot(pos, np.zeros(len(pos)), "k*")
+# plt.plot(pos, np.zeros(len(pos)), "k*")
 plt.ylim([min(np.min(b_exact), np.min(bs)),
           max(np.max(b_exact), np.max(bs))])
 plt.xlabel('x [m]')
@@ -117,7 +116,7 @@ if bs.shape[0] > 1:
     plt.figure()
     plt.plot(x, b_exact, label="exact")
     plt.plot(x, bs[1], label="computed")
-    plt.plot(pos, np.zeros(len(pos)), "k*")
+    # plt.plot(pos, np.zeros(len(pos)), "k*")
     plt.ylim([min(np.min(b_exact), np.min(bs)),
               max(np.max(b_exact), np.max(bs))])
     plt.xlabel('x [m]')
@@ -132,7 +131,7 @@ if bs.shape[0] > 2:
     plt.figure()
     plt.plot(x, b_exact, label="exact")
     plt.plot(x, bs[2], label="computed")
-    plt.plot(pos, np.zeros(len(pos)), "k*")
+    # plt.plot(pos, np.zeros(len(pos)), "k*")
     plt.ylim([min(np.min(b_exact), np.min(bs)),
               max(np.max(b_exact), np.max(bs))])
     plt.xlabel('x [m]')
@@ -147,7 +146,7 @@ fig1 = plt.figure()
 plt.figure()
 plt.plot(x, b_exact, label="exact")
 plt.plot(x, bs[j-1], label="computed")
-plt.plot(pos, np.zeros(len(pos)), "k*")
+# plt.plot(pos, np.zeros(len(pos)), "k*")
 plt.ylim([min(np.min(b_exact), np.min(bs)),
           max(np.max(b_exact), np.max(bs))])
 plt.xlabel('x [m]')
@@ -165,7 +164,7 @@ def update_plot1(i):
     plt.clf()
     plt.plot(x, b_exact, label="exact")
     plt.plot(x, bs[i], label="computed")
-    plt.plot(pos, np.zeros(len(pos)), "k*")
+    # plt.plot(pos, np.zeros(len(pos)), "k*")
     plt.ylim([min(np.min(b_exact), np.min(bs)),
               max(np.max(b_exact), np.max(bs))])
     plt.xlabel('x [m]')
@@ -366,40 +365,40 @@ if save:
 ########################
 # ----- Surface elevation and observation at sensor positions ----- #
 
-pos_n = len(pos)
-posi = np.zeros((pos_n), dtype=int)
-fig, axs = plt.subplots(pos_n)
+# pos_n = len(pos)
+# posi = np.zeros((pos_n), dtype=int)
+# fig, axs = plt.subplots(pos_n)
 
-for i in range(pos_n):
+# for i in range(pos_n):
 
-    posi[i] = np.argmin(abs(x-pos[i]))
+#     posi[i] = np.argmin(abs(x-pos[i]))
 
-fig.tight_layout(pad=2.0)
+# fig.tight_layout(pad=2.0)
 
-for i in range(pos_n):
+# for i in range(pos_n):
 
-    axs[i].plot(t[start:], H[start:, posi[i]], "y")
-    axs[i].plot(t[start:], obs[start:, posi[i]], "k--")
-    axs[i].set_xlabel('Time [s]')
-    axs[i].set_ylabel('H [m]')
-    axs[i].set_title(f"Sensor {i+2} at {round(x[posi[i]], 1)}m")
+#     axs[i].plot(t[start:], H[start:, posi[i]], "y")
+#     axs[i].plot(t[start:], obs[start:, posi[i]], "k--")
+#     axs[i].set_xlabel('Time [s]')
+#     axs[i].set_ylabel('H [m]')
+#     axs[i].set_title(f"Sensor {i+2} at {round(x[posi[i]], 1)}m")
 
-plt.tight_layout()
-if save:
-    plt.savefig(path + "/H_Hobs.pdf", bbox_inches='tight')
-plt.show()
+# plt.tight_layout()
+# if save:
+#     plt.savefig(path + "/H_Hobs.pdf", bbox_inches='tight')
+# plt.show()
 
-fig, axs = plt.subplots(pos_n)
-fig.tight_layout(pad=2.0)
+# fig, axs = plt.subplots(pos_n)
+# fig.tight_layout(pad=2.0)
 
-for i in range(pos_n):
+# for i in range(pos_n):
 
-    axs[i].plot(t[start:], H[start:, posi[i]]-obs[start:, posi[i]])
-    axs[i].set_xlabel('Time [s]')
-    axs[i].set_ylabel(r'$H - H_{obs} \ [m]$')
-    axs[i].set_title(f"Sensor {i+2} at {round(x[posi[i]], 1)}m")
+#     axs[i].plot(t[start:], H[start:, posi[i]]-obs[start:, posi[i]])
+#     axs[i].set_xlabel('Time [s]')
+#     axs[i].set_ylabel(r'$H - H_{obs} \ [m]$')
+#     axs[i].set_title(f"Sensor {i+2} at {round(x[posi[i]], 1)}m")
 
-plt.tight_layout()
-if save:
-    plt.savefig(path + "/H-Hobs.pdf", bbox_inches='tight')
-plt.show()
+# plt.tight_layout()
+# if save:
+#     plt.savefig(path + "/H-Hobs.pdf", bbox_inches='tight')
+# plt.show()
