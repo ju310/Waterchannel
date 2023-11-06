@@ -1,0 +1,23 @@
+Traceback (most recent call last):
+  File "/home/cja8741/waterchannel/gradient_descent.py", line 28, in <module>
+    params = importlib.import_module("ProblemRelatedFiles."
+  File "/prog/anaconda/lib/python3.10/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 1050, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1027, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 992, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1050, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1027, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1004, in _find_and_load_unlocked
+ModuleNotFoundError: No module named 'ProblemRelatedFiles.nonlinSWE_2023_10_12_02_56_PM'
+Note that you are not using the same discretisation as in the hdf5 file.
+f(b_exact) = 6.941390810293986e-08
+Regularisation term:  5.24788728408267e-08
+Bad search direction
+Elapsed time: 7741.194820705336 s
+Relative error (2-norm) to exact optimal control: 0.7105294179805371
+Traceback (most recent call last):
+  File "/home/cja8741/waterchannel/gradient_descent.py", line 230, in <module>
+    + f"\nHyperdiffusion coefficient D = {pa.D}"
+AttributeError: 'params' object has no attribute 'D'
