@@ -222,12 +222,11 @@ if save is True:
                        / np.linalg.norm(b_exact.flatten()))
                  + ", norm of exact control is "
                  + str(np.linalg.norm(b_exact.flatten())) + f", j = {j}"
-                 + f"\nValue of objective functional: {f_vals[j]}"
+                 + f"\nf(b_exact): {f_b_exct}"
+                 + f"\nf(b): {f_vals[j]}"
                  + f"\nValue mismatch [0,T]: {P.f_err1}"
                  + f"\nValue mismatch at T: {P.f_err2}"
                  + f"\nValue regularisation term: {P.f_reg}"
                  + f"\nOutput gradient check: {gradientchecks}"
-                 + f"\nHyperdiffusion coefficient D = {pa.D}"
-                 + f"\nBottom friction coefficient kappa = {P.PDE.kappa}"
                  + f"\ntime step = {P.dt}"
                  + f"\ngrid points in space = {P.M}")

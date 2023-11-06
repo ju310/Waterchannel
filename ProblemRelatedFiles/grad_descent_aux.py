@@ -198,10 +198,10 @@ class OptProblem:
             Projected bathymetry.
 
         """
-        minVal = 0
-        mask = b < minVal
-        b[mask] = 0
-        mask = b > self.PDE.H
-        b[mask] = self.PDE.H
+        # minVal = 0
+        # mask = b < minVal
+        # b[mask] = 0
+        # mask = b > self.PDE.H
+        # b[mask] = self.PDE.H
 
         return b
