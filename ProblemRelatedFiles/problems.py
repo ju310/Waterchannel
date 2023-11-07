@@ -339,15 +339,14 @@ class nonlinSWE:
             # Main loop
             while solver.proceed:
                 solver.step(self.dt)
-                if solver.iteration % 1 == 0:
-                    self.p1_field.change_scales(1)
-                    p1_list.append(np.copy(self.p1_field['g']))
-                    self.p2_field.change_scales(1)
-                    p2_list.append(np.copy(self.p2_field['g']))
-                    t_list.append(solver.sim_time)
-                    if np.max(self.p1_field['g']) > 100:
-                        warnings.warn("Solution instable")
-                        break
+                self.p1_field.change_scales(1)
+                p1_list.append(np.copy(self.p1_field['g']))
+                self.p2_field.change_scales(1)
+                p2_list.append(np.copy(self.p2_field['g']))
+                t_list.append(solver.sim_time)
+                if np.max(self.p1_field['g']) > 100:
+                    warnings.warn("Solution instable")
+                    break
 
             p1_array = np.array(p1_list)
             p2_array = np.array(p2_list)
