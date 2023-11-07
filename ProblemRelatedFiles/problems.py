@@ -20,7 +20,6 @@ class nonlinSWE:
 
     def __init__(self, pa, t_array, y_d, save=False):
 
-        self.j = 0  # Gradient descent iteration counter.
         self.save = save
         self.T_N = pa.T_N
         self.N_fine = pa.t_array.size
@@ -57,8 +56,8 @@ class nonlinSWE:
         self.taup2 = self.dist.Field(name='taup2')
         self.bcfield = self.dist.Field()
         self.temp_ul = self.dist.Field()
-        self.y_d = y_d  # Here observation on finer spatial grid.
-        self.ic = np.max(self.y_d[0])*np.ones(self.y_d.shape[1])
+        self.y_d = y_d  # Observation
+        self.ic = np.max(self.y_d[0])*np.ones(self.y_d.shape[1])  # Constant ic
         self.b = self.dist.Field(bases=self.xbasis)
 
         # Substitutions
@@ -66,7 +65,7 @@ class nonlinSWE:
         lift_basis = self.xbasis.derivative_basis(1)
         self.lift = lambda A, n: d3.Lift(A, lift_basis, n)
 
-        # Forward problem
+        # Define forward problem
 
         def hl_function(*args):
 
@@ -148,31 +147,26 @@ class nonlinSWE:
             t_list = [solver.sim_time]
 
             # Main loop
-            try:
-                while solver.proceed:
-                    solver.step(self.dt)
+            while solver.proceed:
+                solver.step(self.dt)
 
-                    # Save solution for h.
-                    if self.data != "sim_everywhere":
-                        tempH = self.eval_at_sensor_positions(
-                            self.h_field, self.pos) \
-                            + self.eval_at_sensor_positions(
-                                self.b, self.pos)
-                        H_list_pos.append(tempH)
-                    self.h_field.change_scales(1)
-                    h_list.append(np.copy(self.h_field['g']))
+                # Save solution for h.
+                if self.data != "sim_everywhere":
+                    tempH = self.eval_at_sensor_positions(
+                        self.h_field, self.pos) \
+                        + self.eval_at_sensor_positions(
+                            self.b, self.pos)
+                    H_list_pos.append(tempH)
+                self.h_field.change_scales(1)
+                h_list.append(np.copy(self.h_field['g']))
 
-                    # Save solution for u.
-                    self.u_field.change_scales(1)
-                    u_list.append(np.copy(self.u_field['g']))
-                    t_list.append(solver.sim_time)
-                    if np.max(self.h_field['g']) > 100:
-                        warnings.warn("Solution instable")
-                        break
-            except:
-                logger.error(
-                    'Exception raised, triggering end of main loop.')
-                raise
+                # Save solution for u.
+                self.u_field.change_scales(1)
+                u_list.append(np.copy(self.u_field['g']))
+                t_list.append(solver.sim_time)
+                if np.max(self.h_field['g']) > 100:
+                    warnings.warn("Solution instable")
+                    break
 
             h_array = np.array(h_list)
             u_array = np.array(u_list)
@@ -343,22 +337,17 @@ class nonlinSWE:
             t_list = [solver.sim_time]
 
             # Main loop
-            try:
-                while solver.proceed:
-                    solver.step(self.dt)
-                    if solver.iteration % 1 == 0:
-                        self.p1_field.change_scales(1)
-                        p1_list.append(np.copy(self.p1_field['g']))
-                        self.p2_field.change_scales(1)
-                        p2_list.append(np.copy(self.p2_field['g']))
-                        t_list.append(solver.sim_time)
-                        if np.max(self.p1_field['g']) > 100:
-                            warnings.warn("Solution instable")
-                            break
-            except:
-                logger.error(
-                    'Exception raised, triggering end of main loop.')
-                raise
+            while solver.proceed:
+                solver.step(self.dt)
+                if solver.iteration % 1 == 0:
+                    self.p1_field.change_scales(1)
+                    p1_list.append(np.copy(self.p1_field['g']))
+                    self.p2_field.change_scales(1)
+                    p2_list.append(np.copy(self.p2_field['g']))
+                    t_list.append(solver.sim_time)
+                    if np.max(self.p1_field['g']) > 100:
+                        warnings.warn("Solution instable")
+                        break
 
             p1_array = np.array(p1_list)
             p2_array = np.array(p2_list)
