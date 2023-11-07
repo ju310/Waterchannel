@@ -27,8 +27,8 @@ class params:
         # Use either measurement data, simulated data everywhere or
         # simulated data at sensor positions.
         # self.data = "measurements"
-        self.data = "sim_everywhere"
-        # self.data = "sim_sensor_pos"
+        # self.data = "sim_everywhere"
+        self.data = "sim_sensor_pos"
 
         # Put noise on observation.
         self.noise = 0
@@ -43,14 +43,15 @@ class params:
         # Set final time.
         self.T_N = 10
 
+        # path = "ProblemRelatedFiles/WaterchannelData/" \
+        #     + "sim_data_Tiefe=0,3_A=40_F=0,35_ramp.hdf5"
         path = "ProblemRelatedFiles/WaterchannelData/" \
-            + "sim_data_Tiefe=0,3_A=40_F=0,35_ramp.hdf5"
+            + "Tiefe=0,3_A=40_F=0,35_kappa2e-01_bathyTrue_middle.hdf5"
         pathbc = "ProblemRelatedFiles/WaterchannelData/" \
             + "Tiefe=0,3_A=40_F=0,35.txt"
 
         # Tolerance for stopping criterion in gradient descent.
-        # self.tol = 1e-4
-        self.tol = 5e-7
+        self.tol = 1e-7
         # self.tol = 1e-6
 
         # Set factor for regularisation term.
@@ -96,6 +97,7 @@ class params:
         if self.data == "measurements":
             self.pos = [3.5, 6, 8.5]  # Sensor positions
         elif self.data == "sim_sensor_pos":
+            # self.pos = [3.5, 6, 8.5]
             self.pos = [3.5, 6]
             # self.pos = [2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5]
         self.H = 0.3  # Water level at rest.
@@ -209,6 +211,7 @@ class params:
                 # This is the best way to do it as we need this loop
                 # over time anyways.
                 n_fine = np.argmin(abs(t_array_fine-self.t_array[n]))
+                H_field.change_scales(M_fine/self.M)
                 H_field["g"] = np.copy(
                     self.h_array_full[n_fine] + b_exact_fine)
                 H_pos = eval_at_pos(H_field, self.pos)
@@ -252,16 +255,11 @@ class params:
         # ---------------------------------------------------------------------
         # SET INITIAL GUESS FOR BATHYMETRY.
 
-        # b_field['g'] = 0.25*np.exp(-0.25*dist.local_grid(xbasis)**2)
         # b_field['g'] = 0.1*np.exp(-((dist.local_grid(xbasis)-5)/0.7)**2)
-        # b_field['g'] = 0.25*np.sin(0.2*np.pi*dist.local_grid(xbasis)) + 0.25
-        # b_field['g'] = 0.3*np.sin(0.1*np.pi*dist.local_grid(xbasis)) + 0.25
         # b_field['g'] = b_exct_field["g"] + np.random.normal(0, .001, self.M)
         # b_field['g'] = b_exct_field["g"] \
         #     + 0.005*np.sin(0.5*dist.local_grid(xbasis))
         # b_field['g'] = b_exct_field["g"]*0.99# + 0.1
-        # b_field['g'] = b_exct_field["g"]
-        # b_field['g'] = 0.25*np.ones(self.M)
         # b_field['g'] = 0.05*np.sin(np.pi*dist.local_grid(xbasis))
         b_field['g'] = np.zeros(self.M)
         if self.test:
