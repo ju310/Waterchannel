@@ -1,0 +1,9 @@
+Running time is 126925.506901024, relative error to exact control is 0.15011410907164896, norm of exact control is 0.28801261462429406, j = 1033
+f(b_exact): 6.941390810404916e-08
+f(b): 8.547757908280868e-08
+Value mismatch [0,T]: 3.475279749229763e-08
+Value mismatch at T: 7.81418034801856e-09
+Value regularisation term: 4.291060124249249e-08
+Output gradient check: []
+time step = 0.001
+grid points in space = 68

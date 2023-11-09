@@ -14,13 +14,13 @@ from matplotlib.animation import FuncAnimation
 from dedalus.extras.plot_tools import quad_mesh, pad_limits
 import importlib
 
-folder = "2023_11_06_12_22_PM"
+folder = "2023_11_09_10_04_AM"
 path = "ProblemRelatedFiles/" + folder
 
 params = importlib.import_module("ProblemRelatedFiles." + folder + ".params")
 pa = params.params()
 # pos = pa.pos
-save = False
+save = True
 
 with h5py.File(path+"/gradient_data.hdf5", "r") as sol:
 
@@ -81,7 +81,7 @@ if save:
 
 if j > 1:
     plt.figure()
-    plt.semilogy(range(1, j-1), alpha_js[0:j-2], '-*')
+    plt.semilogy(range(1, j+1), alpha_js[0:j], '-*')
     plt.xlabel('iterate')
     plt.ylabel(r'$\alpha$')
     plt.title("Chosen step size")
@@ -89,7 +89,7 @@ if j > 1:
         plt.savefig(path + "/stepsize.pdf", bbox_inches='tight')
 
     plt.figure()
-    plt.semilogy(range(1, j-1), v_norms[0:j-2], '-*')
+    plt.semilogy(range(1, j+1), v_norms[0:j], '-*')
     plt.xlabel('Optimisation iterate')
     plt.ylabel(r"$||\cdot||$")
     plt.title("Norm of the gradient")
@@ -145,7 +145,7 @@ fig1 = plt.figure()
 
 plt.figure()
 plt.plot(x, b_exact, label="exact")
-plt.plot(x, bs[j-1], label="computed")
+plt.plot(x, bs[j], label="computed")
 # plt.plot(pos, np.zeros(len(pos)), "k*")
 plt.ylim([min(np.min(b_exact), np.min(bs)),
           max(np.max(b_exact), np.max(bs))])
