@@ -97,8 +97,9 @@ class params:
         if self.data == "measurements":
             self.pos = [3.5, 6, 8.5]  # Sensor positions
         elif self.data == "sim_sensor_pos":
-            # self.pos = [3.5, 6, 8.5]
-            self.pos = [3.5, 6]
+            self.pos = [3.5, 6, 8.5]
+            # self.pos = [3.5, 6]
+            # self.pos = [2]
             # self.pos = [2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5]
         self.H = 0.3  # Water level at rest.
         self.lbc = leftbc(pathbc).f  # CubicSpline

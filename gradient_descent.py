@@ -22,7 +22,7 @@ from ProblemRelatedFiles.grad_descent_aux import OptProblem
 for system in ['subsystems', 'solvers']:
     logging.getLogger(system).setLevel(logging.WARNING)  # Suppress output.
 
-oldOptAgain = True  # Set to True if you want to run an old optimisation again
+oldOptAgain = False  # Set to True if you want to run an old optimisation again
 # with exactly the same parameters.
 folder = "2023_11_07_02_12_PM"  # Folder with old optimisation data.
 params = importlib.import_module("ProblemRelatedFiles."
