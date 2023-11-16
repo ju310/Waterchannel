@@ -51,7 +51,8 @@ class params:
             + "Tiefe=0,3_A=40_F=0,35.txt"
 
         # Tolerance for stopping criterion in gradient descent.
-        self.tol = 1e-7
+        self.tol = 3e-8
+        # self.tol = 1e-7
         # self.tol = 1e-6
 
         # Set factor for regularisation term.
@@ -77,7 +78,7 @@ class params:
         if self.test:
             self.jmax = 2
         else:
-            self.jmax = 2000
+            self.jmax = 3000
 
         # Time step.
         self.dt = 1e-3
