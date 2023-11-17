@@ -14,7 +14,7 @@ from matplotlib.animation import FuncAnimation
 from dedalus.extras.plot_tools import quad_mesh, pad_limits
 import importlib
 
-folder = "2023_11_09_03_25_PM"
+folder = "2023_11_13_12_34_PM"
 path = "ProblemRelatedFiles/" + folder
 
 params = importlib.import_module("ProblemRelatedFiles." + folder + ".params")
@@ -104,7 +104,7 @@ plt.figure()
 plt.plot(x, b_exact, label="exact")
 plt.plot(x, bs[0], label="computed")
 if pa.data != "sim_everywhere":
-    plt.plot(pos, np.zeros(len(pos)), "k*")
+    plt.plot(pos, np.zeros(len(pos)), "k*", label="sensor position")
 plt.ylim([min(np.min(b_exact), np.min(bs)),
           max(np.max(b_exact), np.max(bs))])
 plt.xlabel('x [m]')
@@ -119,7 +119,7 @@ if bs.shape[0] > 1:
     plt.plot(x, b_exact, label="exact")
     plt.plot(x, bs[1], label="computed")
     if pa.data != "sim_everywhere":
-        plt.plot(pos, np.zeros(len(pos)), "k*")
+        plt.plot(pos, np.zeros(len(pos)), "k*", label="sensor position")
     plt.ylim([min(np.min(b_exact), np.min(bs)),
               max(np.max(b_exact), np.max(bs))])
     plt.xlabel('x [m]')
@@ -135,7 +135,7 @@ if bs.shape[0] > 2:
     plt.plot(x, b_exact, label="exact")
     plt.plot(x, bs[2], label="computed")
     if pa.data != "sim_everywhere":
-        plt.plot(pos, np.zeros(len(pos)), "k*")
+        plt.plot(pos, np.zeros(len(pos)), "k*", label="sensor position")
     plt.ylim([min(np.min(b_exact), np.min(bs)),
               max(np.max(b_exact), np.max(bs))])
     plt.xlabel('x [m]')
@@ -151,7 +151,7 @@ plt.figure()
 plt.plot(x, b_exact, label="exact")
 plt.plot(x, bs[j], label="computed")
 if pa.data != "sim_everywhere":
-    plt.plot(pos, np.zeros(len(pos)), "k*")
+    plt.plot(pos, np.zeros(len(pos)), "k*", label="sensor position")
 plt.ylim([min(np.min(b_exact), np.min(bs)),
           max(np.max(b_exact), np.max(bs))])
 plt.xlabel('x [m]')
