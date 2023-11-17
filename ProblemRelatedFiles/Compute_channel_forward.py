@@ -22,7 +22,7 @@ from ProblemRelatedFiles.read_left_bc import leftbc, data
 import logging
 logger = logging.getLogger(__name__)
 
-prefix = 'ProblemRelatedFiles/WaterchannelData/'
+prefix = 'WaterchannelData/'
 
 filename = 'Tiefe=0,3_A=40_F=0,35'
 
@@ -64,7 +64,6 @@ bathy = True
 xcoord = d3.Coordinate('x')
 dist = d3.Distributor(xcoord, dtype=np.float64)
 xbasis = d3.Chebyshev(xcoord, size=Nx, bounds=(xmin, xmax), dealias=dealias)
-domain = d3.Domain(dist, bases=[xbasis])
 x = dist.local_grid(xbasis)
 
 # Fields

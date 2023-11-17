@@ -7,6 +7,7 @@ Created on Tue Oct 17 13:40:16 2023.
 """
 import numpy as np
 import dedalus.public as d3
+from dedalus.core.domain import Domain
 import warnings
 from scipy import interpolate
 import logging
@@ -41,7 +42,7 @@ class nonlinSWE:
         self.dist = d3.Distributor(self.xcoord, dtype=np.float64)
         self.xbasis = d3.Chebyshev(
             self.xcoord, size=self.M, bounds=(pa.xmin, pa.xmax), dealias=3/2)
-        self.domain = d3.Domain(self.dist, bases=[self.xbasis])
+        self.domain = Domain(self.dist, bases=[self.xbasis])
 
         # Fields
         self.h_field = self.dist.Field(name='h', bases=self.xbasis)
