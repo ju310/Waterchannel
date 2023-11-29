@@ -41,7 +41,7 @@ class params:
         self.g = 9.81
 
         # Set final time.
-        self.T_N = 10
+        self.T_N = 12
 
         path = "ProblemRelatedFiles/WaterchannelData/" \
             + "sim_data_Tiefe=0,3_A=40_F=0,35_ExactRamp.hdf5"
@@ -51,8 +51,8 @@ class params:
             + "Tiefe=0,3_A=40_F=0,35_try=1.txt"
 
         # Tolerance for stopping criterion in gradient descent.
-        self.tol = 7e-8
-        # self.tol = 1e-7
+        # self.tol = 7e-8
+        self.tol = 1e-7
         # self.tol = 1e-6
 
         # Set factor for regularisation term.
@@ -78,7 +78,7 @@ class params:
         if self.test:
             self.jmax = 2
         else:
-            self.jmax = 2000
+            self.jmax = 1000
 
         # Time step.
         self.dt = 1e-3
@@ -127,6 +127,40 @@ class params:
                 xmin_p = f.attrs.get("xmin")
                 xmax_p = f.attrs.get("xmax")
 
+            # Check if parameters match the ones from the hdf5 file.
+            if self.T_N > T_N_p:
+                raise ValueError(
+                    "Final time does not match the observation from the hdf5"
+                    + f" file ({T_N_p})")
+            if self.g != g_p:
+                warnings.warn(
+                    f"Parameter g={self.g} does not match the one from the"
+                    + f" hdf5 file ({g_p})")
+            if self.kappa != kappa_p:
+                warnings.warn(
+                    f"Parameter kappa={self.kappa} does not match the one"
+                    + f" from the hdf5 file ({kappa_p})")
+            if self.xmin != xmin_p:
+                raise ValueError(
+                    "Left boundary does not match the one from the hdf5 file"
+                    + f" ({xmin_p})")
+            if self.xmax != xmax_p:
+                raise ValueError(
+                    "Right boundary does not match the one from the hdf5 file"
+                    + f" ({xmax_p})")
+            if self.dt != dt_p or self.M != M_p:
+                print(
+                    "Note that you are not using the same discretisation as in"
+                    + " the hdf5 file.")
+
+            if self.data != "sim_everywhere":
+                for i in range(len(self.pos)):
+                    if self.pos[i] not in pos_p:
+                        warnings.warn(
+                            f"Parameter pos={self.pos} does not match the one"
+                            + f" from the hdf5 file ({pos_p})")
+                        break
+
         else:
 
             # Measured points of the ramp.
@@ -138,40 +172,6 @@ class params:
             rampFunc = interpolate.CubicSpline(x_points, b_points)
 
         # ---------------------------------------------------------------------
-        # Check if parameters match the ones from the hdf5 file.
-        if self.T_N > T_N_p:
-            raise ValueError(
-                "Final time does not match the observation from the hdf5"
-                + f" file ({T_N_p})")
-        if self.g != g_p:
-            warnings.warn(
-                f"Parameter g={self.g} does not match the one from the"
-                + f" hdf5 file ({g_p})")
-        if self.kappa != kappa_p:
-            warnings.warn(
-                f"Parameter kappa={self.kappa} does not match the one"
-                + f" from the hdf5 file ({kappa_p})")
-        if self.xmin != xmin_p:
-            raise ValueError(
-                "Left boundary does not match the one from the hdf5 file"
-                + f" ({xmin_p})")
-        if self.xmax != xmax_p:
-            raise ValueError(
-                "Right boundary does not match the one from the hdf5 file"
-                + f" ({xmax_p})")
-        if self.dt != dt_p or self.M != M_p:
-            print(
-                "Note that you are not using the same discretisation as in"
-                + " the hdf5 file.")
-
-        if self.data != "sim_everywhere":
-            for i in range(len(self.pos)):
-                if self.pos[i] not in pos_p:
-                    warnings.warn(
-                        f"Parameter pos={self.pos} does not match the one"
-                        + f" from the hdf5 file ({pos_p})")
-                    break
-
         # Scale initial condition, observation and exact control.
         xcoord = d3.Coordinate('x')
         dist = d3.Distributor(xcoord, comm=MPI.COMM_SELF, dtype=np.float64)
@@ -204,11 +204,11 @@ class params:
         if self.data == "measurements":
 
             # Load observation data from text file.
-            dataObject = data(pathbc+".txt")
+            dataObject = data(pathbc)
 
             for p in range(len(self.pos)):
 
-                H_sensor = self.H + dataObject.f[p](self.t_array + start)
+                H_sensor = self.H + dataObject.f[p](self.t_array + self.start)
                 i = np.argmin(abs(x-self.pos[p]))
                 self.y_d[:, i] = H_sensor
 
