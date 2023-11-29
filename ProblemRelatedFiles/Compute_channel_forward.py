@@ -23,9 +23,10 @@ from read_left_bc import leftbc, data
 import logging
 logger = logging.getLogger(__name__)
 
-prefix = 'WaterchannelData/'
+prefix = 'WaterchannelData/MitBathymetrie/'
+postfix = "try=1"
 
-filename = 'Tiefe=0,3_A=40_F=0,35'
+filename = 'Tiefe=0,3_A=40_F=0,35_' + postfix
 
 lbc = leftbc(prefix+filename+".txt")
 dataObject = data(prefix+filename+".txt")
@@ -49,8 +50,8 @@ xmax = 15  # Error to measurement data is lower than with 20m (T=18).
 Nx = 17*4
 # Nx = 70
 # Nx = 100
-T = 16
-start = 0
+T = 15
+start = 30  # Number of seconds to cut off from beginning of experimental data.
 timestep = 1e-4
 # timestep = 1e-3
 N = int(T/abs(timestep))+1
@@ -75,7 +76,6 @@ tau1 = dist.Field(name='tau1')
 tau2 = dist.Field(name='tau2')
 temp = dist.Field()
 t = dist.Field()
-# H0 = H + lbc.f(0)
 
 
 def hl_function(*args):
@@ -117,14 +117,14 @@ solver.stop_sim_time = T - 1e-13
 # Initial conditions/bathymetry
 
 
-def source(x):
-    x = np.array(x)
-    if bathy:
+# def source(x):
+#     x = np.array(x)
+#     if bathy:
 
-        return 0.2*np.exp(-((x-4)/0.4)**2)  # Skateboard ramp bathymetry
+#         return 0.2*np.exp(-((x-4)/0.4)**2)  # Skateboard ramp bathymetry
 
-    else:
-        return np.zeros(x.size)
+#     else:
+#         return np.zeros(x.size)
 
 
 # Measured points of the ramp.
@@ -270,6 +270,7 @@ if save:
         f.create_dataset("xgrid", data=x)
         f.create_dataset("t_array", data=t_array)
         f.create_dataset("pos", data=pos)
+        f.attrs["start"] = start
         f.attrs["T_N"] = T
         f.attrs["xmin"] = xmin
         f.attrs["xmax"] = xmax

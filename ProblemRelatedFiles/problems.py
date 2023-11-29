@@ -32,6 +32,7 @@ class nonlinSWE:
         self.delta = pa.delta
         self.H = pa.H
         self.lbc = pa.lbc
+        self.start = pa.start
         self.data = pa.data
         if pa.data != "sim_everywhere":
             self.pos = pa.pos
@@ -71,7 +72,7 @@ class nonlinSWE:
         def hl_function(*args):
 
             t = args[0].data
-            htemp = self.lbc(t)
+            htemp = self.lbc(t + self.start)
             self.bcfield["g"] = self.H + htemp - self.current_b[0]
 
             return self.bcfield["g"]
@@ -279,7 +280,7 @@ class nonlinSWE:
                 tau = args[0].data
                 t = self.T_N - tau
                 i = np.argmin(t-self.t_array)
-                hl = self.H + self.lbc(t) - self.current_b[0]
+                hl = self.H + self.lbc(t+self.start) - self.current_b[0]
                 udivh = u_array[i, 0] / hl
 
                 return udivh

@@ -26,9 +26,9 @@ class params:
 
         # Use either measurement data, simulated data everywhere or
         # simulated data at sensor positions.
-        # self.data = "measurements"
+        self.data = "measurements"
         # self.data = "sim_everywhere"
-        self.data = "sim_sensor_pos"
+        # self.data = "sim_sensor_pos"
 
         # Put noise on observation.
         self.noise = 0
@@ -47,8 +47,8 @@ class params:
             + "sim_data_Tiefe=0,3_A=40_F=0,35_ExactRamp.hdf5"
         # path = "ProblemRelatedFiles/WaterchannelData/" \
         #     + "Tiefe=0,3_A=40_F=0,35_kappa2e-01_bathyTrue_middle.hdf5"
-        pathbc = "ProblemRelatedFiles/WaterchannelData/" \
-            + "Tiefe=0,3_A=40_F=0,35.txt"
+        pathbc = "ProblemRelatedFiles/WaterchannelData/MitBathymetrie/" \
+            + "Tiefe=0,3_A=40_F=0,35_try=1.txt"
 
         # Tolerance for stopping criterion in gradient descent.
         self.tol = 7e-8
@@ -97,6 +97,8 @@ class params:
         self.xmax = 15  # Matches better with measurements.
         if self.data == "measurements":
             self.pos = [3.5, 5.5, 7.5]  # Sensor positions
+            self.start = 30  # Number of seconds to cut off from beginning of
+            # experimental data.
         elif self.data == "sim_sensor_pos":
             self.pos = [3.5, 5.5, 7.5]
             # self.pos = [3.5, 6]
@@ -206,7 +208,7 @@ class params:
 
             for p in range(len(self.pos)):
 
-                H_sensor = self.H + dataObject.f[p](self.t_array)
+                H_sensor = self.H + dataObject.f[p](self.t_array + start)
                 i = np.argmin(abs(x-self.pos[p]))
                 self.y_d[:, i] = H_sensor
 
