@@ -43,15 +43,15 @@ class params:
         # Set final time.
         self.T_N = 10
 
-        # path = "ProblemRelatedFiles/WaterchannelData/" \
-        #     + "sim_data_Tiefe=0,3_A=40_F=0,35_ramp.hdf5"
         path = "ProblemRelatedFiles/WaterchannelData/" \
-            + "Tiefe=0,3_A=40_F=0,35_kappa2e-01_bathyTrue_middle.hdf5"
+            + "sim_data_Tiefe=0,3_A=40_F=0,35_ExactRamp.hdf5"
+        # path = "ProblemRelatedFiles/WaterchannelData/" \
+        #     + "Tiefe=0,3_A=40_F=0,35_kappa2e-01_bathyTrue_middle.hdf5"
         pathbc = "ProblemRelatedFiles/WaterchannelData/" \
             + "Tiefe=0,3_A=40_F=0,35.txt"
 
         # Tolerance for stopping criterion in gradient descent.
-        self.tol = 3e-8
+        self.tol = 7e-8
         # self.tol = 1e-7
         # self.tol = 1e-6
 
@@ -78,7 +78,7 @@ class params:
         if self.test:
             self.jmax = 2
         else:
-            self.jmax = 3000
+            self.jmax = 2000
 
         # Time step.
         self.dt = 1e-3
@@ -96,9 +96,9 @@ class params:
         # self.xmax = 20
         self.xmax = 15  # Matches better with measurements.
         if self.data == "measurements":
-            self.pos = [3.5, 6, 8.5]  # Sensor positions
+            self.pos = [3.5, 5.5, 7.5]  # Sensor positions
         elif self.data == "sim_sensor_pos":
-            self.pos = [3.5, 6, 8.5]
+            self.pos = [3.5, 5.5, 7.5]
             # self.pos = [3.5, 6]
             # self.pos = [2]
             # self.pos = [2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5]
@@ -124,6 +124,16 @@ class params:
                 g_p = f.attrs.get("g")
                 xmin_p = f.attrs.get("xmin")
                 xmax_p = f.attrs.get("xmax")
+
+        else:
+
+            # Measured points of the ramp.
+            b_points = [0, 0.024, 0.053, 0.0905, 0.133, 0.182, 0.2, 0.182,
+                        0.133, 0.0905, 0.053, 0.024, 0]
+            x_points = np.array(
+                [0, 0.0875, 0.1875, 0.2875, 0.3875, 0.4875, 0.5875, 0.6875,
+                 0.7875, 0.8875, 0.9875, 1.0875, 1.175]) + 4 - 0.5875
+            rampFunc = interpolate.CubicSpline(x_points, b_points)
 
         # ---------------------------------------------------------------------
         # Check if parameters match the ones from the hdf5 file.
@@ -161,7 +171,6 @@ class params:
                     break
 
         # Scale initial condition, observation and exact control.
-        M_fine = b_exact_fine.size
         xcoord = d3.Coordinate('x')
         dist = d3.Distributor(xcoord, comm=MPI.COMM_SELF, dtype=np.float64)
         xbasis = d3.Chebyshev(
@@ -169,15 +178,26 @@ class params:
         N = int(self.T_N/self.dt) + 1  # Number of points in time.
         self.t_array = np.linspace(0, self.T_N, N)
         self.y_d = np.zeros((N, self.M))
-
-        b_exct_field = dist.Field(bases=xbasis)
-        b_exct_field.change_scales(M_fine/self.M)
-        b_exct_field['g'] = np.copy(b_exact_fine)
-        b_exct_field.change_scales(1)
-        self.b_exact = np.copy(b_exct_field['g'])
-
-        self.y_d = np.zeros((N, self.M))
         x = dist.local_grid(xbasis)
+
+        if self.data != "measurements":
+
+            M_fine = b_exact_fine.size
+            b_exct_field = dist.Field(bases=xbasis)
+            b_exct_field.change_scales(M_fine/self.M)
+            b_exct_field['g'] = np.copy(b_exact_fine)
+            b_exct_field.change_scales(1)
+            self.b_exact = np.copy(b_exct_field['g'])
+
+        else:
+
+            mask1 = x >= x_points[0]
+            mask2 = x <= x_points[-1]
+            mask = mask1*mask2
+            ramp = rampFunc(x[mask])  # Only evaluate spline at the points
+            # where the actual ramp is.
+            self.b_exact = np.zeros(self.M)
+            self.b_exact[mask] = ramp
 
         if self.data == "measurements":
 

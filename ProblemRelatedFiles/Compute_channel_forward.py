@@ -6,18 +6,19 @@ Created on Tue May 23 13:47:22 2023
 @author: Judith Angel
 Sensor 1 at 1.5m.
 Sensor 2 at 3.5m.
-Sensor 3 at 6m.
-Sensor 4 at 8.5m.
+Sensor 3 at 5.5m.
+Sensor 4 at 7.5m.
 """
 import numpy as np
 import matplotlib.pyplot as plt
 import h5py
 import warnings
+from scipy import interpolate
 
 import dedalus.public as d3
 from dedalus.extras.plot_tools import quad_mesh
 
-from ProblemRelatedFiles.read_left_bc import leftbc, data
+from read_left_bc import leftbc, data
 
 import logging
 logger = logging.getLogger(__name__)
@@ -41,7 +42,7 @@ def eval_at_sensor_positions(sol, pos):
     return temp
 
 
-pos = [3.5, 6, 8.5]
+pos = [3.5, 5.5, 7.5]
 xmin = 1.5  # First sensor is located at 1.5 m.
 # xmax = 20
 xmax = 15  # Error to measurement data is lower than with 20m (T=18).
@@ -50,14 +51,14 @@ Nx = 17*4
 # Nx = 100
 T = 16
 start = 0
-# timestep = 1e-4
-timestep = 1e-3
+timestep = 1e-4
+# timestep = 1e-3
 N = int(T/abs(timestep))+1
 g = 9.81
 H = 0.3
 kappa = 0.2  # Makes amplitudes smaller and waves a bit smoother.
 dealias = 3/2
-save = False
+save = True
 bathy = True
 
 # Bases and domain
@@ -126,7 +127,22 @@ def source(x):
         return np.zeros(x.size)
 
 
-b_array = source(x)
+# Measured points of the ramp.
+b_points = [0, 0.024, 0.053, 0.0905, 0.133, 0.182, 0.2, 0.182,
+            0.133, 0.0905, 0.053, 0.024, 0]
+x_points = np.array(
+    [0, 0.0875, 0.1875, 0.2875, 0.3875, 0.4875, 0.5875, 0.6875,
+     0.7875, 0.8875, 0.9875, 1.0875, 1.175]) + 4 - 0.5875
+rampFunc = interpolate.CubicSpline(x_points, b_points)
+mask1 = x >= x_points[0]
+mask2 = x <= x_points[-1]
+mask = mask1*mask2
+ramp = rampFunc(x[mask])  # Only evaluate spline at the points
+# where the actual ramp is.
+b_array = np.zeros(Nx)
+b_array[mask] = ramp
+
+# b_array = source(x)
 b['g'] = b_array
 h['g'] = H*np.ones(Nx) - b_array
 u['g'] = 0
@@ -173,12 +189,11 @@ h_array_full = np.array(h_list_full)
 u_array_full = np.array(u_list_full)
 t_array = np.array(t_list)
 dx = (xmax-xmin)/Nx
-# H_array = h_array + np.tile(source, (t_array.size, 1))
 if bathy:
-    path = "ProblemRelatedFiles/WaterchannelPlots/" + filename\
-        + f"_kappa{kappa:.0e}_bathy{bathy}_ramp_fine"
+    path = "WaterchannelData/sim_data_" + filename\
+        + "_ExactRamp"
 else:
-    path = "ProblemRelatedFiles/WaterchannelPlots/" + filename\
+    path = "WaterchannelData/" + filename\
         + f"_kappa{kappa:.0e}"
 
 plt.figure()
@@ -251,7 +266,7 @@ if save:
         f.create_dataset("u_sensor", data=u_array)
         f.create_dataset("h", data=h_array_full)
         f.create_dataset("u", data=u_array_full)
-        f.create_dataset("b_exact", data=source(x))
+        f.create_dataset("b_exact", data=b_array)
         f.create_dataset("xgrid", data=x)
         f.create_dataset("t_array", data=t_array)
         f.create_dataset("pos", data=pos)
