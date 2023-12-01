@@ -44,22 +44,23 @@ def eval_at_sensor_positions(sol, pos):
 
 
 pos = [3.5, 5.5, 7.5]
-xmin = 1.5  # First sensor is located at 1.5 m.
-# xmax = 20
-xmax = 15  # Error to measurement data is lower than with 20m (T=18).
+xmin = 1.5  # First sensor is located at 1.5m.
+xmax = 15  # Set right boundary to 15m to simulate the 'beach' in the real
+# water channel.
 Nx = 17*4
 # Nx = 70
 # Nx = 100
-T = 15
-start = 30  # Number of seconds to cut off from beginning of experimental data.
-timestep = 1e-4
-# timestep = 1e-3
+T = 11
+start = 34  # Number of seconds to cut off from beginning of experimental data.
+# timestep = 1e-4
+# timestep = 1e-5
+timestep = 1e-3
 N = int(T/abs(timestep))+1
 g = 9.81
 H = 0.3
 kappa = 0.2  # Makes amplitudes smaller and waves a bit smoother.
 dealias = 3/2
-save = True
+save = False
 bathy = True
 
 # Bases and domain
@@ -128,19 +129,18 @@ solver.stop_sim_time = T - 1e-13
 
 
 # Measured points of the ramp.
-b_points = [0, 0.024, 0.053, 0.0905, 0.133, 0.182, 0.2, 0.182,
-            0.133, 0.0905, 0.053, 0.024, 0]
-x_points = np.array(
-    [0, 0.0875, 0.1875, 0.2875, 0.3875, 0.4875, 0.5875, 0.6875,
-     0.7875, 0.8875, 0.9875, 1.0875, 1.175]) + 4 - 0.5875
-rampFunc = interpolate.CubicSpline(x_points, b_points)
-mask1 = x >= x_points[0]
-mask2 = x <= x_points[-1]
-mask = mask1*mask2
-ramp = rampFunc(x[mask])  # Only evaluate spline at the points
-# where the actual ramp is.
-b_array = np.zeros(Nx)
-b_array[mask] = ramp
+b_points = np.concatenate(
+    (np.zeros(4),
+     np.array([0, 0.024, 0.053, 0.0905, 0.133, 0.182, 0.2, 0.182, 0.133,
+               0.0905, 0.053, 0.024, 0]),
+     np.zeros(21)))
+x_points = np.concatenate(
+    (np.arange(1.5, 3.5, 0.5),
+     np.array([
+         3.4125, 3.5, 3.6, 3.7, 3.8, 3.9, 4, 4.1, 4.2, 4.3, 4.4, 4.5, 4.5875]),
+     np.arange(5, 15.5, 0.5)))
+rampFunc = interpolate.PchipInterpolator(x_points, b_points)
+b_array = rampFunc(x)
 
 # b_array = source(x)
 b['g'] = b_array
@@ -252,8 +252,6 @@ axs[2].set_title(f"Sensor 4 at {pos[2]}m")
 plt.tight_layout()
 plt.savefig(f"{path}"+".pdf")
 plt.show()
-
-xmesh, ymesh = quad_mesh(x=x, y=t_array)
 
 # Save all data.
 if save:

@@ -41,26 +41,31 @@ class params:
         self.g = 9.81
 
         # Set final time.
-        self.T_N = 12
+        self.T_N = 10
 
         path = "ProblemRelatedFiles/WaterchannelData/" \
-            + "sim_data_Tiefe=0,3_A=40_F=0,35_ExactRamp.hdf5"
+            + "sim_data_Tiefe=0,3_A=40_F=0,35_try=1_ExactRamp.hdf5"
         # path = "ProblemRelatedFiles/WaterchannelData/" \
         #     + "Tiefe=0,3_A=40_F=0,35_kappa2e-01_bathyTrue_middle.hdf5"
-        pathbc = "ProblemRelatedFiles/WaterchannelData/MitBathymetrie/" \
-            + "Tiefe=0,3_A=40_F=0,35_try=1.txt"
+        if self.data != "measurements":
+            pathbc = "ProblemRelatedFiles/WaterchannelData/" \
+                + "Tiefe=0,3_A=40_F=0,35.txt"
+        else:
+            pathbc = "ProblemRelatedFiles/WaterchannelData/MitBathymetrie/" \
+                + "Tiefe=0,3_A=40_F=0,35_try=1.txt"
 
         # Tolerance for stopping criterion in gradient descent.
         # self.tol = 7e-8
-        self.tol = 1e-7
-        # self.tol = 1e-6
+        # self.tol = 1e-7
+        self.tol = 1e-6
 
         # Set factor for regularisation term.
         if self.test:
             self.lambd = 0
         else:
             # self.lambd = 1e-5
-            self.lambd = 1e-6
+            # self.lambd = 1e-6
+            self.lambd = 0.001
             # self.lambd = 0
 
         # Parameters for Armijo rule/Wolfe conditions.
@@ -126,6 +131,8 @@ class params:
                 g_p = f.attrs.get("g")
                 xmin_p = f.attrs.get("xmin")
                 xmax_p = f.attrs.get("xmax")
+                if "start" in f.keys():
+                    self.start = f.attrs.get("start")
 
             # Check if parameters match the ones from the hdf5 file.
             if self.T_N > T_N_p:
@@ -164,12 +171,18 @@ class params:
         else:
 
             # Measured points of the ramp.
-            b_points = [0, 0.024, 0.053, 0.0905, 0.133, 0.182, 0.2, 0.182,
-                        0.133, 0.0905, 0.053, 0.024, 0]
-            x_points = np.array(
-                [0, 0.0875, 0.1875, 0.2875, 0.3875, 0.4875, 0.5875, 0.6875,
-                 0.7875, 0.8875, 0.9875, 1.0875, 1.175]) + 4 - 0.5875
-            rampFunc = interpolate.CubicSpline(x_points, b_points)
+            b_points = np.concatenate(
+                (np.zeros(4),
+                 np.array([0, 0.024, 0.053, 0.0905, 0.133, 0.182, 0.2, 0.182,
+                           0.133, 0.0905, 0.053, 0.024, 0]),
+                 np.zeros(21)))
+            x_points = np.concatenate(
+                (np.arange(1.5, 3.5, 0.5),
+                 np.array([
+                     3.4125, 3.5, 3.6, 3.7, 3.8, 3.9, 4, 4.1, 4.2, 4.3, 4.4,
+                     4.5, 4.5875]),
+                 np.arange(5, 15.5, 0.5)))
+            rampFunc = interpolate.PchipInterpolator(x_points, b_points)
 
         # ---------------------------------------------------------------------
         # Scale initial condition, observation and exact control.
@@ -193,13 +206,8 @@ class params:
 
         else:
 
-            mask1 = x >= x_points[0]
-            mask2 = x <= x_points[-1]
-            mask = mask1*mask2
-            ramp = rampFunc(x[mask])  # Only evaluate spline at the points
-            # where the actual ramp is.
-            self.b_exact = np.zeros(self.M)
-            self.b_exact[mask] = ramp
+            ramp = rampFunc(x)
+            self.b_exact = ramp
 
         if self.data == "measurements":
 
