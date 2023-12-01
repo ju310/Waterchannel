@@ -23,7 +23,9 @@ from read_left_bc import leftbc, data
 import logging
 logger = logging.getLogger(__name__)
 
-prefix = 'WaterchannelData/MitBathymetrie/'
+# prefix = 'WaterchannelData/MitBathymetrie/'
+prefix = 'WaterchannelData/OhneBathymetrie/'
+# postfix = "mean"
 postfix = "try=1"
 
 filename = 'Tiefe=0,3_A=40_F=0,35_' + postfix
@@ -196,13 +198,16 @@ else:
     path = "WaterchannelData/" + filename\
         + f"_kappa{kappa:.0e}"
 
+Hmax = np.amax(H_array)
+Hmin = np.amin(H_array)
+
 plt.figure()
 plt.plot(t_array, H_array[:, 0], "y",
          label="simulation")
 plt.plot(t_array, H+dataObject.f[0](t_array+start), "k",
          label="measurement")
 plt.legend()
-plt.ylim([H-0.02, H+0.02])
+plt.ylim([Hmin-0.001, Hmax+0.001])
 plt.title("Sensor 2")
 
 plt.figure()
@@ -211,7 +216,7 @@ plt.plot(t_array, H_array[:, 1], "y",
 plt.plot(t_array, H+dataObject.f[1](t_array+start), "k",
          label="measurement")
 plt.legend()
-plt.ylim([H-0.02, H+0.02])
+plt.ylim([Hmin-0.001, Hmax+0.001])
 plt.title("Sensor 3")
 
 plt.figure()
@@ -220,7 +225,7 @@ plt.plot(t_array, H_array[:, 2], "y",
 plt.plot(t_array, H+dataObject.f[2](t_array+start), "k",
          label="measurement")
 plt.legend()
-plt.ylim([H-0.02, H+0.02])
+plt.ylim([Hmin-0.001, Hmax+0.001])
 plt.title("Sensor 4")
 
 fig, axs = plt.subplots(3)

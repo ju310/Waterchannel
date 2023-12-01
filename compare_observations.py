@@ -107,20 +107,20 @@ std = np.std(allObsArray, axis=0)
 # plt.savefig(path + "/diff.pdf", bbox_inches='tight')
 # plt.show()
 
-lines = np.swapaxes(meanBathy, 0, 1)
+lines = np.swapaxes(meanBathy-H, 0, 1)
 
-with open("ProblemRelatedFiles/WaterchannelData/MitBathymetrie/meanBathy.txt",
-          "w") as f:
+with open("ProblemRelatedFiles/WaterchannelData/MitBathymetrie/"
+          + "Tiefe=0,3_A=40_F=0,35_meanBathy.txt", "w") as f:
 
     for line in lines:
 
         f.write(np.array2string(line).replace('[', '').replace(']', ''))
         f.write("\n")
 
-lines = np.swapaxes(mean, 0, 1)
+lines = np.swapaxes(mean-H, 0, 1)
 
-with open("ProblemRelatedFiles/WaterchannelData/OhneBathymetrie/mean.txt",
-          "w") as f:
+with open("ProblemRelatedFiles/WaterchannelData/OhneBathymetrie/"
+          + "Tiefe=0,3_A=40_F=0,35_mean.txt", "w") as f:
 
     for line in lines:
 
