@@ -14,7 +14,7 @@ from matplotlib.animation import FuncAnimation
 from dedalus.extras.plot_tools import quad_mesh, pad_limits
 import importlib
 
-folder = "2023_11_13_12_34_PM"
+folder = "2023_11_29_02_20_PM"
 path = "ProblemRelatedFiles/" + folder
 
 params = importlib.import_module("ProblemRelatedFiles." + folder + ".params")
@@ -373,39 +373,62 @@ if save:
 if pa.data != "sim_everywhere":
 
     pos_n = len(pos)
-    posi = np.zeros((pos_n), dtype=int)
-    fig, axs = plt.subplots(pos_n)
 
-    for i in range(pos_n):
+    if pos_n > 1:
+        posi = np.zeros((pos_n), dtype=int)
+        fig, axs = plt.subplots(pos_n)
 
-        posi[i] = np.argmin(abs(x-pos[i]))
+        for i in range(pos_n):
 
-    fig.tight_layout(pad=2.0)
+            posi[i] = np.argmin(abs(x-pos[i]))
 
-    for i in range(pos_n):
+        fig.tight_layout(pad=2.0)
 
-        axs[i].plot(t[start:], H[start:, posi[i]], "y")
-        axs[i].plot(t[start:], obs[start:, posi[i]], "k--")
-        axs[i].set_xlabel('Time [s]')
-        axs[i].set_ylabel('H [m]')
-        axs[i].set_title(f"Sensor {i+2} at {round(x[posi[i]], 1)}m")
+        for i in range(pos_n):
 
-    plt.tight_layout()
-    if save:
-        plt.savefig(path + "/H_Hobs.pdf", bbox_inches='tight')
-    plt.show()
+            axs[i].plot(t[start:], H[start:, posi[i]], "y")
+            axs[i].plot(t[start:], obs[start:, posi[i]], "k--")
+            axs[i].set_xlabel('Time [s]')
+            axs[i].set_ylabel('H [m]')
+            axs[i].set_title(f"Sensor {i+2} at {round(x[posi[i]], 1)}m")
 
-    fig, axs = plt.subplots(pos_n)
-    fig.tight_layout(pad=2.0)
+        plt.tight_layout()
+        if save:
+            plt.savefig(path + "/H_Hobs.pdf", bbox_inches='tight')
+        plt.show()
 
-    for i in range(pos_n):
+        fig, axs = plt.subplots(pos_n)
+        fig.tight_layout(pad=2.0)
 
-        axs[i].plot(t[start:], H[start:, posi[i]]-obs[start:, posi[i]])
-        axs[i].set_xlabel('Time [s]')
-        axs[i].set_ylabel(r'$H - H_{obs} \ [m]$')
-        axs[i].set_title(f"Sensor {i+2} at {round(x[posi[i]], 1)}m")
+        for i in range(pos_n):
 
-    plt.tight_layout()
-    if save:
-        plt.savefig(path + "/H-Hobs.pdf", bbox_inches='tight')
-    plt.show()
+            axs[i].plot(t[start:], H[start:, posi[i]]-obs[start:, posi[i]])
+            axs[i].set_xlabel('Time [s]')
+            axs[i].set_ylabel(r'$H - H_{obs} \ [m]$')
+            axs[i].set_title(f"Sensor {i+2} at {round(x[posi[i]], 1)}m")
+
+        plt.tight_layout()
+        if save:
+            plt.savefig(path + "/H-Hobs.pdf", bbox_inches='tight')
+        plt.show()
+
+    else:
+
+        plt.figure()
+        plt.plot(t[start:], H[start:, posi[i]], "y")
+        plt.plot(t[start:], obs[start:, posi[i]], "k--")
+        plt.xlabel('Time [s]')
+        plt.ylabel('H [m]')
+        plt.title(f"Sensor 2 at {round(x[pos[0]], 1)}m")
+        if save:
+            plt.savefig(path + "/H_Hobs.pdf", bbox_inches='tight')
+        plt.show()
+
+        plt.figure()
+        plt.plot(t[start:], H[start:, posi[i]]-obs[start:, posi[i]])
+        plt.xlabel('Time [s]')
+        plt.ylabel(r'$H - H_{obs} \ [m]$')
+        plt.title(f"Sensor 2 at {round(x[pos[0]], 1)}m")
+        if save:
+            plt.savefig(path + "/H-Hobs.pdf", bbox_inches='tight')
+        plt.show()
