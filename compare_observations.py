@@ -107,14 +107,34 @@ std = np.std(allObsArray, axis=0)
 # plt.savefig(path + "/diff.pdf", bbox_inches='tight')
 # plt.show()
 
-with h5py.File(path + "/meanBathy.hdf5", "w") as f:
+lines = np.swapaxes(meanBathy, 0, 1)
 
-    f.create_dataset("mean", data=meanBathy)
-    f.create_dataset("st_dev", data=stdBathy)
-    f.create_dataset("t_array", data=t_array)
+with open("ProblemRelatedFiles/WaterchannelData/MitBathymetrie/meanBathy.txt",
+          "w") as f:
 
-with h5py.File(path + "/meanNoBathy.hdf5", "w") as f:
+    for line in lines:
 
-    f.create_dataset("mean", data=mean)
-    f.create_dataset("st_dev", data=std)
-    f.create_dataset("t_array", data=t_array)
+        f.write(np.array2string(line).replace('[', '').replace(']', ''))
+        f.write("\n")
+
+lines = np.swapaxes(mean, 0, 1)
+
+with open("ProblemRelatedFiles/WaterchannelData/OhneBathymetrie/mean.txt",
+          "w") as f:
+
+    for line in lines:
+
+        f.write(np.array2string(line).replace('[', '').replace(']', ''))
+        f.write("\n")
+
+# with h5py.File(path + "/meanBathy.hdf5", "w") as f:
+
+#     f.create_dataset("mean", data=meanBathy)
+#     f.create_dataset("st_dev", data=stdBathy)
+#     f.create_dataset("t_array", data=t_array)
+
+# with h5py.File(path + "/meanNoBathy.hdf5", "w") as f:
+
+#     f.create_dataset("mean", data=mean)
+#     f.create_dataset("st_dev", data=std)
+#     f.create_dataset("t_array", data=t_array)
