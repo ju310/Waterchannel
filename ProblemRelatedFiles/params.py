@@ -31,7 +31,7 @@ class params:
         # self.data = "sim_sensor_pos"
 
         # Use mean of measurements.
-        self.mean = True
+        self.mean = False
 
         # Put noise on observation.
         self.noise = 0
@@ -66,10 +66,15 @@ class params:
         if self.test:
             self.lambd = 0
         else:
+            # self.lambd = 0.001
+            # self.lambd = 1e-4
             # self.lambd = 1e-5
             self.lambd = 1e-6
-            # self.lambd = 0.001
             # self.lambd = 0
+
+        L2reg = True
+        if L2reg:
+            self.lambda_b = 1e-6
 
         # Parameters for Armijo rule/Wolfe conditions.
         self.alpha = 128
@@ -86,18 +91,18 @@ class params:
         if self.test:
             self.jmax = 2
         else:
-            self.jmax = 1000
+            self.jmax = 50
 
         # Time step.
-        self.dt = 1e-3
+        self.dt = 5e-5
 
         # Number of points in time.
         N = int(self.T_N/self.dt) + 1
 
         # Number of grid points in space.
-        self.M = 17*4
+        # self.M = 17*4
         # self.M = 70
-        # self.M = 100
+        self.M = 100
 
         # Left and right boundary.
         self.xmin = 1.5

@@ -32,7 +32,8 @@ class nonlinSWE:
         self.delta = pa.delta
         self.H = pa.H
         self.lbc = pa.lbc
-        self.start = pa.start
+        if hasattr(pa, "start"):
+            self.start = pa.start
         self.data = pa.data
         if pa.data != "sim_everywhere":
             self.pos = pa.pos

@@ -35,6 +35,8 @@ class OptProblem:
         self.p2_field = self.PDE.dist.Field(bases=self.PDE.xbasis)
         self.p2x_field = self.PDE.dist.Field(bases=self.PDE.xbasis)
         self.h_field = self.PDE.dist.Field(bases=self.PDE.xbasis)
+        if hasattr(pa, "lambda_b"):
+            self.lambda_b = pa.lambda_b
 
     def f(self, control):
         """
@@ -73,6 +75,9 @@ class OptProblem:
         self.f_err2 = self.delta*0.5*self.dx \
             * np.linalg.norm(self.mismatch[-1])**2
         self.f_reg = 0.5*self.dx*self.lambd*np.linalg.norm(b_x)**2
+
+        if hasattr(self, "lambda_b"):
+            self.f_reg += 0.5*self.dx*self.lambda_b*np.linalg.norm(control)**2
 
         val = self.f_err1 + self.f_err2 + self.f_reg
 
@@ -138,6 +143,9 @@ class OptProblem:
             + self.mismatch[-1]*self.delta \
             - self.lambd*b_xx
 
+        if hasattr(self, "lambda_b"):
+            self.v_J += self.lambda_b*self.PDE.current_b
+
         self.L2grad = self.v_e + self.v_J
 
         # Fields
@@ -146,6 +154,7 @@ class OptProblem:
         tauv = self.PDE.dist.Field()
         tauv2 = self.PDE.dist.Field()
 
+        # TODO: BC VALUES NOT BEING USED
         # Boundary values
         vl = self.lambd*self.bx_field(x=self.xmin).evaluate()["g"]
         vr = self.lambd*self.bx_field(x=self.xmax).evaluate()["g"] \
