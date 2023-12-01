@@ -30,6 +30,9 @@ class params:
         # self.data = "sim_everywhere"
         # self.data = "sim_sensor_pos"
 
+        # Use mean of measurements.
+        self.mean = True
+
         # Put noise on observation.
         self.noise = 0
         # self.noise = 1
@@ -212,13 +215,28 @@ class params:
         if self.data == "measurements":
 
             # Load observation data from text file.
-            dataObject = data(pathbc)
+            if self.mean:
 
-            for p in range(len(self.pos)):
+                with h5py.File("ProblemRelatedFiles/WaterchannelData/"
+                               + "Comparison/meanBathy.hdf5", "r") as f:
 
-                H_sensor = self.H + dataObject.f[p](self.t_array + self.start)
-                i = np.argmin(abs(x-self.pos[p]))
-                self.y_d[:, i] = H_sensor
+                    H_sensor = np.array(f["mean"])
+
+                for p in range(len(self.pos)):
+
+                    i = np.argmin(abs(x-self.pos[p]))
+                    self.y_d[:, i] = H_sensor
+
+            else:
+
+                dataObject = data(pathbc)
+
+                for p in range(len(self.pos)):
+
+                    H_sensor = self.H + dataObject.f[p](
+                        self.t_array + self.start)
+                    i = np.argmin(abs(x-self.pos[p]))
+                    self.y_d[:, i] = H_sensor
 
         elif self.data == "sim_sensor_pos":
 
@@ -267,7 +285,7 @@ class params:
                 y_d_field.change_scales(1)
                 self.y_d[n] = np.copy(y_d_field['g'])
 
-        if self.data != "sim_everywhere":
+        if self.data != "sim_everywhere" and self.data != "measurements":
 
             for p in range(len(self.pos)):
 
