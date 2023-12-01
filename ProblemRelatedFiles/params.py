@@ -67,8 +67,8 @@ class params:
             self.lambd = 0
         else:
             # self.lambd = 1e-5
-            # self.lambd = 1e-6
-            self.lambd = 0.001
+            self.lambd = 1e-6
+            # self.lambd = 0.001
             # self.lambd = 0
 
         # Parameters for Armijo rule/Wolfe conditions.
@@ -101,7 +101,6 @@ class params:
 
         # Left and right boundary.
         self.xmin = 1.5
-        # self.xmax = 20
         self.xmax = 15  # Matches better with measurements.
         if self.data == "measurements":
             self.pos = [3.5, 5.5, 7.5]  # Sensor positions
@@ -221,11 +220,14 @@ class params:
                                + "Comparison/meanBathy.hdf5", "r") as f:
 
                     H_sensor = np.array(f["mean"])
+                    t_array_obs = np.array(f["t_array"])
+
+                H_func = interpolate.CubicSpline(t_array_obs, H_sensor, axis=1)
 
                 for p in range(len(self.pos)):
 
                     i = np.argmin(abs(x-self.pos[p]))
-                    self.y_d[:, i] = H_sensor
+                    self.y_d[:, i] = H_func(self.t_array)[p]
 
             else:
 
@@ -285,6 +287,7 @@ class params:
                 y_d_field.change_scales(1)
                 self.y_d[n] = np.copy(y_d_field['g'])
 
+        # Add noise to the observation.
         if self.data != "sim_everywhere" and self.data != "measurements":
 
             for p in range(len(self.pos)):
