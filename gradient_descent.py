@@ -155,6 +155,8 @@ while j < jmax:
         break
 
     j += 1
+    if j % 20 == 0:
+        print(f"Iteration {j}, f(b)={f_new}\n")
     P.PDE.j = j
     f_vals[j] = f_new
     b = P.proj(b - alpha_j*v)
