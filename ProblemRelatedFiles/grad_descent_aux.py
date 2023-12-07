@@ -154,10 +154,11 @@ class OptProblem:
         tauv = self.PDE.dist.Field()
         tauv2 = self.PDE.dist.Field()
 
-        # TODO: BC VALUES NOT BEING USED
         # Boundary values
-        vl = self.lambd*self.bx_field(x=self.xmin).evaluate()["g"]
-        vr = self.lambd*self.bx_field(x=self.xmax).evaluate()["g"] \
+        vl = self.PDE.dist.Field()
+        vl["g"] = self.lambd*self.bx_field(x=self.xmin).evaluate()["g"]
+        vr = self.PDE.dist.Field()
+        vr["g"] = self.lambd*self.bx_field(x=self.xmax).evaluate()["g"] \
             - self.g*intgr.simpson(p2r, dx=self.dt, axis=0)
 
         # Substitutions
@@ -176,8 +177,8 @@ class OptProblem:
                 "tauv2": tauv2, "lift": self.PDE.lift, "vx": vx,
                 "vxx": vxx, "vl": vl, "vr": vr})
         problem.add_equation("-vxx + v = vTilde")
-        problem.add_equation("v(x='left') =  0")
-        problem.add_equation("v(x='right') = 0")
+        problem.add_equation("v(x='left') =  vl")
+        problem.add_equation("v(x='right') = vr")
 
         # Solver
         solver = problem.build_solver()
