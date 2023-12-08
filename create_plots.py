@@ -14,7 +14,7 @@ from matplotlib.animation import FuncAnimation
 from dedalus.extras.plot_tools import quad_mesh, pad_limits
 import importlib
 
-folder = "2023_12_06_04_04_PM"
+folder = "2023_12_08_11_37_AM"
 path = "ProblemRelatedFiles/" + folder
 
 params = importlib.import_module("ProblemRelatedFiles." + folder + ".params")
@@ -415,21 +415,24 @@ if pa.data != "sim_everywhere":
 
     else:
 
+        pos1 = np.argmin(abs(x-pos[0]))
         plt.figure()
-        plt.plot(t[start:], H[start:, posi[i]], "y")
-        plt.plot(t[start:], obs[start:, posi[i]], "k--")
+        plt.plot(t[start:], H[start:, pos1], "y")
+        plt.plot(t[start:], obs[start:, pos1], "k--")
         plt.xlabel('Time [s]')
         plt.ylabel('H [m]')
-        plt.title(f"Sensor 2 at {round(x[pos[0]], 1)}m")
+        plt.title(f"Sensor 2 at {round(x[pos1], 1)}m")
         if save:
             plt.savefig(path + "/H_Hobs.pdf", bbox_inches='tight')
         plt.show()
 
         plt.figure()
-        plt.plot(t[start:], H[start:, posi[i]]-obs[start:, posi[i]])
+        plt.plot(
+            t[start:],
+            H[start:, pos1]-obs[start:, pos1])
         plt.xlabel('Time [s]')
         plt.ylabel(r'$H - H_{obs} \ [m]$')
-        plt.title(f"Sensor 2 at {round(x[pos[0]], 1)}m")
+        plt.title(f"Sensor 2 at {round(x[pos1], 1)}m")
         if save:
             plt.savefig(path + "/H-Hobs.pdf", bbox_inches='tight')
         plt.show()
