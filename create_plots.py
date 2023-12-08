@@ -14,7 +14,7 @@ from matplotlib.animation import FuncAnimation
 from dedalus.extras.plot_tools import quad_mesh, pad_limits
 import importlib
 
-folder = "2023_11_29_02_20_PM"
+folder = "2023_12_06_04_04_PM"
 path = "ProblemRelatedFiles/" + folder
 
 params = importlib.import_module("ProblemRelatedFiles." + folder + ".params")
@@ -64,7 +64,8 @@ if saveall:
     p2max = np.max(ps[:, :, :, 1])
 
 plt.figure()
-plt.semilogy(range(j-1), f_vals[0:j-1], '-*', label="J")
+plt.semilogy(range(j-1), f_vals[0:j-1], '-*')
+plt.semilogy(range(j-1), f_b_exct*np.ones(j-1), 'r-')
 plt.xlabel(r'Optimisation iterate $j$')
 plt.ylabel(r"$J(b_j)$")
 # plt.legend()
