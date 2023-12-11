@@ -31,7 +31,7 @@ class params:
         # self.data = "sim_sensor_pos"
 
         # Use mean of measurements.
-        self.mean = False
+        self.mean = True
 
         # Put noise on observation.
         self.noise = 0
@@ -113,8 +113,8 @@ class params:
         self.xmin = 1.5
         self.xmax = 15  # Matches better with measurements.
         if self.data == "measurements":
-            # self.pos = [3.5, 5.5, 7.5]  # Sensor positions
-            self.pos = [3.5]
+            self.pos = [3.5, 5.5, 7.5]  # Sensor positions
+            # self.pos = [3.5]
             self.start = 30  # Number of seconds to cut off from beginning of
             # experimental data.
         elif self.data == "sim_sensor_pos":
@@ -225,31 +225,14 @@ class params:
         if self.data == "measurements":
 
             # Load observation data from text file.
-            if self.mean:
+            dataObject = data(pathbc)
 
-                with h5py.File("ProblemRelatedFiles/WaterchannelData/"
-                               + "Comparison/meanBathy.hdf5", "r") as f:
+            for p in range(len(self.pos)):
 
-                    H_sensor = np.array(f["mean"])
-                    t_array_obs = np.array(f["t_array"])
-
-                H_func = interpolate.CubicSpline(t_array_obs, H_sensor, axis=1)
-
-                for p in range(len(self.pos)):
-
-                    i = np.argmin(abs(x-self.pos[p]))
-                    self.y_d[:, i] = H_func(self.t_array)[p]
-
-            else:
-
-                dataObject = data(pathbc)
-
-                for p in range(len(self.pos)):
-
-                    H_sensor = self.H + dataObject.f[p](
-                        self.t_array + self.start)
-                    i = np.argmin(abs(x-self.pos[p]))
-                    self.y_d[:, i] = H_sensor
+                H_sensor = self.H + dataObject.f[p](
+                    self.t_array + self.start)
+                i = np.argmin(abs(x-self.pos[p]))
+                self.y_d[:, i] = H_sensor
 
         elif self.data == "sim_sensor_pos":
 
