@@ -23,10 +23,11 @@ from read_left_bc import leftbc, data
 import logging
 logger = logging.getLogger(__name__)
 
-# prefix = 'WaterchannelData/MitBathymetrie/'
-prefix = 'WaterchannelData/OhneBathymetrie/'
+prefix = 'WaterchannelData/MitBathymetrie/'
+# prefix = 'WaterchannelData/OhneBathymetrie/'
 # postfix = "mean"
-postfix = "try=1"
+postfix = "meanBathy"
+# postfix = "try=1"
 
 filename = 'Tiefe=0,3_A=40_F=0,35_' + postfix
 
@@ -49,14 +50,14 @@ pos = [3.5, 5.5, 7.5]
 xmin = 1.5  # First sensor is located at 1.5m.
 xmax = 15  # Set right boundary to 15m to simulate the 'beach' in the real
 # water channel.
-Nx = 17*4
+# Nx = 17*4
 # Nx = 70
-# Nx = 100
-T = 11
+Nx = 100
+T = 10
 start = 34  # Number of seconds to cut off from beginning of experimental data.
 # timestep = 1e-4
-# timestep = 1e-5
-timestep = 1e-3
+timestep = 5e-5
+# timestep = 1e-3
 N = int(T/abs(timestep))+1
 g = 9.81
 H = 0.3

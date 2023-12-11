@@ -11,7 +11,7 @@ import h5py
 from matplotlib.animation import FuncAnimation
 from ProblemRelatedFiles.read_left_bc import data, leftbc
 
-T_N = 34
+T_N = 42
 H = 0.3
 pos = [1.5, 3.5, 5.5, 7.5]
 t_array = np.arange(0, T_N+0.01, 0.01)
@@ -47,13 +47,19 @@ meanBathy = np.mean(allObsBathyArray, axis=0)
 stdBathy = np.std(allObsBathyArray, axis=0)
 mean = np.mean(allObsArray, axis=0)
 std = np.std(allObsArray, axis=0)
-tValue = 2.09
+stdDiff = np.sqrt(1/38*(19*std**2 + 19*stdBathy**2))
+diff = mean - meanBathy
+tValue19 = 1.729  # One-sided t value for 19 dof.
+tValue38 = 1.686  # One-sided t value for 38 dof.
+# https://www.statistik.tu-dortmund.de/fileadmin/user_upload/Lehrstuehle/Oekonometrie/Lehre/WiSoOekoSS17/tabelletV.pdf
 
 # Confidence intervals
-ciBathyLeft = meanBathy - stdBathy*tValue/np.sqrt(20)
-ciBathyRight = meanBathy + stdBathy*tValue/np.sqrt(20)
-ciLeft = mean - std*tValue/np.sqrt(20)
-ciRight = mean + std*tValue/np.sqrt(20)
+ciBathyLeft = meanBathy - stdBathy*tValue19/np.sqrt(20)
+ciBathyRight = meanBathy + stdBathy*tValue19/np.sqrt(20)
+ciLeft = mean - std*tValue19/np.sqrt(20)
+ciRight = mean + std*tValue19/np.sqrt(20)
+ciLeftDiff = mean - meanBathy - 1/np.sqrt(10)*tValue38*stdDiff
+ciRightDiff = mean - meanBathy + 1/np.sqrt(10)*tValue38*stdDiff
 
 # meanmax = np.max(meanBathy-mean)
 start = np.argmin(abs(t_array-32))
@@ -173,6 +179,26 @@ for i in range(len(pos)//2):
 
 # plt.savefig(path + "/H_bathy_nobathy.pdf", bbox_inches='tight')
 plt.show()
+
+fig, axs = plt.subplots(len(pos)//2)
+fig.tight_layout(pad=2.5)
+
+for i in range(len(pos)//2):
+
+    axs[i].plot(t_array[start:end], diff[i+2, start:end], "b", linewidth=0.5)
+    axs[i].fill_between(
+        t_array[start:end],
+        ciLeftDiff[i+2, start:end],
+        ciRightDiff[i+2, start:end],
+        alpha=0.3,
+        facecolor="b")
+    axs[i].set_xlabel('Time [s]')
+    axs[i].set_ylabel('H [m]')
+    axs[i].set_title(f"Sensor {i+3} at {pos[i+2]}m")
+
+# plt.savefig(path + "/H_bathy_nobathy.pdf", bbox_inches='tight')
+plt.show()
+
 
 # lines = np.swapaxes((meanBathy-H)*100, 0, 1)  # Subtract H and convert to cm.
 
