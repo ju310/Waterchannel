@@ -11,7 +11,7 @@ import h5py
 from matplotlib.animation import FuncAnimation
 from ProblemRelatedFiles.read_left_bc import data, leftbc
 
-T_N = 100
+T_N = 34
 H = 0.3
 pos = [1.5, 3.5, 5.5, 7.5]
 t_array = np.arange(0, T_N+0.01, 0.01)
@@ -47,30 +47,37 @@ meanBathy = np.mean(allObsBathyArray, axis=0)
 stdBathy = np.std(allObsBathyArray, axis=0)
 mean = np.mean(allObsArray, axis=0)
 std = np.std(allObsArray, axis=0)
+tValue = 2.09
+
+# Confidence intervals
+ciBathyLeft = meanBathy - stdBathy*tValue/np.sqrt(20)
+ciBathyRight = meanBathy + stdBathy*tValue/np.sqrt(20)
+ciLeft = mean - std*tValue/np.sqrt(20)
+ciRight = mean + std*tValue/np.sqrt(20)
 
 # meanmax = np.max(meanBathy-mean)
 start = np.argmin(abs(t_array-32))
-end = np.argmin(abs(t_array-42))
+end = np.argmin(abs(t_array-T_N))
 
-for i in range(len(pos)):
+# for i in range(len(pos)):
 
-    plt.figure()
-    plt.plot(t_array[start:end], allObsArray[0, i, start:end], "k", label="try 1")
-    plt.plot(t_array[start:end], mean[i, start:end], "b--", label="mean")
-    plt.legend()
-    plt.title(f"Sensor {i+1} at {pos[i]}m")
+#     plt.figure()
+#     plt.plot(t_array[start:end], allObsArray[0, i, start:end], "k", label="try 1")
+#     plt.plot(t_array[start:end], mean[i, start:end], "b--", label="mean")
+#     plt.legend()
+#     plt.title(f"Sensor {i+1} at {pos[i]}m")
 
-plt.show()
+# plt.show()
 
-for i in range(len(pos)):
+# for i in range(len(pos)):
 
-    plt.figure()
-    plt.plot(t_array[start:end], allObsBathyArray[0, i, start:end], "k", label="try 1")
-    plt.plot(t_array[start:end], meanBathy[i, start:end], "b--", label="mean")
-    plt.legend()
-    plt.title(f"Sensor {i+1} at {pos[i]}m, with bathymetry")
+#     plt.figure()
+#     plt.plot(t_array[start:end], allObsBathyArray[0, i, start:end], "k", label="try 1")
+#     plt.plot(t_array[start:end], meanBathy[i, start:end], "b--", label="mean")
+#     plt.legend()
+#     plt.title(f"Sensor {i+1} at {pos[i]}m, with bathymetry")
 
-plt.show()
+# plt.show()
 
 # fig = plt.figure()
 
@@ -129,34 +136,72 @@ plt.show()
 # plt.savefig(path + "/diff.pdf", bbox_inches='tight')
 # plt.show()
 
-lines = np.swapaxes((meanBathy-H)*100, 0, 1)  # Subtract H and convert to cm.
+fig, axs = plt.subplots(len(pos)//2)
+fig.tight_layout(pad=2.5)
 
-with open("ProblemRelatedFiles/WaterchannelData/MitBathymetrie/"
-          + "Tiefe=0,3_A=40_F=0,35_meanBathy.txt", "w") as f:
+for i in range(len(pos)//2):
 
-    for line in lines:
+    axs[i].plot(t_array[start:end], meanBathy[i, start:end], "k", linewidth=0.5)
+    axs[i].fill_between(
+        t_array[start:end],
+        ciBathyLeft[i, start:end],
+        ciBathyRight[i, start:end],
+        alpha=0.3,
+        facecolor="k")
+    axs[i].set_xlabel('Time [s]')
+    axs[i].set_ylabel('H [m]')
+    axs[i].set_title(f"Sensor {i+1} at {pos[i]}m")
 
-        f.write(np.array2string(line).replace('[', '').replace(']', ''))
-        f.write("\n")
+# plt.savefig(path + "/H_bathy_nobathy.pdf", bbox_inches='tight')
+plt.show()
 
-lines = np.swapaxes((mean-H)*100, 0, 1)  # Subtract H and convert to cm.
+fig, axs = plt.subplots(len(pos)//2)
+fig.tight_layout(pad=2.5)
 
-with open("ProblemRelatedFiles/WaterchannelData/OhneBathymetrie/"
-          + "Tiefe=0,3_A=40_F=0,35_mean.txt", "w") as f:
+for i in range(len(pos)//2):
 
-    for line in lines:
+    axs[i].plot(t_array[start:end], mean[i, start:end], "b", linewidth=0.5)
+    axs[i].fill_between(
+        t_array[start:end],
+        ciLeft[i, start:end],
+        ciRight[i, start:end],
+        alpha=0.3,
+        facecolor="b")
+    axs[i].set_xlabel('Time [s]')
+    axs[i].set_ylabel('H [m]')
+    axs[i].set_title(f"Sensor {i+1} at {pos[i]}m")
 
-        f.write(np.array2string(line).replace('[', '').replace(']', ''))
-        f.write("\n")
+# plt.savefig(path + "/H_bathy_nobathy.pdf", bbox_inches='tight')
+plt.show()
 
-with h5py.File(path + "/meanBathy.hdf5", "w") as f:
+# lines = np.swapaxes((meanBathy-H)*100, 0, 1)  # Subtract H and convert to cm.
 
-    f.create_dataset("mean", data=meanBathy)
-    f.create_dataset("st_dev", data=stdBathy)
-    f.create_dataset("t_array", data=t_array)
+# with open("ProblemRelatedFiles/WaterchannelData/MitBathymetrie/"
+#           + "Tiefe=0,3_A=40_F=0,35_meanBathy.txt", "w") as f:
 
-with h5py.File(path + "/meanNoBathy.hdf5", "w") as f:
+#     for line in lines:
 
-    f.create_dataset("mean", data=mean)
-    f.create_dataset("st_dev", data=std)
-    f.create_dataset("t_array", data=t_array)
+#         f.write(np.array2string(line).replace('[', '').replace(']', ''))
+#         f.write("\n")
+
+# lines = np.swapaxes((mean-H)*100, 0, 1)  # Subtract H and convert to cm.
+
+# with open("ProblemRelatedFiles/WaterchannelData/OhneBathymetrie/"
+#           + "Tiefe=0,3_A=40_F=0,35_mean.txt", "w") as f:
+
+#     for line in lines:
+
+#         f.write(np.array2string(line).replace('[', '').replace(']', ''))
+#         f.write("\n")
+
+# with h5py.File(path + "/meanBathy.hdf5", "w") as f:
+
+#     f.create_dataset("mean", data=meanBathy)
+#     f.create_dataset("st_dev", data=stdBathy)
+#     f.create_dataset("t_array", data=t_array)
+
+# with h5py.File(path + "/meanNoBathy.hdf5", "w") as f:
+
+#     f.create_dataset("mean", data=mean)
+#     f.create_dataset("st_dev", data=std)
+#     f.create_dataset("t_array", data=t_array)
