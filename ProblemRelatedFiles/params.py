@@ -54,8 +54,12 @@ class params:
             pathbc = "ProblemRelatedFiles/WaterchannelData/" \
                 + "Tiefe=0,3_A=40_F=0,35.txt"
         else:
-            pathbc = "ProblemRelatedFiles/WaterchannelData/MitBathymetrie/" \
-                + "Tiefe=0,3_A=40_F=0,35_try=1.txt"
+            if self.mean:
+                pathbc = "ProblemRelatedFiles/WaterchannelData/" \
+                    + "MitBathymetrie/Tiefe=0,3_A=40_F=0,35_meanBathy.txt"
+            else:
+                pathbc = "ProblemRelatedFiles/WaterchannelData/" \
+                    + "MitBathymetrie/Tiefe=0,3_A=40_F=0,35_try=1.txt"
 
         # Tolerance for stopping criterion in gradient descent.
         # self.tol = 7e-8
@@ -68,8 +72,8 @@ class params:
         else:
             # self.lambd = 0.001
             # self.lambd = 1e-4
-            # self.lambd = 1e-5
-            self.lambd = 1e-6
+            self.lambd = 1e-5
+            # self.lambd = 1e-6
             # self.lambd = 0
 
         L2reg = True
@@ -77,7 +81,8 @@ class params:
             self.lambda_b = 1e-6
 
         # Parameters for Armijo rule/Wolfe conditions.
-        self.alpha = 128
+        self.alpha = 64
+        # self.alpha = 1
         self.beta = 0.5
 
         # Parameters for cost functional (observation over [0,T]).
@@ -91,24 +96,25 @@ class params:
         if self.test:
             self.jmax = 2
         else:
-            self.jmax = 50
+            self.jmax = 1000
 
         # Time step.
-        self.dt = 5e-5
+        self.dt = 1e-3
 
         # Number of points in time.
         N = int(self.T_N/self.dt) + 1
 
         # Number of grid points in space.
-        # self.M = 17*4
+        self.M = 17*4
         # self.M = 70
-        self.M = 100
+        # self.M = 100
 
         # Left and right boundary.
         self.xmin = 1.5
         self.xmax = 15  # Matches better with measurements.
         if self.data == "measurements":
-            self.pos = [3.5, 5.5, 7.5]  # Sensor positions
+            # self.pos = [3.5, 5.5, 7.5]  # Sensor positions
+            self.pos = [3.5]
             self.start = 30  # Number of seconds to cut off from beginning of
             # experimental data.
         elif self.data == "sim_sensor_pos":
