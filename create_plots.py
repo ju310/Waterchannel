@@ -14,7 +14,7 @@ from matplotlib.animation import FuncAnimation
 from dedalus.extras.plot_tools import quad_mesh, pad_limits
 import importlib
 
-folder = "2023_12_08_11_37_AM"
+folder = "2023_12_12_12_41_PM"
 path = "ProblemRelatedFiles/" + folder
 
 params = importlib.import_module("ProblemRelatedFiles." + folder + ".params")
@@ -391,7 +391,7 @@ if pa.data != "sim_everywhere":
             axs[i].plot(t[start:], obs[start:, posi[i]], "k--")
             axs[i].set_xlabel('Time [s]')
             axs[i].set_ylabel('H [m]')
-            axs[i].set_title(f"Sensor {i+2} at {round(x[posi[i]], 1)}m")
+            axs[i].set_title(f"Sensor {i+2} at pos[i]m")
 
         plt.tight_layout()
         if save:
@@ -406,7 +406,7 @@ if pa.data != "sim_everywhere":
             axs[i].plot(t[start:], H[start:, posi[i]]-obs[start:, posi[i]])
             axs[i].set_xlabel('Time [s]')
             axs[i].set_ylabel(r'$H - H_{obs} \ [m]$')
-            axs[i].set_title(f"Sensor {i+2} at {round(x[posi[i]], 1)}m")
+            axs[i].set_title(f"Sensor {i+2} at pos[i]m")
 
         plt.tight_layout()
         if save:
@@ -421,7 +421,7 @@ if pa.data != "sim_everywhere":
         plt.plot(t[start:], obs[start:, pos1], "k--")
         plt.xlabel('Time [s]')
         plt.ylabel('H [m]')
-        plt.title(f"Sensor 2 at {round(x[pos1], 1)}m")
+        plt.title(f"Sensor 2 at pos[0]m")
         if save:
             plt.savefig(path + "/H_Hobs.pdf", bbox_inches='tight')
         plt.show()
@@ -432,7 +432,7 @@ if pa.data != "sim_everywhere":
             H[start:, pos1]-obs[start:, pos1])
         plt.xlabel('Time [s]')
         plt.ylabel(r'$H - H_{obs} \ [m]$')
-        plt.title(f"Sensor 2 at {round(x[pos1], 1)}m")
+        plt.title(f"Sensor 2 at pos[0]m")
         if save:
             plt.savefig(path + "/H-Hobs.pdf", bbox_inches='tight')
         plt.show()
