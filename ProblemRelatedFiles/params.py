@@ -26,9 +26,9 @@ class params:
 
         # Use either measurement data, simulated data everywhere or
         # simulated data at sensor positions.
-        self.data = "measurements"
+        # self.data = "measurements"
         # self.data = "sim_everywhere"
-        # self.data = "sim_sensor_pos"
+        self.data = "sim_sensor_pos"
 
         # Use mean of measurements.
         self.mean = True
@@ -46,8 +46,10 @@ class params:
         # Set final time.
         self.T_N = 10
 
+        # path = "ProblemRelatedFiles/WaterchannelData/" \
+        #     + "sim_data_Tiefe=0,3_A=40_F=0,35_try=1_ExactRamp.hdf5"
         path = "ProblemRelatedFiles/WaterchannelData/" \
-            + "sim_data_Tiefe=0,3_A=40_F=0,35_try=1_ExactRamp.hdf5"
+            + "sim_data_Tiefe=0,3_A=40_F=0,35_ExactRamp.hdf5"
         # path = "ProblemRelatedFiles/WaterchannelData/" \
         #     + "Tiefe=0,3_A=40_F=0,35_kappa2e-01_bathyTrue_middle.hdf5"
         if self.data != "measurements":
@@ -82,7 +84,7 @@ class params:
             self.lambda_b = 1e-7
 
         # Parameters for Armijo rule/Wolfe conditions.
-        self.alpha = 64
+        self.alpha = 128
         # self.alpha = 1
         self.beta = 0.5
 
@@ -120,10 +122,12 @@ class params:
             self.start = 30  # Number of seconds to cut off from beginning of
             # experimental data.
         elif self.data == "sim_sensor_pos":
-            self.pos = [3.5, 5.5, 7.5]
+            # self.pos = [3.5, 5.5, 7.5]
+            self.pos = [3.5, 6, 8.5]
             # self.pos = [3.5, 6]
             # self.pos = [2]
             # self.pos = [2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5]
+            self.start = 0
         self.H = 0.3  # Water level at rest.
         self.lbc = leftbc(pathbc).f  # CubicSpline
 
