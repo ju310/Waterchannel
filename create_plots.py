@@ -14,7 +14,7 @@ from matplotlib.animation import FuncAnimation
 from dedalus.extras.plot_tools import quad_mesh, pad_limits
 import importlib
 
-folder = "2023_12_12_12_41_PM"
+folder = "2023_11_29_10_26_AM_noise"
 path = "ProblemRelatedFiles/" + folder
 
 params = importlib.import_module("ProblemRelatedFiles." + folder + ".params")
@@ -387,11 +387,14 @@ if pa.data != "sim_everywhere":
 
         for i in range(pos_n):
 
-            axs[i].plot(t[start:], H[start:, posi[i]], "y")
-            axs[i].plot(t[start:], obs[start:, posi[i]], "k--")
+            axs[i].plot(t[start:], H[start:, posi[i]], "y", label=r"$H$")
+            axs[i].plot(t[start:], obs[start:, posi[i]], "k--", label=r"$H_{obs}$")
             axs[i].set_xlabel('Time [s]')
             axs[i].set_ylabel('H [m]')
-            axs[i].set_title(f"Sensor {i+2} at pos[i]m")
+            axs[i].set_title(f"Sensor {i+2} at {pos[i]}m")
+            axs[i].set_box_aspect(1/8)
+            if i == 0:
+                axs[i].legend(fontsize="8", loc="upper left")
 
         plt.tight_layout()
         if save:
@@ -406,7 +409,7 @@ if pa.data != "sim_everywhere":
             axs[i].plot(t[start:], H[start:, posi[i]]-obs[start:, posi[i]])
             axs[i].set_xlabel('Time [s]')
             axs[i].set_ylabel(r'$H - H_{obs} \ [m]$')
-            axs[i].set_title(f"Sensor {i+2} at pos[i]m")
+            axs[i].set_title(f"Sensor {i+2} at {pos[i]}m")
 
         plt.tight_layout()
         if save:

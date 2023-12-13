@@ -63,8 +63,8 @@ class params:
 
         # Tolerance for stopping criterion in gradient descent.
         # self.tol = 7e-8
-        # self.tol = 1e-7
-        self.tol = 1e-6
+        self.tol = 1e-7
+        # self.tol = 1e-6
 
         # Set factor for regularisation term.
         if self.test:
@@ -72,13 +72,14 @@ class params:
         else:
             # self.lambd = 0.001
             # self.lambd = 1e-4
-            self.lambd = 1e-5
-            # self.lambd = 1e-6
+            # self.lambd = 1e-5
+            self.lambd = 1e-6
             # self.lambd = 0
 
         L2reg = True
         if L2reg:
-            self.lambda_b = 1e-6
+            # self.lambda_b = 1e-6
+            self.lambda_b = 1e-7
 
         # Parameters for Armijo rule/Wolfe conditions.
         self.alpha = 64
@@ -96,7 +97,7 @@ class params:
         if self.test:
             self.jmax = 2
         else:
-            self.jmax = 1000
+            self.jmax = 2000
 
         # Time step.
         self.dt = 1e-3
@@ -112,9 +113,10 @@ class params:
         # Left and right boundary.
         self.xmin = 1.5
         self.xmax = 15  # Matches better with measurements.
+        # self.xmax = 12
         if self.data == "measurements":
             self.pos = [3.5, 5.5, 7.5]  # Sensor positions
-            # self.pos = [3.5]
+            # self.pos = [3.5, 7.5]
             self.start = 30  # Number of seconds to cut off from beginning of
             # experimental data.
         elif self.data == "sim_sensor_pos":
