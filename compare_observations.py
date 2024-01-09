@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Wed Nov 29 10:34:44 2023.
+Compare measurements of water heights in the water channel.
 
 @author: Judith Angel
 """
@@ -158,7 +159,7 @@ for i in range(len(pos)//2):
     axs[i].set_ylabel('H [m]')
     axs[i].set_title(f"Sensor {i+1} at {pos[i]}m")
 
-# plt.savefig(path + "/H_bathy_nobathy.pdf", bbox_inches='tight')
+plt.savefig(path + "/H_bathy.pdf", bbox_inches='tight')
 plt.show()
 
 fig, axs = plt.subplots(len(pos)//2)
@@ -177,7 +178,7 @@ for i in range(len(pos)//2):
     axs[i].set_ylabel('H [m]')
     axs[i].set_title(f"Sensor {i+1} at {pos[i]}m")
 
-# plt.savefig(path + "/H_bathy_nobathy.pdf", bbox_inches='tight')
+plt.savefig(path + "/H_nobathy.pdf", bbox_inches='tight')
 plt.show()
 
 fig, axs = plt.subplots(len(pos)//2)
@@ -196,10 +197,10 @@ for i in range(len(pos)//2):
     axs[i].set_ylabel('H [m]')
     axs[i].set_title(f"Sensor {i+3} at {pos[i+2]}m")
 
-# plt.savefig(path + "/H_bathy_nobathy.pdf", bbox_inches='tight')
+plt.savefig(path + "/H_diff.pdf", bbox_inches='tight')
 plt.show()
 
-
+# --------------------- Write means into text files. --------------------------
 # lines = np.swapaxes((meanBathy-H)*100, 0, 1)  # Subtract H and convert to cm.
 
 # with open("ProblemRelatedFiles/WaterchannelData/MitBathymetrie/"
