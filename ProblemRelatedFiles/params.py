@@ -26,9 +26,9 @@ class params:
 
         # Use either measurement data, simulated data everywhere or
         # simulated data at sensor positions.
-        # self.data = "measurements"
+        self.data = "measurements"
         # self.data = "sim_everywhere"
-        self.data = "sim_sensor_pos"
+        # self.data = "sim_sensor_pos"
 
         # Use mean of measurements.
         self.mean = True
@@ -71,6 +71,7 @@ class params:
         # Set factor for regularisation term.
         if self.test:
             self.lambd = 0
+            self.lambda_b = 0
         else:
             # self.lambd = 0.001
             # self.lambd = 1e-4
@@ -78,10 +79,10 @@ class params:
             self.lambd = 1e-6
             # self.lambd = 0
 
-        L2reg = True
-        if L2reg:
-            # self.lambda_b = 1e-6
-            self.lambda_b = 1e-7
+            L2reg = True
+            if L2reg:
+                # self.lambda_b = 1e-6
+                self.lambda_b = 1e-7
 
         # Parameters for Armijo rule/Wolfe conditions.
         self.alpha = 128
@@ -117,8 +118,8 @@ class params:
         self.xmax = 15  # Matches better with measurements.
         # self.xmax = 12
         if self.data == "measurements":
-            self.pos = [3.5, 5.5, 7.5]  # Sensor positions
-            # self.pos = [3.5, 7.5]
+            # self.pos = [3.5, 5.5, 7.5]  # Sensor positions
+            self.pos = [5.5]
             self.start = 30  # Number of seconds to cut off from beginning of
             # experimental data.
         elif self.data == "sim_sensor_pos":
@@ -288,7 +289,7 @@ class params:
                 self.y_d[n] = np.copy(y_d_field['g'])
 
         # Add noise to the observation.
-        if self.data != "sim_everywhere" and self.data != "measurements":
+        if self.data == "sim_sensor_pos":
 
             for p in range(len(self.pos)):
 
@@ -297,7 +298,7 @@ class params:
                     * np.random.normal(
                         0, .05*(np.max(self.y_d-self.H)), N-2)
 
-        else:
+        elif self.data == "sim_everywhere":
 
             self.y_d[2:] += self.noise \
                 * np.random.normal(
