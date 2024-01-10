@@ -360,7 +360,22 @@ class nonlinSWE:
         return sol
 
     def eval_at_sensor_positions(self, sol, pos):
+        """
+        Evaluates dedalus field at sensor positions.
 
+        Parameters
+        ----------
+        sol : dist.Field
+            Field.
+        pos : list
+            Sensor positions.
+
+        Returns
+        -------
+        numpy array
+            Field 'sol' evaluated at sensor positions 'pos'.
+
+        """
         temp = []
 
         for i in range(len(pos)):
