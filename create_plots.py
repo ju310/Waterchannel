@@ -209,7 +209,7 @@ if saveall:
         anim2.save(path + "/states.gif", dpi=150, fps=2)
 
 ############################
-# ----- Water height ----- #
+# ----- Mismatch ----- #
 if saveall:
 
     fig3 = plt.figure()
