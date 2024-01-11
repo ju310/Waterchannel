@@ -31,7 +31,7 @@ class params:
         # self.data = "sim_sensor_pos"
 
         # Use mean of measurements.
-        self.mean = True
+        self.mean = False
 
         # Put noise on observation.
         self.noise = 0
@@ -118,8 +118,11 @@ class params:
         self.xmax = 15  # Matches better with measurements.
         # self.xmax = 12
         if self.data == "measurements":
-            # self.pos = [3.5, 5.5, 7.5]  # Sensor positions
-            self.pos = [5.5]
+            positions = [3.5, 5.5, 7.5]  # Sensor positions
+            self.sensors = [1]  # Indices of sensors
+            self.pos = []
+            for i in self.sensors:
+                self.pos.append(positions[i])
             self.start = 30  # Number of seconds to cut off from beginning of
             # experimental data.
         elif self.data == "sim_sensor_pos":
@@ -234,11 +237,11 @@ class params:
             # Load observation data from text file.
             dataObject = data(pathbc)
 
-            for p in range(len(self.pos)):
+            for p in self.sensors:
 
                 H_sensor = self.H + dataObject.f[p](
                     self.t_array + self.start)
-                i = np.argmin(abs(x-self.pos[p]))
+                i = np.argmin(abs(x-positions[p]))
                 self.y_d[:, i] = H_sensor
 
         elif self.data == "sim_sensor_pos":
