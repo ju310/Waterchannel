@@ -103,14 +103,19 @@ class OptProblem:
         self.p = p.copy()
 
         p2_x = np.zeros((self.p.shape[0], self.p.shape[1]))
-        p2r = np.zeros(self.N)  # Right boundary values for H^1 gradient.
+        p2_x = np.zeros((self.p.shape[0], self.p.shape[1]))
+        # p2r = np.zeros(self.N)  # Right boundary values for H^1 gradient.
+        p2l = np.zeros(self.N)  # Left boundary value for H^1 gradient.
+        hl = np.zeros(self.N)  # Left boundary value for H^1 gradient.
+        ul = np.zeros(self.N)  # Left boundary value for H^1 gradient.
         h_x = np.zeros((self.q.shape[0], self.q.shape[1]))
 
         for n in range(self.p.shape[0]):
 
             self.p2_field.change_scales(1)
             self.p2_field['g'] = self.p[n, :, 1]
-            p2r[n] = self.p2_field(x=self.xmax).evaluate()["g"]
+            # p2r[n] = self.p2_field(x=self.xmax).evaluate()["g"]
+            p2l[n] = self.p2_field(x=self.xmin).evaluate()["g"]
             self.p2x_field.change_scales(3/2)
             self.p2x_field["g"] = d3.Differentiate(
                 self.p2_field, self.PDE.xcoord).evaluate()["g"]
@@ -118,10 +123,14 @@ class OptProblem:
             p2_x[n, :] = self.p2x_field["g"]
             self.h_field.change_scales(1)
             self.h_field['g'] = self.q[n, :, 0]
+            hl[n] = self.h_field(x=self.xmin).evaluate()["g"]
             self.h_field["g"] = d3.Differentiate(
                 self.h_field, self.PDE.xcoord).evaluate()['g']
             self.h_field.change_scales(1)
             h_x[n] = self.h_field["g"]
+            self.u_field.change_scales(1)
+            self.u_field['g'] = self.q[n, :, 1]
+            ul[n] = self.u_field(x=self.xmin).evaluate()["g"]
 
         self.b_field.change_scales(1)
         self.b_field['g'] = self.PDE.current_b
@@ -156,10 +165,12 @@ class OptProblem:
 
         # Boundary values
         vl = self.PDE.dist.Field()
-        vl["g"] = self.lambd*self.bx_field(x=self.xmin).evaluate()["g"]
+        bxl = self.bx_field(x=self.xmin).evaluate()["g"]
+        vl["g"] = self.lambd*bxl \
+            - 2*intgr.simpson(ul**2*p2l/hl, dx=self.dt, axis=0)
         vr = self.PDE.dist.Field()
-        vr["g"] = self.lambd*self.bx_field(x=self.xmax).evaluate()["g"] \
-            - self.g*intgr.simpson(p2r, dx=self.dt, axis=0)
+        bxr = self.bx_field(x=self.xmax).evaluate()["g"]
+        vr["g"] = self.lambd*bxr
 
         # Substitutions
         dx = lambda A: d3.Differentiate(A, self.PDE.xcoord)
