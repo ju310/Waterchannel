@@ -34,6 +34,8 @@ class nonlinSWE:
         self.lbc = pa.lbc
         if hasattr(pa, "start"):
             self.start = pa.start
+        else:
+            self.start = 0
         self.data = pa.data
         if pa.data != "sim_everywhere":
             self.pos = pa.pos

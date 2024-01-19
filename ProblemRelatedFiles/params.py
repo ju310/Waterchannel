@@ -26,12 +26,12 @@ class params:
 
         # Use either measurement data, simulated data everywhere or
         # simulated data at sensor positions.
-        self.data = "measurements"
-        # self.data = "sim_everywhere"
+        # self.data = "measurements"
+        self.data = "sim_everywhere"
         # self.data = "sim_sensor_pos"
 
         # Use mean of measurements.
-        self.mean = False
+        self.mean = True
 
         # Put noise on observation.
         self.noise = 0
@@ -119,7 +119,7 @@ class params:
         # self.xmax = 12
         if self.data == "measurements":
             positions = [3.5, 5.5, 7.5]  # Sensor positions
-            self.sensors = [1]  # Indices of sensors
+            self.sensors = [2]  # Indices of sensors to use.
             self.pos = []
             for i in self.sensors:
                 self.pos.append(positions[i])
@@ -180,8 +180,8 @@ class params:
                     + f" ({xmax_p})")
             if self.dt != dt_p or self.M != M_p:
                 print(
-                    "Note that you are not using the same discretisation as in"
-                    + " the hdf5 file.")
+                    "Note that you are not using the same discretisation as "
+                    + "used for the observation in the hdf5 file.")
 
             if self.data != "sim_everywhere":
                 for i in range(len(self.pos)):
