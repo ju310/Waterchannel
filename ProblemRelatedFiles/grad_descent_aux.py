@@ -109,8 +109,6 @@ class OptProblem:
 
         for n in range(self.p.shape[0]):
 
-            self.p1_field.change_scales(1)
-            self.p1_field['g'] = self.p[n, :, 0]
             self.p2_field.change_scales(1)
             self.p2_field['g'] = self.p[n, :, 1]
             self.p2x_field.change_scales(3/2)
