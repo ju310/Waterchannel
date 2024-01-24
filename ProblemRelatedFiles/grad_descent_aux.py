@@ -32,9 +32,11 @@ class OptProblem:
         self.b_field = self.PDE.dist.Field(bases=self.PDE.xbasis)
         self.bx_field = self.PDE.dist.Field(bases=self.PDE.xbasis)
         self.bxx_field = self.PDE.dist.Field(bases=self.PDE.xbasis)
+        self.p1_field = self.PDE.dist.Field(bases=self.PDE.xbasis)  # ???
         self.p2_field = self.PDE.dist.Field(bases=self.PDE.xbasis)
         self.p2x_field = self.PDE.dist.Field(bases=self.PDE.xbasis)
         self.h_field = self.PDE.dist.Field(bases=self.PDE.xbasis)
+        self.u_field = self.PDE.dist.Field(bases=self.PDE.xbasis)
         if hasattr(pa, "lambda_b"):
             self.lambda_b = pa.lambda_b
 
@@ -106,12 +108,16 @@ class OptProblem:
         p2_x = np.zeros((self.p.shape[0], self.p.shape[1]))
         # p2r = np.zeros(self.N)  # Right boundary values for H^1 gradient.
         p2l = np.zeros(self.N)  # Left boundary value for H^1 gradient.
+        p1l = np.zeros(self.N)  # Left boundary value for H^1 gradient.
         hl = np.zeros(self.N)  # Left boundary value for H^1 gradient.
         ul = np.zeros(self.N)  # Left boundary value for H^1 gradient.
         h_x = np.zeros((self.q.shape[0], self.q.shape[1]))
 
         for n in range(self.p.shape[0]):
 
+            self.p1_field.change_scales(1)
+            self.p1_field['g'] = self.p[n, :, 0]
+            p1l[n] = self.p1_field(x=self.xmin).evaluate()["g"]
             self.p2_field.change_scales(1)
             self.p2_field['g'] = self.p[n, :, 1]
             # p2r[n] = self.p2_field(x=self.xmax).evaluate()["g"]
@@ -166,8 +172,10 @@ class OptProblem:
         # Boundary values
         vl = self.PDE.dist.Field()
         bxl = self.bx_field(x=self.xmin).evaluate()["g"]
+        # vl["g"] = self.lambd*bxl \
+        #     - 2*intgr.simpson(ul**2*p2l/hl, dx=self.dt, axis=0)
         vl["g"] = self.lambd*bxl \
-            - 2*intgr.simpson(ul**2*p2l/hl, dx=self.dt, axis=0)
+            + intgr.simpson(ul*p1l, dx=self.dt, axis=0)
         vr = self.PDE.dist.Field()
         bxr = self.bx_field(x=self.xmax).evaluate()["g"]
         vr["g"] = self.lambd*bxr
