@@ -23,11 +23,15 @@ from read_left_bc import leftbc, data
 import logging
 logger = logging.getLogger(__name__)
 
-prefix = 'WaterchannelData/MitBathymetrie/'
-# prefix = 'WaterchannelData/OhneBathymetrie/'
-# postfix = "mean"
-postfix = "meanBathy"
-# postfix = "try=1"
+bathy = True
+
+if bathy:
+    prefix = 'WaterchannelData/MitBathymetrie/'
+    postfix = "meanBathy"
+    # postfix = "try=1"
+else:
+    prefix = 'WaterchannelData/OhneBathymetrie/'
+    postfix = "mean"
 
 filename = 'Tiefe=0,3_A=40_F=0,35_' + postfix
 
@@ -53,18 +57,17 @@ xmax = 15  # Set right boundary to 15m to simulate the 'beach' in the real
 # Nx = 17*4
 # Nx = 70
 Nx = 100
-T = 10
+T = 13
 start = 34  # Number of seconds to cut off from beginning of experimental data.
-# timestep = 1e-4
-timestep = 5e-5
+timestep = 1e-4
+# timestep = 5e-5
 # timestep = 1e-3
 N = int(T/abs(timestep))+1
 g = 9.81
 H = 0.3
 kappa = 0.2  # Makes amplitudes smaller and waves a bit smoother.
 dealias = 3/2
-save = False
-bathy = True
+save = True
 
 # Bases and domain
 xcoord = d3.Coordinate('x')
@@ -194,10 +197,10 @@ t_array = np.array(t_list)
 dx = (xmax-xmin)/Nx
 if bathy:
     path = "WaterchannelData/sim_data_" + filename\
-        + "_ExactRamp"
+        + f"_ExactRamp_T={T}"
 else:
-    path = "WaterchannelData/" + filename\
-        + f"_kappa{kappa:.0e}"
+    path = "WaterchannelData/nobathy" + filename\
+        + f"_kappa{kappa:.0e}_T={T}"
 
 Hmax = np.amax(H_array)
 Hmin = np.amin(H_array)
@@ -256,7 +259,6 @@ axs[2].set_ylabel('H [m]')
 axs[2].legend(loc="upper left")
 axs[2].set_title(f"Sensor 4 at {pos[2]}m")
 plt.tight_layout()
-plt.savefig(f"{path}"+".pdf")
 plt.show()
 
 # Save all data.

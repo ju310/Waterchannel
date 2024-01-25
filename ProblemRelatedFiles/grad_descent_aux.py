@@ -35,6 +35,7 @@ class OptProblem:
         self.p2_field = self.PDE.dist.Field(bases=self.PDE.xbasis)
         self.p2x_field = self.PDE.dist.Field(bases=self.PDE.xbasis)
         self.h_field = self.PDE.dist.Field(bases=self.PDE.xbasis)
+        self.u_field = self.PDE.dist.Field(bases=self.PDE.xbasis)
         if hasattr(pa, "lambda_b"):
             self.lambda_b = pa.lambda_b
 
@@ -104,18 +105,14 @@ class OptProblem:
 
         p2_x = np.zeros((self.p.shape[0], self.p.shape[1]))
         p2_x = np.zeros((self.p.shape[0], self.p.shape[1]))
-        # p2r = np.zeros(self.N)  # Right boundary values for H^1 gradient.
-        p2l = np.zeros(self.N)  # Left boundary value for H^1 gradient.
-        hl = np.zeros(self.N)  # Left boundary value for H^1 gradient.
-        ul = np.zeros(self.N)  # Left boundary value for H^1 gradient.
         h_x = np.zeros((self.q.shape[0], self.q.shape[1]))
 
         for n in range(self.p.shape[0]):
 
+            self.p1_field.change_scales(1)
+            self.p1_field['g'] = self.p[n, :, 0]
             self.p2_field.change_scales(1)
             self.p2_field['g'] = self.p[n, :, 1]
-            # p2r[n] = self.p2_field(x=self.xmax).evaluate()["g"]
-            p2l[n] = self.p2_field(x=self.xmin).evaluate()["g"]
             self.p2x_field.change_scales(3/2)
             self.p2x_field["g"] = d3.Differentiate(
                 self.p2_field, self.PDE.xcoord).evaluate()["g"]
@@ -123,14 +120,12 @@ class OptProblem:
             p2_x[n, :] = self.p2x_field["g"]
             self.h_field.change_scales(1)
             self.h_field['g'] = self.q[n, :, 0]
-            hl[n] = self.h_field(x=self.xmin).evaluate()["g"]
             self.h_field["g"] = d3.Differentiate(
                 self.h_field, self.PDE.xcoord).evaluate()['g']
             self.h_field.change_scales(1)
             h_x[n] = self.h_field["g"]
             self.u_field.change_scales(1)
             self.u_field['g'] = self.q[n, :, 1]
-            ul[n] = self.u_field(x=self.xmin).evaluate()["g"]
 
         self.b_field.change_scales(1)
         self.b_field['g'] = self.PDE.current_b
@@ -163,15 +158,6 @@ class OptProblem:
         tauv = self.PDE.dist.Field()
         tauv2 = self.PDE.dist.Field()
 
-        # Boundary values
-        vl = self.PDE.dist.Field()
-        bxl = self.bx_field(x=self.xmin).evaluate()["g"]
-        vl["g"] = self.lambd*bxl \
-            - 2*intgr.simpson(ul**2*p2l/hl, dx=self.dt, axis=0)
-        vr = self.PDE.dist.Field()
-        bxr = self.bx_field(x=self.xmax).evaluate()["g"]
-        vr["g"] = self.lambd*bxr
-
         # Substitutions
         dx = lambda A: d3.Differentiate(A, self.PDE.xcoord)
 
@@ -185,11 +171,10 @@ class OptProblem:
             [v, tauv, tauv2],
             namespace={
                 "v": v, "dx": dx, "vTilde": vTilde,  "tauv": tauv,
-                "tauv2": tauv2, "lift": self.PDE.lift, "vx": vx,
-                "vxx": vxx, "vl": vl, "vr": vr})
+                "tauv2": tauv2, "lift": self.PDE.lift, "vx": vx, "vxx": vxx})
         problem.add_equation("-vxx + v = vTilde")
-        problem.add_equation("v(x='left') =  vl")
-        problem.add_equation("v(x='right') = vr")
+        problem.add_equation("v(x='left') =  0")
+        problem.add_equation("v(x='right') = 0")
 
         # Solver
         solver = problem.build_solver()

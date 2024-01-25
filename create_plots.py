@@ -14,7 +14,7 @@ from matplotlib.animation import FuncAnimation
 from dedalus.extras.plot_tools import quad_mesh, pad_limits
 import importlib
 
-folder = "2024_01_04_10_14_PM"
+folder = "2024_01_19_02_33_PM"
 path = "ProblemRelatedFiles/" + folder
 
 params = importlib.import_module("ProblemRelatedFiles." + folder + ".params")
@@ -26,6 +26,8 @@ save = True
 with h5py.File(path+"/gradient_data.hdf5", "r") as sol:
 
     f_vals = np.array(sol["f_vals"][:])
+    f_err1s = np.array(sol["f_err1s"][:])
+    f_err2s = np.array(sol["f_err2s"][:])
     f_regs = np.array(sol["f_regs"][:])
     f_b_exct = np.array(sol["f_b_exct"])
     alpha_js = np.array(sol["alpha_js"][:])
@@ -64,11 +66,13 @@ if saveall:
     p2max = np.max(ps[:, :, :, 1])
 
 plt.figure()
-plt.semilogy(range(j-1), f_vals[0:j-1], '-*')
-plt.semilogy(range(j-1), f_b_exct*np.ones(j-1), 'r-')
+plt.semilogy(range(j-1), f_vals[0:j-1], '-*', label=r"value at $b_j$")
+plt.semilogy(range(j-1), f_err1s[0:j-1]+f_err2s[0:j-1], '--', label="mismatch")
+plt.semilogy(range(j-1), f_regs[0:j-1], '--', label="regularisation")
+plt.semilogy(range(j-1), f_b_exct*np.ones(j-1), 'r-', label="value at exact b")
 plt.xlabel(r'Optimisation iterate $j$')
-plt.ylabel(r"$J(b_j)$")
-# plt.legend()
+# plt.ylabel(r"$J(b_j)$")
+plt.legend()
 plt.title("Values of objective functional")
 if save:
     plt.savefig(path + "/values_f.pdf", bbox_inches='tight')

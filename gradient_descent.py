@@ -24,7 +24,7 @@ for system in ['subsystems', 'solvers']:
 
 oldOptAgain = False  # Set to True if you want to run an old optimisation again
 # with exactly the same parameters.
-folder = "2023_12_08_02_54_PM"  # Folder with old optimisation data.
+folder = "2024_01_19_02_33_PM"  # Folder with old optimisation data.
 params = importlib.import_module("ProblemRelatedFiles."
                                  + oldOptAgain*(folder + ".") + "params")
 
@@ -230,4 +230,5 @@ if save is True:
                  + f"\nValue regularisation term: {P.f_reg}"
                  + f"\nOutput gradient check: {gradientchecks}"
                  + f"\ntime step = {P.dt}"
-                 + f"\ngrid points in space = {P.M}")
+                 + f"\ngrid points in space = {P.M}"
+                 + oldOptAgain*f"Reconstruction with parameters from {folder}")
