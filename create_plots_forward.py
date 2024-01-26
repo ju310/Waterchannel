@@ -11,7 +11,7 @@ import h5py
 import matplotlib.pyplot as plt
 from ProblemRelatedFiles.read_left_bc import leftbc, data
 
-file = "sim_data_Tiefe=0,3_A=40_F=0,35_meanBathy_ExactRamp_T=13.hdf5"
+file = "sim_data_Tiefe=0,3_A=40_F=0,35_meanBathy_ExactRamp_T=13"
 path = "ProblemRelatedFiles/WaterchannelData/" + file
 
 if "sim_data_" in file:
@@ -28,13 +28,13 @@ dataObject = data(prefix+filename+".txt")
 
 save = True
 
-with h5py.File(path, "r") as sol:
+with h5py.File(path+".hdf5", "r") as sol:
 
     H_sensor = np.array(sol["H_sensor"][:])
     u_sensor = np.array(sol["u_sensor"][:])
     h = np.array(sol["h"][:])
     u = np.array(sol["u"][:])
-    b_exact = np.array(sol["b_exact"])
+    b_exact = np.array(sol["b_array"])
     xgrid = np.array(sol["xgrid"][:])
     t_array = np.array(sol["t_array"][:])
     pos = np.array(sol["pos"][:])
