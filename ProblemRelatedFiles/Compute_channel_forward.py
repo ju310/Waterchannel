@@ -16,7 +16,6 @@ import warnings
 from scipy import interpolate
 
 import dedalus.public as d3
-from dedalus.extras.plot_tools import quad_mesh
 
 from read_left_bc import leftbc, data
 
@@ -277,7 +276,9 @@ if save:
         f.create_dataset("u_sensor", data=u_array)
         f.create_dataset("h", data=h_array_full)
         f.create_dataset("u", data=u_array_full)
-        f.create_dataset("b_exact", data=b_array)
+        f.create_dataset("b_array", data=b_array)
+        f.create_dataset("b_points", data=b_points)
+        f.create_dataset("x_points", data=x_points)
         f.create_dataset("xgrid", data=x)
         f.create_dataset("t_array", data=t_array)
         f.create_dataset("pos", data=pos)
