@@ -194,6 +194,15 @@ else:
 # -----------------------------------------------------------------------------
 # --------------------------------- DATA --------------------------------------
 
+# Talyor test for gradient
+for i in range(len(vs)):
+
+    cg = CheckGradient(P.f, P.dx*vs[i], bs[i])
+    # Need gradient*dx because of discrete scalar product
+    # in taylortest.py.
+    gradientchecks.append(cg.check_order_2())
+    print(f"Iteration {i}: {cg.check_order_2()}")
+
 if save is True:
 
     f.create_dataset("f_vals", data=f_vals)
@@ -203,16 +212,6 @@ if save is True:
         f.create_dataset("q", data=P.q)
 
     f.close()
-
-# Talyor test for gradient
-# for i in range(len(vs)):
-
-#     cg = CheckGradient(P.f, P.dx*vs[i], bs[i])
-#     # Need gradient*dx because of discrete scalar product
-#     # in taylortest.py.
-#     gradientchecks.append(cg.check_order_2())
-#     print(f"Iteration {i}: {cg.check_order_2()}")
-
 
 if save is True:
 

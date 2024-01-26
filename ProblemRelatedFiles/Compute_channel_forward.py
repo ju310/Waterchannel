@@ -58,9 +58,9 @@ xmax = 15  # Set right boundary to 15m to simulate the 'beach' in the real
 # Nx = 70
 Nx = 100
 T = 13
-start = 34  # Number of seconds to cut off from beginning of experimental data.
-timestep = 1e-4
-# timestep = 5e-5
+start = 32  # Number of seconds to cut off from beginning of experimental data.
+# timestep = 1e-4
+timestep = 5e-5
 # timestep = 1e-3
 N = int(T/abs(timestep))+1
 g = 9.81
@@ -204,6 +204,11 @@ else:
 
 Hmax = np.amax(H_array)
 Hmin = np.amin(H_array)
+
+plt.figure()
+plt.plot(t_array, H+lbc.f(t_array+start), "k")
+plt.ylim([Hmin-0.001, Hmax+0.001])
+plt.title("Sensor 1, boundary condition")
 
 plt.figure()
 plt.plot(t_array, H_array[:, 0], "y",
