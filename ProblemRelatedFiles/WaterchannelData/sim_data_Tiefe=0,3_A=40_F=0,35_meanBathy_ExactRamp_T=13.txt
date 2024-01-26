@@ -16,15 +16,21 @@ import warnings
 from scipy import interpolate
 
 import dedalus.public as d3
-from dedalus.extras.plot_tools import quad_mesh
 
 from read_left_bc import leftbc, data
 
 import logging
 logger = logging.getLogger(__name__)
 
-prefix = 'WaterchannelData/MitBathymetrie/'
-postfix = "try=1"
+bathy = True
+
+if bathy:
+    prefix = 'WaterchannelData/MitBathymetrie/'
+    postfix = "meanBathy"
+    # postfix = "try=1"
+else:
+    prefix = 'WaterchannelData/OhneBathymetrie/'
+    postfix = "mean"
 
 filename = 'Tiefe=0,3_A=40_F=0,35_' + postfix
 
@@ -44,16 +50,16 @@ def eval_at_sensor_positions(sol, pos):
 
 
 pos = [3.5, 5.5, 7.5]
-xmin = 1.5  # First sensor is located at 1.5 m.
-# xmax = 20
-xmax = 15  # Error to measurement data is lower than with 20m (T=18).
+xmin = 1.5  # First sensor is located at 1.5m.
+xmax = 15  # Set right boundary to 15m to simulate the 'beach' in the real
+# water channel.
 # Nx = 17*4
 # Nx = 70
 Nx = 100
-T = 15
-start = 34  # Number of seconds to cut off from beginning of experimental data.
+T = 13
+start = 32  # Number of seconds to cut off from beginning of experimental data.
 # timestep = 1e-4
-timestep = 1e-5
+timestep = 5e-5
 # timestep = 1e-3
 N = int(T/abs(timestep))+1
 g = 9.81
@@ -61,7 +67,6 @@ H = 0.3
 kappa = 0.2  # Makes amplitudes smaller and waves a bit smoother.
 dealias = 3/2
 save = True
-bathy = True
 
 # Bases and domain
 xcoord = d3.Coordinate('x')
@@ -139,8 +144,7 @@ x_points = np.concatenate(
      np.array([
          3.4125, 3.5, 3.6, 3.7, 3.8, 3.9, 4, 4.1, 4.2, 4.3, 4.4, 4.5, 4.5875]),
      np.arange(5, 15.5, 0.5)))
-rampFunc = interpolate.CubicSpline(x_points, b_points,
-                                   bc_type=((1, 0.0), (1, 0.0)))
+rampFunc = interpolate.PchipInterpolator(x_points, b_points)
 b_array = rampFunc(x)
 
 # b_array = source(x)
@@ -192,10 +196,18 @@ t_array = np.array(t_list)
 dx = (xmax-xmin)/Nx
 if bathy:
     path = "WaterchannelData/sim_data_" + filename\
-        + "_ExactRamp"
+        + f"_ExactRamp_T={T}"
 else:
-    path = "WaterchannelData/" + filename\
-        + f"_kappa{kappa:.0e}"
+    path = "WaterchannelData/nobathy" + filename\
+        + f"_kappa{kappa:.0e}_T={T}"
+
+Hmax = np.amax(H_array)
+Hmin = np.amin(H_array)
+
+plt.figure()
+plt.plot(t_array, H+lbc.f(t_array+start), "k")
+plt.ylim([Hmin-0.001, Hmax+0.001])
+plt.title("Sensor 1, boundary condition")
 
 plt.figure()
 plt.plot(t_array, H_array[:, 0], "y",
@@ -203,7 +215,7 @@ plt.plot(t_array, H_array[:, 0], "y",
 plt.plot(t_array, H+dataObject.f[0](t_array+start), "k",
          label="measurement")
 plt.legend()
-plt.ylim([H-0.02, H+0.02])
+plt.ylim([Hmin-0.001, Hmax+0.001])
 plt.title("Sensor 2")
 
 plt.figure()
@@ -212,7 +224,7 @@ plt.plot(t_array, H_array[:, 1], "y",
 plt.plot(t_array, H+dataObject.f[1](t_array+start), "k",
          label="measurement")
 plt.legend()
-plt.ylim([H-0.02, H+0.02])
+plt.ylim([Hmin-0.001, Hmax+0.001])
 plt.title("Sensor 3")
 
 plt.figure()
@@ -221,7 +233,7 @@ plt.plot(t_array, H_array[:, 2], "y",
 plt.plot(t_array, H+dataObject.f[2](t_array+start), "k",
          label="measurement")
 plt.legend()
-plt.ylim([H-0.02, H+0.02])
+plt.ylim([Hmin-0.001, Hmax+0.001])
 plt.title("Sensor 4")
 
 fig, axs = plt.subplots(3)
@@ -251,10 +263,7 @@ axs[2].set_ylabel('H [m]')
 axs[2].legend(loc="upper left")
 axs[2].set_title(f"Sensor 4 at {pos[2]}m")
 plt.tight_layout()
-plt.savefig(f"{path}"+".pdf")
 plt.show()
-
-xmesh, ymesh = quad_mesh(x=x, y=t_array)
 
 # Save all data.
 if save:
@@ -267,7 +276,9 @@ if save:
         f.create_dataset("u_sensor", data=u_array)
         f.create_dataset("h", data=h_array_full)
         f.create_dataset("u", data=u_array_full)
-        f.create_dataset("b_exact", data=b_array)
+        f.create_dataset("b_array", data=b_array)
+        f.create_dataset("b_points", data=b_points)
+        f.create_dataset("x_points", data=x_points)
         f.create_dataset("xgrid", data=x)
         f.create_dataset("t_array", data=t_array)
         f.create_dataset("pos", data=pos)
