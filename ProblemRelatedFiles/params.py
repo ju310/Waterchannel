@@ -22,20 +22,20 @@ class params:
     def __init__(self):
 
         # Turn on/off test for gradient descent method. Start with exact b.
-        self.test = True
+        self.test = False
 
         # Use either measurement data, simulated data everywhere or
         # simulated data at sensor positions.
         # self.data = "measurements"
-        self.data = "sim_everywhere"
-        # self.data = "sim_sensor_pos"
+        # self.data = "sim_everywhere"
+        self.data = "sim_sensor_pos"
 
         # Use mean of measurements.
         self.mean = True
 
         # Put noise on observation.
-        self.noise = 0
-        # self.noise = 1
+        # self.noise = 0
+        self.noise = 1
 
         # Set bottom friction coefficient.
         self.kappa = 0.2
@@ -46,11 +46,17 @@ class params:
         # Set final time.
         self.T_N = 10
 
-        path = "ProblemRelatedFiles/WaterchannelData/" \
-            + "sim_data_Tiefe=0,3_A=40_F=0,35_meanBathy_ExactRamp_T=13.hdf5"
+        if self.data == "measurements":
+            path = "ProblemRelatedFiles/WaterchannelData/" \
+                + "sim_data_Tiefe=0,3_A=40_F=0,35_meanBathy_ExactRamp_T=13.hdf5"
+        else:
+            path = "ProblemRelatedFiles/WaterchannelData/" \
+                + "sim_data_Tiefe=0,3_A=40_F=0,35_ExactRamp_T=16.hdf5"
         if self.data != "measurements":
+            # pathbc = "ProblemRelatedFiles/WaterchannelData/" \
+            #     + "MitBathymetrie/Tiefe=0,3_A=40_F=0,35_meanBathy.txt"
             pathbc = "ProblemRelatedFiles/WaterchannelData/" \
-                + "MitBathymetrie/Tiefe=0,3_A=40_F=0,35_meanBathy.txt"
+                + "Tiefe=0,3_A=40_F=0,35.txt"
         else:
             if self.mean:
                 pathbc = "ProblemRelatedFiles/WaterchannelData/" \
@@ -99,7 +105,7 @@ class params:
             self.jmax = 2000
 
         # Time step.
-        self.dt = 1e-4
+        self.dt = 1e-3
 
         # Number of points in time.
         N = int(self.T_N/self.dt) + 1
