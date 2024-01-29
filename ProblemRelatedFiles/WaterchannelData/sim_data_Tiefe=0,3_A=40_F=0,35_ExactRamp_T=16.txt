@@ -3,28 +3,38 @@
 """
 Created on Tue May 23 13:47:22 2023
 
-@author: cja8741
+@author: Judith Angel
 Sensor 1 at 1.5m.
 Sensor 2 at 3.5m.
-Sensor 3 at 6m.
-Sensor 4 at 8.5m.
+Sensor 3 at 5.5m.
+Sensor 4 at 7.5m.
 """
 import numpy as np
 import matplotlib.pyplot as plt
 import h5py
 import warnings
+from scipy import interpolate
 
 import dedalus.public as d3
-from dedalus.extras.plot_tools import quad_mesh
 
-from ProblemRelatedFiles.read_left_bc import leftbc, data
+from read_left_bc import leftbc, data
 
 import logging
 logger = logging.getLogger(__name__)
 
-prefix = 'ProblemRelatedFiles/WaterchannelData/'
+bathy = True
 
-filename = 'Tiefe=0,3_A=40_F=0,35'
+if bathy:
+    # prefix = 'WaterchannelData/MitBathymetrie/'
+    # postfix = "meanBathy"
+    prefix = 'WaterchannelData/'
+    postfix = ""
+    # postfix = "_try=1"
+else:
+    prefix = 'WaterchannelData/OhneBathymetrie/'
+    postfix = "_mean"
+
+filename = 'Tiefe=0,3_A=40_F=0,35' + postfix
 
 lbc = leftbc(prefix+filename+".txt")
 dataObject = data(prefix+filename+".txt")
@@ -41,15 +51,18 @@ def eval_at_sensor_positions(sol, pos):
     return temp
 
 
-pos = [3.5, 6, 8.5]
-xmin = 1.5  # First sensor is located at 1.5 m.
-# xmax = 20
-xmax = 15  # Error to measurement data is lower than with 20m (T=18).
+pos = [3.5, 5.5, 7.5]
+xmin = 1.5  # First sensor is located at 1.5m.
+xmax = 15  # Set right boundary to 15m to simulate the 'beach' in the real
+# water channel.
 # Nx = 17*4
 # Nx = 70
 Nx = 100
+# T = 13
 T = 16
+# start = 32  # Number of seconds to cut off from beginning of experimental data.
 start = 0
+# timestep = 5e-5
 timestep = 1e-4
 # timestep = 1e-3
 N = int(T/abs(timestep))+1
@@ -58,13 +71,11 @@ H = 0.3
 kappa = 0.2  # Makes amplitudes smaller and waves a bit smoother.
 dealias = 3/2
 save = True
-bathy = True
 
 # Bases and domain
 xcoord = d3.Coordinate('x')
 dist = d3.Distributor(xcoord, dtype=np.float64)
 xbasis = d3.Chebyshev(xcoord, size=Nx, bounds=(xmin, xmax), dealias=dealias)
-domain = d3.Domain(dist, bases=[xbasis])
 x = dist.local_grid(xbasis)
 
 # Fields
@@ -75,7 +86,6 @@ tau1 = dist.Field(name='tau1')
 tau2 = dist.Field(name='tau2')
 temp = dist.Field()
 t = dist.Field()
-# H0 = H + lbc.f(0)
 
 
 def hl_function(*args):
@@ -117,17 +127,31 @@ solver.stop_sim_time = T - 1e-13
 # Initial conditions/bathymetry
 
 
-def source(x):
-    x = np.array(x)
-    if bathy:
+# def source(x):
+#     x = np.array(x)
+#     if bathy:
 
-        return 0.2*np.exp(-((x-5)/0.4)**2)  # Skateboard ramp bathymetry
+#         return 0.2*np.exp(-((x-4)/0.4)**2)  # Skateboard ramp bathymetry
 
-    else:
-        return np.zeros(x.size)
+#     else:
+#         return np.zeros(x.size)
 
 
-b_array = source(x)
+# Measured points of the ramp.
+b_points = np.concatenate(
+    (np.zeros(4),
+     np.array([0, 0.024, 0.053, 0.0905, 0.133, 0.182, 0.2, 0.182, 0.133,
+               0.0905, 0.053, 0.024, 0]),
+     np.zeros(21)))
+x_points = np.concatenate(
+    (np.arange(1.5, 3.5, 0.5),
+     np.array([
+         3.4125, 3.5, 3.6, 3.7, 3.8, 3.9, 4, 4.1, 4.2, 4.3, 4.4, 4.5, 4.5875]),
+     np.arange(5, 15.5, 0.5)))
+rampFunc = interpolate.PchipInterpolator(x_points, b_points)
+b_array = rampFunc(x)
+
+# b_array = source(x)
 b['g'] = b_array
 h['g'] = H*np.ones(Nx) - b_array
 u['g'] = 0
@@ -174,13 +198,20 @@ h_array_full = np.array(h_list_full)
 u_array_full = np.array(u_list_full)
 t_array = np.array(t_list)
 dx = (xmax-xmin)/Nx
-# H_array = h_array + np.tile(source, (t_array.size, 1))
 if bathy:
-    path = "ProblemRelatedFiles/WaterchannelPlots/" + filename\
-        + f"_kappa{kappa:.0e}_bathy{bathy}_middle"
+    path = "WaterchannelData/sim_data_" + filename\
+        + f"_ExactRamp_T={T}"
 else:
-    path = "ProblemRelatedFiles/WaterchannelPlots/" + filename\
-        + f"_kappa{kappa:.0e}"
+    path = "WaterchannelData/nobathy" + filename\
+        + f"_kappa{kappa:.0e}_T={T}"
+
+Hmax = np.amax(H_array)
+Hmin = np.amin(H_array)
+
+plt.figure()
+plt.plot(t_array, H+lbc.f(t_array+start), "k")
+plt.ylim([Hmin-0.001, Hmax+0.001])
+plt.title("Sensor 1, boundary condition")
 
 plt.figure()
 plt.plot(t_array, H_array[:, 0], "y",
@@ -188,7 +219,7 @@ plt.plot(t_array, H_array[:, 0], "y",
 plt.plot(t_array, H+dataObject.f[0](t_array+start), "k",
          label="measurement")
 plt.legend()
-plt.ylim([H-0.02, H+0.02])
+plt.ylim([Hmin-0.001, Hmax+0.001])
 plt.title("Sensor 2")
 
 plt.figure()
@@ -197,7 +228,7 @@ plt.plot(t_array, H_array[:, 1], "y",
 plt.plot(t_array, H+dataObject.f[1](t_array+start), "k",
          label="measurement")
 plt.legend()
-plt.ylim([H-0.02, H+0.02])
+plt.ylim([Hmin-0.001, Hmax+0.001])
 plt.title("Sensor 3")
 
 plt.figure()
@@ -206,7 +237,7 @@ plt.plot(t_array, H_array[:, 2], "y",
 plt.plot(t_array, H+dataObject.f[2](t_array+start), "k",
          label="measurement")
 plt.legend()
-plt.ylim([H-0.02, H+0.02])
+plt.ylim([Hmin-0.001, Hmax+0.001])
 plt.title("Sensor 4")
 
 fig, axs = plt.subplots(3)
@@ -236,11 +267,7 @@ axs[2].set_ylabel('H [m]')
 axs[2].legend(loc="upper left")
 axs[2].set_title(f"Sensor 4 at {pos[2]}m")
 plt.tight_layout()
-if save:
-    plt.savefig(f"{path}"+".pdf")
 plt.show()
-
-xmesh, ymesh = quad_mesh(x=x, y=t_array)
 
 # Save all data.
 if save:
@@ -253,10 +280,13 @@ if save:
         f.create_dataset("u_sensor", data=u_array)
         f.create_dataset("h", data=h_array_full)
         f.create_dataset("u", data=u_array_full)
-        f.create_dataset("b_exact", data=source(x))
+        f.create_dataset("b_array", data=b_array)
+        f.create_dataset("b_points", data=b_points)
+        f.create_dataset("x_points", data=x_points)
         f.create_dataset("xgrid", data=x)
         f.create_dataset("t_array", data=t_array)
         f.create_dataset("pos", data=pos)
+        f.attrs["start"] = start
         f.attrs["T_N"] = T
         f.attrs["xmin"] = xmin
         f.attrs["xmax"] = xmax
