@@ -14,7 +14,7 @@ from matplotlib.animation import FuncAnimation
 from dedalus.extras.plot_tools import quad_mesh, pad_limits
 import importlib
 
-folder = "2024_01_19_02_33_PM"
+folder = "2024_01_29_10_25_AM_sim_sensor_noise"
 path = "ProblemRelatedFiles/" + folder
 
 params = importlib.import_module("ProblemRelatedFiles." + folder + ".params")
@@ -70,7 +70,7 @@ plt.semilogy(range(j-1), f_vals[0:j-1], '-*', label=r"value at $b_j$")
 plt.semilogy(range(j-1), f_err1s[0:j-1]+f_err2s[0:j-1], '--', label="mismatch")
 plt.semilogy(range(j-1), f_regs[0:j-1], '--', label="regularisation")
 plt.semilogy(range(j-1), f_b_exct*np.ones(j-1), 'r-', label="value at exact b")
-plt.xlabel(r'Optimisation iterate $j$')
+plt.xlabel(r'Optimisation iteration $j$')
 # plt.ylabel(r"$J(b_j)$")
 plt.legend()
 plt.title("Values of objective functional")
@@ -79,7 +79,7 @@ if save:
 
 plt.figure()
 plt.semilogy(range(j), b_errs[0:j], '-*')
-plt.xlabel('Optimisation iterate')
+plt.xlabel('Optimisation iteration')
 plt.ylabel(r"$||\cdot||_2 \ / \ ||b||_2$")
 plt.title("Relative error to exact bathymetry")
 if save:
@@ -88,7 +88,7 @@ if save:
 if j > 1:
     plt.figure()
     plt.semilogy(range(1, j+1), alpha_js[0:j], '-*')
-    plt.xlabel('iterate')
+    plt.xlabel('iteration')
     plt.ylabel(r'$\alpha$')
     plt.title("Chosen step size")
     if save:
@@ -96,7 +96,7 @@ if j > 1:
 
     plt.figure()
     plt.semilogy(range(1, j+1), v_norms[0:j], '-*')
-    plt.xlabel('Optimisation iterate')
+    plt.xlabel('Optimisation iteration')
     plt.ylabel(r"$||\cdot||$")
     plt.title("Norm of the gradient")
     if save:
@@ -130,7 +130,7 @@ if bs.shape[0] > 1:
     plt.xlabel('x [m]')
     plt.ylabel('b [m]')
     plt.legend()
-    plt.title(r"Exact and computed bathymetry at iterate $j=1$")
+    plt.title(r"Exact and computed bathymetry at $j=1$")
     if save:
         plt.savefig(path + "/bathymetry_1.pdf", bbox_inches='tight')
 
@@ -146,7 +146,7 @@ if bs.shape[0] > 2:
     plt.xlabel('x [m]')
     plt.ylabel('b [m]')
     plt.legend()
-    plt.title(r"Exact and computed bathymetry at iterate $j=2$")
+    plt.title(r"Exact and computed bathymetry at $j=2$")
     if save:
         plt.savefig(path + "/bathymetry_2.pdf", bbox_inches='tight')
 
@@ -162,7 +162,7 @@ plt.ylim([min(np.min(b_exact), np.min(bs)),
 plt.xlabel('x [m]')
 plt.ylabel('b [m]')
 plt.legend()
-plt.title(f"Exact and computed bathymetry at iterate $j={{{j-1}}}$")
+plt.title(f"Exact and computed bathymetry at $j={{{j}}}$")
 if save:
     plt.savefig(path + "/bathymetry_" + str(j-1) + ".pdf", bbox_inches='tight')
 
@@ -181,7 +181,7 @@ def update_plot1(i):
     plt.xlabel('x [m]')
     plt.ylabel('b [m]')
     plt.legend()
-    plt.title(f"Exact and computed bathymetry at iterate j={i}")
+    plt.title(f"Exact and computed bathymetry at j={i}")
 
 
 anim1 = FuncAnimation(
@@ -205,7 +205,7 @@ if saveall:
         plt.colorbar()
         plt.xlabel('x')
         plt.ylabel('t')
-        plt.title(f"Water height at iterate j={i}")
+        plt.title(f"Water height at j={i}")
 
     anim2 = FuncAnimation(fig2, update_plot2, frames=np.arange(
         0, j-1, max(1, (j-1)//20)))
@@ -253,7 +253,7 @@ if saveall:
         plt.colorbar()
         plt.xlabel('x')
         plt.ylabel('t')
-        plt.title(f"Adjoint, first component at iterate j={i}")
+        plt.title(f"Adjoint, first component at j={i}")
 
     anim4 = FuncAnimation(fig4, update_plot4, frames=np.arange(
         0, j-1, max(1, (j-1)//20)))
@@ -276,7 +276,7 @@ if saveall:
         plt.colorbar()
         plt.xlabel('x')
         plt.ylabel('t')
-        plt.title(f"Adjoint, second component at iterate j={i}")
+        plt.title(f"Adjoint, second component at j={i}")
 
     anim5 = FuncAnimation(fig5, update_plot5, frames=np.arange(
         0, j-1, max(1, (j-1)//20)))
@@ -300,7 +300,7 @@ def update_plot6(i):
     plt.plot(x, diff[i])
     plt.ylim([np.min(diff), np.max(diff)])
     plt.xlabel('x')
-    plt.title(f"Difference bathymetry to exact bathymetry at iterate j={i}")
+    plt.title(f"Difference bathymetry to exact bathymetry at j={i}")
 
 
 anim6 = FuncAnimation(fig6, update_plot6, frames=np.arange(
@@ -319,7 +319,7 @@ def update_plot7(i):
     plt.plot(x, vs[i])
     plt.ylim([np.min(vs), np.max(vs)])
     plt.xlabel('x')
-    plt.title(f"Gradient at iterate j={i}")
+    plt.title(f"Gradient at j={i}")
 
 
 anim7 = FuncAnimation(fig7, update_plot7, frames=np.arange(
