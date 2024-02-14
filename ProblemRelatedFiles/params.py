@@ -77,8 +77,8 @@ class params:
         else:
             # self.lambd = 0.001
             # self.lambd = 1e-4
-            # self.lambd = 1e-5
-            self.lambd = 1e-6
+            self.lambd = 1e-5
+            # self.lambd = 1e-6
             # self.lambd = 0
 
             L2reg = True
@@ -286,18 +286,22 @@ class params:
         # Add noise to the observation.
         if self.data == "sim_sensor_pos":
 
+            # The noise depends on the local wave height.
             for p in range(len(self.pos)):
 
                 i = np.argmin(abs(x-self.pos[p]))
                 self.y_d[2:, i] += self.noise \
                     * np.random.normal(
-                        0, .05*(np.max(self.y_d-self.H)), N-2)
+                        0, .05*(np.max(self.y_d[:, i]-self.H)), N-2)
 
         elif self.data == "sim_everywhere":
 
-            self.y_d[2:] += self.noise \
-                * np.random.normal(
-                    0, .05*(np.max(self.y_d-self.H)), (N-2, self.M))
+            # This noise depends on the local wave height.
+            for m in range(self.M):
+
+                self.y_d[2:, m] += self.noise \
+                    * np.random.normal(
+                        0, .05*(np.max(self.y_d[:, m]-self.H)), N-2)
 
         b_field = dist.Field(bases=xbasis)
 
