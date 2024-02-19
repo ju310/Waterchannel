@@ -26,16 +26,16 @@ class params:
 
         # Use either measurement data, simulated data everywhere or
         # simulated data at sensor positions.
-        # self.data = "measurements"
+        self.data = "measurements"
         # self.data = "sim_everywhere"
-        self.data = "sim_sensor_pos"
+        # self.data = "sim_sensor_pos"
 
         # Use mean of measurements.
         self.mean = True
 
         # Put noise on observation.
-        # self.noise = 0
-        self.noise = 1
+        self.noise = 0
+        # self.noise = 1
 
         # Set bottom friction coefficient.
         self.kappa = 0.2
@@ -125,6 +125,8 @@ class params:
             self.pos = []
             for i in self.sensors:
                 self.pos.append(positions[i])
+            self.start = 30  # Number of seconds to cut off from beginning of
+            # experimental data.
         elif self.data == "sim_sensor_pos":
             self.pos = [3.5, 5.5, 7.5]
             # self.pos = [3.5, 6, 8.5]
