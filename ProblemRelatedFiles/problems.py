@@ -206,8 +206,7 @@ class nonlinSWE:
             y_d = self.y_d
 
             # Define function h.
-            h_func = interpolate.interp1d(t_interval, h_array, axis=0,
-                                          fill_value="extrapolate")
+            h_func = interpolate.CubicSpline(t_interval, h_array, axis=0)
 
             def h_function(*args):
 
@@ -225,13 +224,15 @@ class nonlinSWE:
                                           tensorsig=(), dtype=np.float64,
                                           func=F, args=args)
 
+            mismatch_func = interpolate.CubicSpline(
+                t_interval, mismatch, axis=0)
+
             def mismatch_function(*args):
 
                 tau = args[0].data
                 t = self.T_N - tau
                 self.temp.change_scales(1)
-                i = np.argmin(abs(self.t_array-t))
-                self.temp['g'] = mismatch[i]
+                self.temp['g'] = mismatch_func(t)
                 self.temp.change_scales(self.domain.dealias)
 
                 return self.temp['g']
@@ -242,8 +243,7 @@ class nonlinSWE:
                                           tensorsig=(), dtype=np.float64,
                                           func=F, args=args)
 
-            u_func = interpolate.interp1d(t_interval, u_array, axis=0,
-                                          fill_value="extrapolate")
+            u_func = interpolate.CubicSpline(t_interval, u_array, axis=0)
 
             def U_function(*args):
 

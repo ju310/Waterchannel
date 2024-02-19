@@ -104,7 +104,6 @@ class OptProblem:
         self.p = p.copy()
 
         p2_x = np.zeros((self.p.shape[0], self.p.shape[1]))
-        p2_x = np.zeros((self.p.shape[0], self.p.shape[1]))
         h_x = np.zeros((self.q.shape[0], self.q.shape[1]))
 
         for n in range(self.p.shape[0]):
