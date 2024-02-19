@@ -14,7 +14,7 @@ from matplotlib.animation import FuncAnimation
 from dedalus.extras.plot_tools import quad_mesh, pad_limits
 import importlib
 
-folder = "2024_01_29_10_25_AM_sim_sensor_noise"
+folder = "2024_02_15_03_21_PM"
 path = "ProblemRelatedFiles/" + folder
 
 params = importlib.import_module("ProblemRelatedFiles." + folder + ".params")
@@ -23,7 +23,7 @@ if pa.data != "sim_everywhere":
     pos = pa.pos
 save = True
 
-with h5py.File(path+"/gradient_data.hdf5", "r") as sol:
+with h5py.File(path+"/opt_data.hdf5", "r") as sol:
 
     f_vals = np.array(sol["f_vals"][:])
     f_err1s = np.array(sol["f_err1s"][:])
