@@ -28,7 +28,7 @@ folder = "2024_01_31_11_18_AM_sim_sensor"  # Folder with old optimisation data.
 params = importlib.import_module("ProblemRelatedFiles."
                                  + oldOptAgain*(folder + ".") + "params")
 
-save = True
+save = False
 saveall = False
 pa = params.params()  # Object containing all parameters.
 P = OptProblem(pa, save)
@@ -76,7 +76,7 @@ x_coord = P.PDE.dist.local_grid(P.PDE.xbasis)
 if save:
 
     f = h5py.File("ProblemRelatedFiles/" + newfolder
-                  + "/gradient_data.hdf5", "w")
+                  + "/opt_data.hdf5", "w")
 
     f_err1s = f.create_dataset("f_err1s", shape=(jmax+1,), dtype=np.float64)
     f_err2s = f.create_dataset("f_err2s", shape=(jmax+1,), dtype=np.float64)
@@ -215,7 +215,7 @@ if save is True:
 
 if save is True:
 
-    with open("ProblemRelatedFiles/" + newfolder + "/data.txt", "w") as f2:
+    with open("ProblemRelatedFiles/" + newfolder + "/info.txt", "w") as f2:
 
         f2.write("Running time is " + str(end-start)
                  + ", relative error to exact control is "
@@ -232,4 +232,4 @@ if save is True:
                  + f"\ntime step = {P.dt}"
                  + f"\ngrid points in space = {P.M}"
                  + oldOptAgain*f"Reconstruction with parameters from {folder}"
-                 + min_found*f"Found a minimum after {j} iterations.")
+                 + min_found*f"\nFound a minimum after {j} iterations.")
