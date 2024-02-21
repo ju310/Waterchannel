@@ -5,4 +5,4 @@ This code reconstructs the bathymetry in a water channel using either simulated 
 
 -------------
 ## Requirements
-Installation of Dedalus version 3 is required.
+Installation of Dedalus version 3.0.0 is required.
