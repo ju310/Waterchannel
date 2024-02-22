@@ -28,7 +28,7 @@ folder = "2024_01_31_11_18_AM_sim_sensor"  # Folder with old optimisation data.
 params = importlib.import_module("ProblemRelatedFiles."
                                  + oldOptAgain*(folder + ".") + "params")
 
-save = False
+save = True
 saveall = False
 pa = params.params()  # Object containing all parameters.
 P = OptProblem(pa, save)
@@ -127,7 +127,7 @@ while j < jmax:
     # --- Value of functional for initial step size ---
     if alpha_j < pa.alpha:
         alpha_j *= 2
-    f_new = P.f(P.proj(b - alpha_j*v))
+    f_new = P.f(b - alpha_j*v)
 
     # --- Backtracking line search with Armijo rule ---
 
@@ -144,7 +144,7 @@ while j < jmax:
             if breaker:
                 break
 
-        f_new = P.f(P.proj(b - alpha_j*v))
+        f_new = P.f(b - alpha_j*v)
 
     if save:
 
@@ -159,7 +159,7 @@ while j < jmax:
         print(f"Iteration {j}, f(b)={f_new}\n")
     P.PDE.j = j
     f_vals[j] = f_new
-    b = P.proj(b - alpha_j*v)
+    b = b - alpha_j*v
 
     if save:
         f_err1s[j] = P.f_err1

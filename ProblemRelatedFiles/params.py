@@ -5,7 +5,7 @@ Created on Tue Oct 17 12:25:37 2023.
 
 @author: Judith Angel
 Parameter file for gradient descent. The initial condition, observation and
-the exact control are being read from a hdf5 file.
+the exact control are being read from a hdf5 or txt file.
 """
 import numpy as np
 import warnings
@@ -121,7 +121,7 @@ class params:
         # self.xmax = 12
         if self.data == "measurements":
             positions = [3.5, 5.5, 7.5]  # Sensor positions
-            self.sensors = [2]  # Indices of sensors to use.
+            self.sensors = [1, 2]  # Indices of sensors to use.
             self.pos = []
             for i in self.sensors:
                 self.pos.append(positions[i])

@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Oct 17 13:36:28 2023.
+Auxiliary file for gradient_descent.py. Defines the optimisation problem,
+objective functional and gradient.
 
 @author: Judith Angel
 """
@@ -54,7 +56,6 @@ class OptProblem:
             Value of objective functional for given control.
 
         """
-
         self.y = self.PDE.solvepde(control, "primal")[:, :, 0]
         self.y += np.tile(control, (self.y.shape[0], 1))
 
@@ -181,30 +182,3 @@ class OptProblem:
         grad = v.allgather_data('g')
 
         return grad
-
-    def trpz(self, f, dt):
-
-        return dt*(np.sum(f, axis=0) - 0.5*(f[0]+f[-1]))
-
-    def proj(self, b):
-        """
-        Projection of bathymetry on set of admissible controls.
-
-        Parameters
-        ----------
-        b : numpy array
-            Bathymetry.
-
-        Returns
-        -------
-        b : numpy array
-            Projected bathymetry.
-
-        """
-        # minVal = 0
-        # mask = b < minVal
-        # b[mask] = 0
-        # mask = b > self.PDE.H
-        # b[mask] = self.PDE.H
-
-        return b

@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Oct 17 13:40:16 2023.
+Contains class for forward and adjoint problem.
 
 @author: Judith Angel
 """

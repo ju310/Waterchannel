@@ -11,7 +11,7 @@ import h5py
 import matplotlib.pyplot as plt
 from ProblemRelatedFiles.read_left_bc import leftbc, data
 
-file = "sim_data_Tiefe=0,3_A=40_F=0,35_meanBathy_ExactRamp_T=13"
+file = "nobathyTiefe=0,3_A=40_F=0,35_mean_kappa2e-01_T=13"
 path = "ProblemRelatedFiles/WaterchannelData/" + file
 
 if "sim_data_" in file:

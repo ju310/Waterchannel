@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 """
 Created on Wed Nov 29 10:34:44 2023.
-Compare measurements of water heights in the water channel.
+Compare measurements of water heights in the water channel and plot those with
+confidence intervals.
 
 @author: Judith Angel
 """

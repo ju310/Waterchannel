@@ -2,12 +2,14 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue May 23 13:47:22 2023
-
-@author: Judith Angel
 Sensor 1 at 1.5m.
 Sensor 2 at 3.5m.
 Sensor 3 at 5.5m.
 Sensor 4 at 7.5m.
+Compute the solution of the forward problem with boundary condition taken from
+the measurements at the wave flume. The solution will be saved in a hdf5 file.
+
+@author: Judith Angel
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -25,14 +27,16 @@ logger = logging.getLogger(__name__)
 bathy = True
 
 if bathy:
-    prefix = 'WaterchannelData/MitBathymetrie/'
-    postfix = "meanBathy"
-    # postfix = "try=1"
+    # prefix = 'WaterchannelData/MitBathymetrie/'
+    # postfix = "meanBathy"
+    prefix = 'WaterchannelData/'
+    postfix = ""
+    # postfix = "_try=1"
 else:
     prefix = 'WaterchannelData/OhneBathymetrie/'
-    postfix = "mean"
+    postfix = "_mean"
 
-filename = 'Tiefe=0,3_A=40_F=0,35_' + postfix
+filename = 'Tiefe=0,3_A=40_F=0,35' + postfix
 
 lbc = leftbc(prefix+filename+".txt")
 dataObject = data(prefix+filename+".txt")
@@ -56,10 +60,12 @@ xmax = 15  # Set right boundary to 15m to simulate the 'beach' in the real
 # Nx = 17*4
 # Nx = 70
 Nx = 100
-T = 13
-start = 32  # Number of seconds to cut off from beginning of experimental data.
-# timestep = 1e-4
-timestep = 5e-5
+# T = 13
+T = 16
+# start = 32  # Number of seconds to cut off from beginning of experimental data.
+start = 0
+# timestep = 5e-5
+timestep = 1e-4
 # timestep = 1e-3
 N = int(T/abs(timestep))+1
 g = 9.81
