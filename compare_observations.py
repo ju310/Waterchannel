@@ -84,38 +84,42 @@ start_sim = np.argmin(abs(t_array_sim-32+t_start_sim))
 end_sim = np.argmin(abs(t_array_sim-T_N+t_start_sim))
 
 # Plot simulation and mean of measurements with confidence interval.
-# for i in range(1, len(pos)):
+for i in range(1, len(pos)):
 
-#     plt.figure()
-#     plt.plot(
-#         t_array_sim[start_sim:end_sim]+t_start_sim,
-#         H_sensor[start_sim:end_sim, i-1],
-#         "k:", label="simulation", linewidth=1)
-#     plt.plot(t_array[start:end], meanBathy[i, start:end], "k--",
-#              label="measurement", linewidth=1)
-#     ax = plt.gca()
-#     ax.fill_between(t_array[start:end], ciBathyLeft[i, start:end],
-#                     ciBathyRight[i, start:end], alpha=0.3, facecolor="k")
-#     ax.set_xlabel('Time [s]')
-#     ax.set_ylabel('H [m]')
-#     plt.legend()
-#     plt.title(f"Sensor {i+1} at {pos[i]}m")
-#     plt.savefig(path + f"/sim_mean_bathy{i+1}.pdf")
+    plt.figure()
+    plt.plot(
+        t_array_sim[start_sim:end_sim]+t_start_sim,
+        H_sensor[start_sim:end_sim, i-1],
+        "k:", label="simulation", linewidth=1)
+    plt.plot(t_array[start:end], meanBathy[i, start:end], "k--",
+              label="measurement", linewidth=1)
+    ax = plt.gca()
+    ax.fill_between(t_array[start:end], ciBathyLeft[i, start:end],
+                    ciBathyRight[i, start:end], alpha=0.3, facecolor="k",
+                    label="confidence interval")
+    ax.set_xlabel('Time [s]')
+    ax.set_ylabel('H [m]')
+    plt.legend()
+    plt.title(f"Sensor {i+1} at {pos[i]}m")
+    plt.savefig(path + f"/sim_mean_bathy{i+1}.pdf")
 
-# plt.show()
+plt.show()
 
 # Plot difference of means with and without bathymetry with confidence interval.
 for i in range(1, len(pos)):
 
     plt.figure()
-    plt.plot(t_array[start:end], diff[i, start:end], "k--", linewidth=0.5)
+    plt.plot(t_array[start:end], diff[i, start:end], "k--", linewidth=0.5,
+             label=r"$H(b_{ex})-H(0)$")
     ax = plt.gca()
     ax.fill_between(t_array[start:end], ciLeftDiff[i, start:end],
-                    ciRightDiff[i, start:end], alpha=0.3, facecolor="k")
+                    ciRightDiff[i, start:end], alpha=0.3, facecolor="k",
+                    label="confidence interval")
     ax.set_xlabel('Time [s]')
     ax.set_ylabel('H [m]')
+    plt.legend()
     plt.title(f"Sensor {i+1} at {pos[i]}m")
-    plt.savefig(path + f"/confidence_diff{i+1}.pdf")
+    plt.savefig(path + f"/confidence_diff{i+1}.pdf", bbox_inches='tight')
 
 plt.show()
 
