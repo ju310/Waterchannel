@@ -14,7 +14,7 @@ from matplotlib.animation import FuncAnimation
 from dedalus.extras.plot_tools import quad_mesh, pad_limits
 import importlib
 
-folder = "2024_02_19_09_52_AM"
+folder = "2024_02_19_09_26_AM_sim_sensor_noise"
 path = "ProblemRelatedFiles/" + folder
 
 params = importlib.import_module("ProblemRelatedFiles." + folder + ".params")
@@ -391,16 +391,24 @@ if pa.data != "sim_everywhere":
 
         for i in range(pos_n):
 
-            axs[i].plot(t[start:], H[start:, posi[i]], "y", label=r"$H$")
-            axs[i].plot(t[start:], obs[start:, posi[i]], "k--", label=r"$H_{obs}$")
-            axs[i].set_xlabel('Time [s]')
+            axs[i].plot(t[start:], obs[start:, posi[i]], color="grey",
+                        label=r"$H_{obs}$")
+            axs[i].plot(t[start:], H[start:, posi[i]], "k", label=r"$H(b_j)$")
+            if i == pos_n-1:
+                axs[i].set_xlabel('Time [s]')
             axs[i].set_ylabel('H [m]')
             axs[i].set_title(f"Sensor {i+2} at {pos[i]}m")
-            axs[i].set_box_aspect(1/8)
-            if i == 0:
-                axs[i].legend(fontsize="8", loc="upper left")
+            if i == pos_n-1:
+                # Shrink current axis's height by 10% on the bottom
+                box = axs[i].get_position()
+                axs[i].set_position([box.x0, box.y0 + box.height * 0.12,
+                                      box.width, box.height * 0.9])
 
-        plt.tight_layout()
+                # Put a legend below current axis
+                axs[i].legend(loc='upper center', bbox_to_anchor=(0, -0.3),
+                              fancybox=True, shadow=True, ncol=5)
+
+        # plt.tight_layout()
         if save:
             plt.savefig(path + "/H_Hobs.pdf", bbox_inches='tight')
         plt.show()
@@ -424,11 +432,12 @@ if pa.data != "sim_everywhere":
 
         pos1 = np.argmin(abs(x-pos[0]))
         plt.figure()
-        plt.plot(t[start:], H[start:, pos1], "y")
-        plt.plot(t[start:], obs[start:, pos1], "k--")
+        plt.plot(t[start:], obs[start:, pos1], "--", color="dimgray")
+        plt.plot(t[start:], H[start:, pos1], "k")
         plt.xlabel('Time [s]')
         plt.ylabel('H [m]')
         plt.title(f"Sensor 2 at {pos[0]}m")
+
         if save:
             plt.savefig(path + "/H_Hobs.pdf", bbox_inches='tight')
         plt.show()
