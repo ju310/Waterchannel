@@ -9,6 +9,7 @@ Plot bathymetry with Dedalus.
 import numpy as np
 from scipy import interpolate
 import matplotlib.pyplot as plt
+from subprocess import call
 import dedalus.public as d3
 
 b_points = np.concatenate(
@@ -41,4 +42,6 @@ plt.ylabel("b(x) [mm]")
 plt.ylim([0, 205])
 ax = plt.gca()
 ax.set_aspect('equal', adjustable='box')
-plt.savefig("bathymetry_dedalus.pdf")
+filename = "bathymetry_dedalus.pdf"
+plt.savefig(filename)
+call(["pdfcrop", filename, filename])
