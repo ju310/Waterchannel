@@ -26,9 +26,9 @@ class params:
 
         # Use either measurement data, simulated data everywhere or
         # simulated data at sensor positions.
-        self.data = "measurements"
+        # self.data = "measurements"
         # self.data = "sim_everywhere"
-        # self.data = "sim_sensor_pos"
+        self.data = "sim_sensor_pos"
 
         # Use mean of measurements.
         self.mean = True
@@ -46,10 +46,7 @@ class params:
         # Set final time.
         self.T_N = 10
 
-        if self.data == "measurements":
-            path = "ProblemRelatedFiles/WaterchannelData/" \
-                + "sim_data_Tiefe=0,3_A=40_F=0,35_meanBathy_ExactRamp_T=13.hdf5"
-        else:
+        if self.data != "measurements":
             path = "ProblemRelatedFiles/WaterchannelData/" \
                 + "sim_data_Tiefe=0,3_A=40_F=0,35_ExactRamp_T=16.hdf5"
         if self.data != "measurements":
@@ -58,6 +55,7 @@ class params:
             pathbc = "ProblemRelatedFiles/WaterchannelData/" \
                 + "Tiefe=0,3_A=40_F=0,35.txt"
         else:
+            # In this case, pathbc is used for the observation and bc.
             if self.mean:
                 pathbc = "ProblemRelatedFiles/WaterchannelData/" \
                     + "MitBathymetrie/Tiefe=0,3_A=40_F=0,35_meanBathy.txt"
@@ -77,8 +75,8 @@ class params:
         else:
             # self.lambd = 0.001
             # self.lambd = 1e-4
-            self.lambd = 1e-5
-            # self.lambd = 1e-6
+            # self.lambd = 1e-5
+            self.lambd = 1e-6
             # self.lambd = 0
 
             L2reg = True
@@ -105,7 +103,7 @@ class params:
             self.jmax = 2000
 
         # Time step.
-        self.dt = 1e-3
+        self.dt = 5e-4
 
         # Number of points in time.
         N = int(self.T_N/self.dt) + 1
@@ -128,9 +126,9 @@ class params:
             self.start = 30  # Number of seconds to cut off from beginning of
             # experimental data.
         elif self.data == "sim_sensor_pos":
-            self.pos = [3.5, 5.5, 7.5]
+            # self.pos = [3.5, 5.5, 7.5]
             # self.pos = [3.5, 6, 8.5]
-            # self.pos = [3.5, 6]
+            self.pos = [5.5]
             # self.pos = [2]
             # self.pos = [2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5]
             self.start = 0
