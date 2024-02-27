@@ -178,11 +178,6 @@ if np.linalg.norm(b_exact.flatten()) > 1e-16:
     print("Relative error (2-norm) to exact optimal control:",
           np.linalg.norm((b-b_exact).flatten())
           / np.linalg.norm(b_exact.flatten()))
-    if save is True:
-        with open(f"ProblemRelatedFiles/{newfolder}/info.txt", "w") as ft:
-            ft.write("Relative error (2-norm) to exact optimal control:" +
-                     str(np.linalg.norm((b-b_exact).flatten())
-                         / np.linalg.norm(b_exact.flatten())))
 else:
     print("Absolute error (max-norm)to exact optimal control:",
           np.amax(b-b_exact))

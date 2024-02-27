@@ -14,7 +14,7 @@ from matplotlib.animation import FuncAnimation
 from dedalus.extras.plot_tools import quad_mesh, pad_limits
 import importlib
 
-folder = "2024_02_19_09_26_AM_sim_sensor_noise"
+folder = "2024_02_26_10_13_AM"
 path = "ProblemRelatedFiles/" + folder
 
 params = importlib.import_module("ProblemRelatedFiles." + folder + ".params")
@@ -71,7 +71,6 @@ plt.semilogy(range(j-1), f_err1s[0:j-1]+f_err2s[0:j-1], '--', label="mismatch")
 plt.semilogy(range(j-1), f_regs[0:j-1], '--', label="regularisation")
 plt.semilogy(range(j-1), f_b_exct*np.ones(j-1), 'r-', label="value at exact b")
 plt.xlabel(r'Optimisation iteration $j$')
-# plt.ylabel(r"$J(b_j)$")
 plt.legend()
 plt.title("Values of objective functional")
 if save:
@@ -105,60 +104,49 @@ if j > 1:
 #######################
 # ----- Bathymetries ----- #
 
-plt.figure()
-plt.plot(x, b_exact, label="exact")
-plt.plot(x, bs[0], label="computed")
+x_10 = np.argmin(abs(x-10))  # Only plot until x=10m.
+
+# Plot initial guess and bathymetry after one iteration.
+# plt.figure(figsize=[6.4, 1.5])
+# plt.plot(x[:x_10], b_exact[:x_10], label="exact")
+# plt.plot(x[:x_10], bs[0][:x_10], label="computed")
+# if pa.data != "sim_everywhere":
+#     plt.plot(pos, np.zeros(len(pos)), "k*", label="sensor position",
+#              markersize=10)
+# plt.ylim([min(np.min(b_exact), np.min(bs))-0.01,
+#           max(np.max(b_exact), np.max(bs))])
+# plt.xlabel('x [m]')
+# plt.ylabel('b [m]')
+# plt.legend()
+# plt.title("Exact bathymetry and initial guess")
+# if save:
+#     plt.savefig(path + "/bathymetry_0.pdf", bbox_inches='tight')
+
+# if bs.shape[0] > 1:
+#     plt.figure(figsize=[6.4, 1.5])
+#     plt.plot(x[:x_10], b_exact[:x_10], "k", label="exact")
+#     plt.plot(x[:x_10], bs[1][:x_10], "k:", label="reconstructed")
+#     if pa.data != "sim_everywhere":
+#         plt.plot(pos, np.zeros(len(pos)), "k*", label="sensor position",
+#                  markersize=10)
+#     plt.ylim([min(np.min(b_exact), np.min(bs))-0.01,
+#               max(np.max(b_exact), np.max(bs))])
+#     plt.xlabel('x [m]')
+#     plt.ylabel('b [m]')
+#     plt.legend()
+#     plt.title(r"Exact and computed bathymetry at $j=1$")
+#     if save:
+#         plt.savefig(path + "/bathymetry_1.pdf", bbox_inches='tight')
+
+# Plot reconstructed bathymetry after last iteration.
+plt.figure(figsize=[6.4, 1.5])  # Determine size of the figure.
+plt.plot(x[:x_10], b_exact[:x_10], "k", label="exact")
+plt.plot(x[:x_10], bs[j][:x_10], "k:", label="reconstructed")
 if pa.data != "sim_everywhere":
-    plt.plot(pos, np.zeros(len(pos)), "k*", label="sensor position")
-plt.ylim([min(np.min(b_exact), np.min(bs)),
-          max(np.max(b_exact), np.max(bs))])
-plt.xlabel('x [m]')
-plt.ylabel('b [m]')
-plt.legend()
-plt.title("Exact bathymetry and initial guess")
-if save:
-    plt.savefig(path + "/bathymetry_0.pdf", bbox_inches='tight')
-
-if bs.shape[0] > 1:
-    plt.figure()
-    plt.plot(x, b_exact, label="exact")
-    plt.plot(x, bs[1], label="computed")
-    if pa.data != "sim_everywhere":
-        plt.plot(pos, np.zeros(len(pos)), "k*", label="sensor position")
-    plt.ylim([min(np.min(b_exact), np.min(bs)),
-              max(np.max(b_exact), np.max(bs))])
-    plt.xlabel('x [m]')
-    plt.ylabel('b [m]')
-    plt.legend()
-    plt.title(r"Exact and computed bathymetry at $j=1$")
-    if save:
-        plt.savefig(path + "/bathymetry_1.pdf", bbox_inches='tight')
-
-
-if bs.shape[0] > 2:
-    plt.figure()
-    plt.plot(x, b_exact, label="exact")
-    plt.plot(x, bs[2], label="computed")
-    if pa.data != "sim_everywhere":
-        plt.plot(pos, np.zeros(len(pos)), "k*", label="sensor position")
-    plt.ylim([min(np.min(b_exact), np.min(bs)),
-              max(np.max(b_exact), np.max(bs))])
-    plt.xlabel('x [m]')
-    plt.ylabel('b [m]')
-    plt.legend()
-    plt.title(r"Exact and computed bathymetry at $j=2$")
-    if save:
-        plt.savefig(path + "/bathymetry_2.pdf", bbox_inches='tight')
-
-fig1 = plt.figure()
-
-plt.figure()
-plt.plot(x, b_exact, label="exact")
-plt.plot(x, bs[j], label="computed")
-if pa.data != "sim_everywhere":
-    plt.plot(pos, np.zeros(len(pos)), "k*", label="sensor position")
-plt.ylim([min(np.min(b_exact), np.min(bs)),
-          max(np.max(b_exact), np.max(bs))])
+    plt.plot(pos, np.zeros(len(pos)), "k*", label="sensor position",
+             markersize=10)
+plt.ylim([min(np.min(b_exact), np.min(bs))-0.01,
+          max(np.max(b_exact), np.max(bs))+0.01])
 plt.xlabel('x [m]')
 plt.ylabel('b [m]')
 plt.legend()
@@ -166,18 +154,20 @@ plt.title(f"Exact and computed bathymetry at $j={{{j}}}$")
 if save:
     plt.savefig(path + "/bathymetry_" + str(j-1) + ".pdf", bbox_inches='tight')
 
-fig1 = plt.figure()
+# Create gif of bathymetries along iterations.
+fig1 = plt.figure(figsize=[6.4, 1.5])
 
 
 def update_plot1(i):
 
     plt.clf()
-    plt.plot(x, b_exact, label="exact")
-    plt.plot(x, bs[i], label="computed")
+    plt.plot(x[:x_10], b_exact[:x_10], "k", label="exact")
+    plt.plot(x[:x_10], bs[i][:x_10], "k:", label="reconstructed")
     if pa.data != "sim_everywhere":
-        plt.plot(pos, np.zeros(len(pos)), "k*")
-    plt.ylim([min(np.min(b_exact), np.min(bs)),
-              max(np.max(b_exact), np.max(bs))])
+        plt.plot(pos, np.zeros(len(pos)), "k*", label="sensor position",
+                 markersize=10)
+    plt.ylim([min(np.min(b_exact), np.min(bs))-0.01,
+              max(np.max(b_exact), np.max(bs))+0.01])
     plt.xlabel('x [m]')
     plt.ylabel('b [m]')
     plt.legend()
@@ -402,7 +392,7 @@ if pa.data != "sim_everywhere":
                 # Shrink current axis's height by 10% on the bottom
                 box = axs[i].get_position()
                 axs[i].set_position([box.x0, box.y0 + box.height * 0.12,
-                                      box.width, box.height * 0.9])
+                                     box.width, box.height * 0.9])
 
                 # Put a legend below current axis
                 axs[i].legend(loc='upper center', bbox_to_anchor=(0, -0.3),
@@ -432,11 +422,13 @@ if pa.data != "sim_everywhere":
 
         pos1 = np.argmin(abs(x-pos[0]))
         plt.figure()
-        plt.plot(t[start:], obs[start:, pos1], "--", color="dimgray")
-        plt.plot(t[start:], H[start:, pos1], "k")
+        plt.plot(t[start:], obs[start:, pos1], "--", color="dimgray",
+                 label=r"$H_{obs}$")
+        plt.plot(t[start:], H[start:, pos1], "k", label=r"$H(b_j)$")
         plt.xlabel('Time [s]')
         plt.ylabel('H [m]')
-        plt.title(f"Sensor 2 at {pos[0]}m")
+        plt.legend()
+        plt.title(f"Sensor at {pos[0]}m")
 
         if save:
             plt.savefig(path + "/H_Hobs.pdf", bbox_inches='tight')

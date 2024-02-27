@@ -109,7 +109,7 @@ plt.show()
 for i in range(1, len(pos)):
 
     plt.figure()
-    plt.plot(t_array[start:end], diff[i, start:end], "k--", linewidth=0.5,
+    plt.plot(t_array[start:end], diff[i, start:end], "k--", linewidth=1,
              label=r"$H(b_{ex})-H(0)$")
     ax = plt.gca()
     ax.fill_between(t_array[start:end], ciLeftDiff[i, start:end],
