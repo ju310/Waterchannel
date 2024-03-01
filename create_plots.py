@@ -14,7 +14,7 @@ from matplotlib.animation import FuncAnimation
 from dedalus.extras.plot_tools import quad_mesh, pad_limits
 import importlib
 
-folder = "2024_02_26_10_13_AM"
+folder = "2024_02_29_08_27_AM"
 path = "ProblemRelatedFiles/" + folder
 
 params = importlib.import_module("ProblemRelatedFiles." + folder + ".params")
@@ -64,6 +64,12 @@ if saveall:
     p1max = np.max(ps[:, :, :, 0])
     p2min = np.min(ps[:, :, :, 1])
     p2max = np.max(ps[:, :, :, 1])
+
+b = bs[j]
+
+RMSE = np.sqrt(np.sum((b-b_exact)**2)/b_exact.size)
+NRMSE = RMSE/(bmax-bmin)*100
+print(f"NRMSE = {NRMSE}%")
 
 plt.figure()
 plt.semilogy(range(j-1), f_vals[0:j-1], '-*', label=r"value at $b_j$")
@@ -152,7 +158,7 @@ plt.ylabel('b [m]')
 plt.legend()
 plt.title(f"Exact and computed bathymetry at $j={{{j}}}$")
 if save:
-    plt.savefig(path + "/bathymetry_" + str(j-1) + ".pdf", bbox_inches='tight')
+    plt.savefig(path + "/bathymetry_" + str(j) + ".pdf", bbox_inches='tight')
 
 # Create gif of bathymetries along iterations.
 fig1 = plt.figure(figsize=[6.4, 1.5])
@@ -383,7 +389,7 @@ if pa.data != "sim_everywhere":
 
             axs[i].plot(t[start:], obs[start:, posi[i]], color="grey",
                         label=r"$H_{obs}$")
-            axs[i].plot(t[start:], H[start:, posi[i]], "k", label=r"$H(b_j)$")
+            axs[i].plot(t[start:], H[start:, posi[i]], "k--", label=r"$H(b_j)$")
             if i == pos_n-1:
                 axs[i].set_xlabel('Time [s]')
             axs[i].set_ylabel('H [m]')
@@ -422,9 +428,9 @@ if pa.data != "sim_everywhere":
 
         pos1 = np.argmin(abs(x-pos[0]))
         plt.figure()
-        plt.plot(t[start:], obs[start:, pos1], "--", color="dimgray",
+        plt.plot(t[start:], obs[start:, pos1], color="dimgray",
                  label=r"$H_{obs}$")
-        plt.plot(t[start:], H[start:, pos1], "k", label=r"$H(b_j)$")
+        plt.plot(t[start:], H[start:, pos1], "k--", label=r"$H(b_j)$")
         plt.xlabel('Time [s]')
         plt.ylabel('H [m]')
         plt.legend()
