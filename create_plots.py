@@ -11,10 +11,11 @@ import numpy as np
 import h5py
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
+from subprocess import call
 from dedalus.extras.plot_tools import quad_mesh, pad_limits
 import importlib
 
-folder = "2024_02_29_08_27_AM"
+folder = "2024_02_22_09_12_AM_sensor234"
 path = "ProblemRelatedFiles/" + folder
 
 params = importlib.import_module("ProblemRelatedFiles." + folder + ".params")
@@ -48,6 +49,7 @@ with h5py.File(path+"/opt_data.hdf5", "r") as sol:
 
 b_errs = np.zeros(j)
 
+# Compute relative l2-error.
 for i in range(j):
     if np.linalg.norm(b_exact) > 1e-16:
         b_errs[i] = np.linalg.norm(bs[i]-b_exact)/np.linalg.norm(b_exact)
@@ -66,11 +68,14 @@ if saveall:
     p2max = np.max(ps[:, :, :, 1])
 
 b = bs[j]
+fs = 6
+lw = 0.8
 
 RMSE = np.sqrt(np.sum((b-b_exact)**2)/b_exact.size)
 NRMSE = RMSE/(bmax-bmin)*100
 print(f"NRMSE = {NRMSE}%")
 
+# Plot values of objective functional.
 plt.figure()
 plt.semilogy(range(j-1), f_vals[0:j-1], '-*', label=r"value at $b_j$")
 plt.semilogy(range(j-1), f_err1s[0:j-1]+f_err2s[0:j-1], '--', label="mismatch")
@@ -82,13 +87,20 @@ plt.title("Values of objective functional")
 if save:
     plt.savefig(path + "/values_f.pdf", bbox_inches='tight')
 
-plt.figure()
-plt.semilogy(range(j), b_errs[0:j], '-*')
-plt.xlabel('Optimisation iteration')
-plt.ylabel(r"$||\cdot||_2 \ / \ ||b||_2$")
-plt.title("Relative error to exact bathymetry")
+# Plot relative error against iteration.
+fig, ax = plt.subplots(figsize=[1.95, 1.3])  # Size for paper.
+ax.semilogy(range(j), b_errs[0:j], 'k:', linewidth=lw)
+ax.set_xlabel(r'Optimisation iteration $j$', fontsize=fs, labelpad=0.25)
+ax.set_ylabel(r"$||b_j-b_{ex}||_2 \ / \ ||b_{ex}||_2$", fontsize=fs,
+              labelpad=0.5)
+# plt.title("Relative error to exact bathymetry")
+ax.tick_params(axis='both', which='major', labelsize=fs, pad=2)
+ax.tick_params(axis='both', which='minor', labelsize=fs, pad=2)
+plt.tight_layout()
 if save:
-    plt.savefig(path + "/errors_rel.pdf", bbox_inches='tight')
+    filename = path + "/errors_rel.pdf"
+    plt.savefig(filename, bbox_inches='tight')
+    call(["pdfcrop", filename, filename])
 
 if j > 1:
     plt.figure()
@@ -112,53 +124,26 @@ if j > 1:
 
 x_10 = np.argmin(abs(x-10))  # Only plot until x=10m.
 
-# Plot initial guess and bathymetry after one iteration.
-# plt.figure(figsize=[6.4, 1.5])
-# plt.plot(x[:x_10], b_exact[:x_10], label="exact")
-# plt.plot(x[:x_10], bs[0][:x_10], label="computed")
-# if pa.data != "sim_everywhere":
-#     plt.plot(pos, np.zeros(len(pos)), "k*", label="sensor position",
-#              markersize=10)
-# plt.ylim([min(np.min(b_exact), np.min(bs))-0.01,
-#           max(np.max(b_exact), np.max(bs))])
-# plt.xlabel('x [m]')
-# plt.ylabel('b [m]')
-# plt.legend()
-# plt.title("Exact bathymetry and initial guess")
-# if save:
-#     plt.savefig(path + "/bathymetry_0.pdf", bbox_inches='tight')
-
-# if bs.shape[0] > 1:
-#     plt.figure(figsize=[6.4, 1.5])
-#     plt.plot(x[:x_10], b_exact[:x_10], "k", label="exact")
-#     plt.plot(x[:x_10], bs[1][:x_10], "k:", label="reconstructed")
-#     if pa.data != "sim_everywhere":
-#         plt.plot(pos, np.zeros(len(pos)), "k*", label="sensor position",
-#                  markersize=10)
-#     plt.ylim([min(np.min(b_exact), np.min(bs))-0.01,
-#               max(np.max(b_exact), np.max(bs))])
-#     plt.xlabel('x [m]')
-#     plt.ylabel('b [m]')
-#     plt.legend()
-#     plt.title(r"Exact and computed bathymetry at $j=1$")
-#     if save:
-#         plt.savefig(path + "/bathymetry_1.pdf", bbox_inches='tight')
-
 # Plot reconstructed bathymetry after last iteration.
-plt.figure(figsize=[6.4, 1.5])  # Determine size of the figure.
-plt.plot(x[:x_10], b_exact[:x_10], "k", label="exact")
-plt.plot(x[:x_10], bs[j][:x_10], "k:", label="reconstructed")
+fig, ax = plt.subplots(figsize=[3.79, 1.3])  # Size for paper.
+ax.plot(x[:x_10], b_exact[:x_10], "-k", label="exact", linewidth=lw)
+ax.plot(x[:x_10], bs[j][:x_10], "k:", label="reconstructed", linewidth=lw)
 if pa.data != "sim_everywhere":
-    plt.plot(pos, np.zeros(len(pos)), "k*", label="sensor position",
-             markersize=10)
+    ax.plot(pos, np.zeros(len(pos)), "k*", label="sensor position",
+             markersize=fs)
 plt.ylim([min(np.min(b_exact), np.min(bs))-0.01,
           max(np.max(b_exact), np.max(bs))+0.01])
-plt.xlabel('x [m]')
-plt.ylabel('b [m]')
-plt.legend()
-plt.title(f"Exact and computed bathymetry at $j={{{j}}}$")
+ax.set_xlabel(r'$x [m]$', fontsize=fs, labelpad=0.25)
+ax.set_ylabel(r'$b [m]$', fontsize=fs, labelpad=0.5)
+ax.tick_params(axis='both', which='major', labelsize=fs, pad=3)
+plt.legend(loc="upper right", bbox_to_anchor=(1, 1), ncol=2, fontsize=fs)
+plt.tight_layout()
+ax.spines[['right', 'top']].set_visible(False)
+# plt.title(f"Exact and computed bathymetry at $j={{{j}}}$")
 if save:
-    plt.savefig(path + "/bathymetry_" + str(j) + ".pdf", bbox_inches='tight')
+    filename = path + "/bathymetry_" + str(j) + ".pdf"
+    plt.savefig(filename, bbox_inches='tight')
+    call(["pdfcrop", filename, filename])
 
 # Create gif of bathymetries along iterations.
 fig1 = plt.figure(figsize=[6.4, 1.5])

@@ -27,7 +27,7 @@ rampFunc = interpolate.PchipInterpolator(x_points, b_points)
 
 xcoord = d3.Coordinate('x')
 dist = d3.Distributor(xcoord, dtype=np.float64)
-xbasis = d3.Chebyshev(xcoord, size=400, bounds=(1.5, 15), dealias=3/2)
+xbasis = d3.Chebyshev(xcoord, size=80, bounds=(1.5, 15), dealias=3/2)
 x = dist.local_grid(xbasis)
 x_mm = x*1000 - 3412.5  # Put to millimeters.
 y = rampFunc(x)*1000  # Put to millimeters.
@@ -41,7 +41,7 @@ plt.xlabel("x [mm]")
 plt.ylabel("b(x) [mm]")
 plt.ylim([0, 205])
 ax = plt.gca()
-ax.set_aspect('equal', adjustable='box')
+# ax.set_aspect('equal', adjustable='box')
 filename = "bathymetry_dedalus.pdf"
-plt.savefig(filename)
-call(["pdfcrop", filename, filename])
+# plt.savefig(filename)
+# call(["pdfcrop", filename, filename])

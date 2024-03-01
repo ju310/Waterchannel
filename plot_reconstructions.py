@@ -10,26 +10,34 @@ import numpy as np
 import h5py
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
+from subprocess import call
 from dedalus.extras.plot_tools import quad_mesh, pad_limits
 import importlib
 
-folder1 = "2024_02_19_09_22_AM_obs_everywhere_noise"
-folder2 = "2024_02_19_09_26_AM_sim_sensor_noise"
+folder1 = "2024_02_19_09_21_AM_obs_everywhere"
+folder2 = "2024_02_19_09_22_AM_obs_everywhere_noise"
 path1 = "ProblemRelatedFiles/" + folder1
 path2 = "ProblemRelatedFiles/" + folder2
 
 params1 = importlib.import_module("ProblemRelatedFiles." + folder1 + ".params")
 pa1 = params1.params()
+if pa1.noise != 0:
+    raise ValueError("folder1 should contain reconstruction for observation"
+                     +" without noise")
 if pa1.data != "sim_everywhere":
-    raise ValueError("folder1 should contain reconstruction for observation on"
-                     +"whole domain")
+    pos1 = pa1.pos
 params2 = importlib.import_module("ProblemRelatedFiles." + folder2 + ".params")
 pa2 = params2.params()
-if pa2.data != "sim_sensor_pos":
-    raise ValueError("folder2 should contain reconstruction for observation at"
-                     +"sensor positions")
-pos2 = pa2.pos
-save = False
+if pa2.noise != 1:
+    raise ValueError("folder2 should contain reconstruction for observation "
+                     +"with noise")
+if pa1.data != "sim_everywhere":
+    pos2 = pa2.pos
+    if pa1.pos != pa2.pos:
+        raise ValueError("Sensor positions not the same")
+if pa1.data != pa2.data:
+    raise ValueError("Observation type is not the same")
+save = True
 
 with h5py.File(path1+"/opt_data.hdf5", "r") as sol:
 
@@ -52,6 +60,7 @@ with h5py.File(path1+"/opt_data.hdf5", "r") as sol:
     obs1 = np.array(sol["obs"][:])
     x1 = np.array(sol["x"][:])
     t1 = np.array(sol["t"][:])
+    x1 = np.array(sol["x"][:])
     j1 = sol.attrs.get("jmax")
 
 with h5py.File(path2+"/opt_data.hdf5", "r") as sol:
@@ -102,30 +111,55 @@ bmax = max(np.max(bs1), np.max(bs2), np.max(b_exact1))
 ymin = min(np.min(obs1), np.min(obs2))
 ymax = max(np.max(obs1), np.max(obs2))
 
-plt.figure()
-plt.semilogy(range(j1), b_errs1[0:j1], '--k', label="obs. everywhere")
-plt.semilogy(range(j2), b_errs2[0:j2], ':k', label="obs. at sensor pos.")
-plt.xlabel(r'Optimisation iteration $j$')
-plt.ylabel(r"$||b_j-b_{ex}||_2 \ / \ ||b_{ex}||_2$")
-plt.legend()
-# plt.title("Relative error to exact bathymetry")
+fs = 5
+lw = 0.8
+x_10 = np.argmin(abs(x1-10))  # Only plot until x=10m.
+fig, ax = plt.subplots(figsize=[1.95, 1.3])  # Size for paper.
+ax.semilogy(range(j1), b_errs1[0:j1], '--k', label="without noise",
+            linewidth=lw)
+ax.semilogy(range(j2), b_errs2[0:j2], ':k', label="with noise", linewidth=lw)
+ax.set_xlabel(r'Optimisation iteration $j$', fontsize=fs, labelpad=0.25)
+ax.set_ylabel(r"$||b_j-b_{ex}||_2 \ / \ ||b_{ex}||_2$", fontsize=fs, labelpad=0.5)
+ax.tick_params(axis='both', which='major', labelsize=fs, pad=2)
+ax.tick_params(axis='both', which='minor', labelsize=fs, pad=2)
+plt.legend(loc="upper right", fontsize=fs)
+plt.tight_layout()
 if save:
-    plt.savefig(path1 + "/errors_rel_twice.pdf", bbox_inches='tight')
+    filename = path1 + "/errors_rel_twice.pdf"
+    plt.savefig(filename, bbox_inches='tight')
+    call(["pdfcrop", filename, filename])
 
 #######################
 # ----- Bathymetries ----- #
-fig1 = plt.figure()
-plt.figure()
-plt.plot(x1, b_exact1, "-k", label="exact")
-plt.plot(x1, bs1[j1], "--k", label="obs. everywhere")
-plt.plot(x2, bs2[j2], ":k", label="obs. at sensor pos.")
-plt.plot(pos2, np.zeros(len(pos2)), "k*", label="sensor position",
-         markersize=10)
-plt.ylim([bmin, bmax])
+fig, ax = plt.subplots(figsize=[3.79, 1.3])  # Size for paper.
+ax.plot(x1[:x_10], b_exact1[:x_10], "-k", label="exact", linewidth=lw)
+ax.plot(x1[:x_10], bs1[j1][:x_10], "--k", label="without noise", linewidth=lw)
+ax.plot(x2[:x_10], bs2[j2][:x_10], ":k", label="with noise", linewidth=lw)
+if pa2.data != "sim_everywhere":
+    ax.plot(pos2, np.zeros(len(pos2)), "k*", label="sensor position",
+            markersize=fs)
+plt.ylim([bmin-0.01, bmax+0.01])
+ax.set_xlabel(r'$x [m]$', fontsize=fs, labelpad=0.25)
+ax.set_ylabel(r'$b [m]$', fontsize=fs, labelpad=0.5)
+ax.tick_params(axis='both', which='major', labelsize=fs, pad=3)
+plt.legend(loc="upper right", bbox_to_anchor=(1, 1), ncol=2, fontsize=fs)
+plt.tight_layout()
+ax.spines[['right', 'top']].set_visible(False)
+if save:
+    filename = path1 + "/bathymetries" + ".pdf"
+    plt.savefig(filename, bbox_inches='tight')
+    call(["pdfcrop", filename, filename])
+
+plt.figure(figsize=[6.4, 1.5])
+plt.plot(x1[:x_10], b_exact1[:x_10], "-k", label="exact")
+plt.plot(x1[:x_10], bs1[j1][:x_10], "--b", label="without noise")
+plt.plot(x2[:x_10], bs2[j2][:x_10], ":r", label="with noise")
+if pa2.data != "sim_everywhere":
+    plt.plot(pos2, np.zeros(len(pos2)), "k*", label="sensor position",
+             markersize=10)
+plt.ylim([bmin-0.01, bmax+0.01])
 plt.xlabel('x [m]')
 plt.ylabel('b [m]')
-plt.legend()
+plt.legend(loc="upper right", bbox_to_anchor=(1, 1.4), ncol=5)
 if save:
-    plt.savefig(path1 + "/bathymetries" + ".pdf", bbox_inches='tight')
-
-fig1 = plt.figure()
+    plt.savefig(path1 + "/bathymetries_col" + ".pdf", bbox_inches='tight')
