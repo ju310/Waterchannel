@@ -103,7 +103,7 @@ class params:
             self.jmax = 2000
 
         # Time step.
-        self.dt = 5e-4
+        self.dt = 1e-3
 
         # Number of points in time.
         N = int(self.T_N/self.dt) + 1
@@ -128,7 +128,7 @@ class params:
         elif self.data == "sim_sensor_pos":
             # self.pos = [3.5, 5.5, 7.5]
             # self.pos = [3.5, 6, 8.5]
-            self.pos = [5.5]
+            self.pos = [5.5, 7.5]
             # self.pos = [2]
             # self.pos = [2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5]
             self.start = 0
@@ -180,10 +180,10 @@ class params:
                 raise ValueError(
                     "Right boundary does not match the one from the hdf5 file"
                     + f" ({xmax_p})")
-            if self.dt != dt_p or self.M != M_p:
-                print(
-                    "Note that you are not using the same discretisation as "
-                    + "used for the observation in the hdf5 file.")
+            # if self.dt != dt_p or self.M != M_p:
+            #     print(
+            #         "Note that you are not using the same discretisation as "
+            #         + "used for the observation in the hdf5 file.")
 
             if self.data != "sim_everywhere":
                 for i in range(len(self.pos)):
