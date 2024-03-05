@@ -16,14 +16,22 @@ from subprocess import call
 from dedalus.extras.plot_tools import quad_mesh, pad_limits
 import importlib
 
+#####################################################################
+# ----------------- Insert folder name here. ---------------------- #
 folder = "2024_02_19_09_21_AM_obs_everywhere"
+#####################################################################
+
 path = "ProblemRelatedFiles/" + folder
 
 params = importlib.import_module("ProblemRelatedFiles." + folder + ".params")
 pa = params.params()
 if pa.data != "sim_everywhere":
     pos = pa.pos
+
+#####################################################################
+# ------- Set to True if you want to save the text file. ---------- #
 save = True
+#####################################################################
 
 with h5py.File(path+"/opt_data.hdf5", "r") as sol:
 

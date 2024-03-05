@@ -15,14 +15,21 @@ from subprocess import call
 from dedalus.extras.plot_tools import quad_mesh, pad_limits
 import importlib
 
+#####################################################################
+# Insert folder name here, e.g. folder = "2024_02_22_09_12_AM_sensor234"
 folder = "2024_02_22_09_12_AM_sensor234"
-path = "ProblemRelatedFiles/" + folder
+#####################################################################
 
+path = "ProblemRelatedFiles/" + folder
 params = importlib.import_module("ProblemRelatedFiles." + folder + ".params")
 pa = params.params()
 if pa.data != "sim_everywhere":
     pos = pa.pos
+
+#####################################################################
+# ------- Set to True if you want to save the plots. -------------- #
 save = True
+#####################################################################
 
 with h5py.File(path+"/opt_data.hdf5", "r") as sol:
 
@@ -71,10 +78,6 @@ b = bs[j]
 fs = 6
 lw = 0.8
 
-RMSE = np.sqrt(np.sum((b-b_exact)**2)/b_exact.size)
-NRMSE = RMSE/(bmax-bmin)*100
-print(f"NRMSE = {NRMSE}%")
-
 # Plot values of objective functional.
 plt.figure()
 plt.semilogy(range(j-1), f_vals[0:j-1], '-*', label=r"value at $b_j$")
@@ -119,7 +122,7 @@ if j > 1:
     if save:
         plt.savefig(path + "/norms.pdf", bbox_inches='tight')
 
-#######################
+############################
 # ----- Bathymetries ----- #
 
 x_10 = np.argmin(abs(x-10))  # Only plot until x=10m.
@@ -130,7 +133,7 @@ ax.plot(x[:x_10], b_exact[:x_10], "-k", label="exact", linewidth=lw)
 ax.plot(x[:x_10], bs[j][:x_10], "k:", label="reconstructed", linewidth=lw)
 if pa.data != "sim_everywhere":
     ax.plot(pos, np.zeros(len(pos)), "k*", label="sensor position",
-             markersize=fs)
+            markersize=fs)
 plt.ylim([min(np.min(b_exact), np.min(bs))-0.01,
           max(np.max(b_exact), np.max(bs))+0.01])
 ax.set_xlabel(r'$x [m]$', fontsize=fs, labelpad=0.25)
@@ -193,7 +196,7 @@ if saveall:
     if save:
         anim2.save(path + "/states.gif", dpi=150, fps=2)
 
-############################
+########################
 # ----- Mismatch ----- #
 if saveall:
 
@@ -264,7 +267,7 @@ if saveall:
     if save:
         anim5.save(path + "/adjoints2.gif", dpi=150, fps=2)
 
-################################
+###################################
 # ----- Error in bathymetry ----- #
 diff = np.zeros((j, b_exact.size))
 
@@ -322,7 +325,7 @@ plt.title("Observation")
 if save:
     plt.savefig(path + "/observation.png", bbox_inches='tight')
 
-########################
+####################################################################
 # ----- Bathymetry and free surface elevation last iteration ----- #
 if saveall:
     H = qs[j-1, :, :, 0] + bs[j-1]
@@ -354,7 +357,7 @@ anim10 = FuncAnimation(fig10, update_plot10, frames=np.arange(
 if save:
     anim10.save(path + "/Hb.gif", dpi=150, fps=2)
 
-########################
+#####################################################################
 # ----- Surface elevation and observation at sensor positions ----- #
 if pa.data != "sim_everywhere":
 
@@ -374,7 +377,8 @@ if pa.data != "sim_everywhere":
 
             axs[i].plot(t[start:], obs[start:, posi[i]], color="grey",
                         label=r"$H_{obs}$")
-            axs[i].plot(t[start:], H[start:, posi[i]], "k--", label=r"$H(b_j)$")
+            axs[i].plot(t[start:], H[start:, posi[i]], "k--",
+                        label=r"$H(b_j)$")
             if i == pos_n-1:
                 axs[i].set_xlabel('Time [s]')
             axs[i].set_ylabel('H [m]')

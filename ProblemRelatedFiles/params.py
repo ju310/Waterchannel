@@ -21,6 +21,9 @@ class params:
 
     def __init__(self):
 
+        ####################################################################
+        # ------------ Set these parameters as you need them. ------------ #
+        #
         # Turn on/off test for gradient descent method. Start with exact b.
         self.test = False
 
@@ -36,15 +39,17 @@ class params:
         # Put noise on observation.
         self.noise = 0
         # self.noise = 1
+        # Set final time.
+        self.T_N = 10
+        # ---------------------------------------------------------------- #
+        ####################################################################
 
-        # Set bottom friction coefficient.
+        # Bottom friction coefficient.
         self.kappa = 0.2
 
         # Gravitational acceleration.
         self.g = 9.81
 
-        # Set final time.
-        self.T_N = 10
 
         if self.data != "measurements":
             path = "ProblemRelatedFiles/WaterchannelData/" \
@@ -63,7 +68,9 @@ class params:
                 pathbc = "ProblemRelatedFiles/WaterchannelData/" \
                     + "MitBathymetrie/Tiefe=0,3_A=40_F=0,35_try=1.txt"
 
-        # Tolerance for stopping criterion in gradient descent.
+        ####################################################################
+        # ------------ Set these parameters as you need them. ------------ #
+        # Set tolerance for stopping criterion in gradient descent.
         # self.tol = 7e-8
         self.tol = 1e-7
         # self.tol = 1e-6
@@ -105,18 +112,11 @@ class params:
         # Time step.
         self.dt = 1e-3
 
-        # Number of points in time.
-        N = int(self.T_N/self.dt) + 1
-
         # Number of grid points in space.
         self.M = 17*4
         # self.M = 70
         # self.M = 100
 
-        # Left and right boundary.
-        self.xmin = 1.5
-        self.xmax = 15  # Matches better with measurements.
-        # self.xmax = 12
         if self.data == "measurements":
             positions = [3.5, 5.5, 7.5]  # Sensor positions
             self.sensors = [1, 2]  # Indices of sensors to use.
@@ -132,7 +132,17 @@ class params:
             # self.pos = [2]
             # self.pos = [2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5]
             self.start = 0
+        # ---------------------------------------------------------------- #
+        ####################################################################
+
+        # Left and right boundary.
+        self.xmin = 1.5
+        self.xmax = 15  # Matches better with measurements.
+
         self.lbc = leftbc(pathbc).f  # CubicSpline
+
+        # Number of points in time.
+        N = int(self.T_N/self.dt) + 1
 
         # Load observation, exact bathymetry and parameters from hdf5 file.
         if self.data != "measurements":
@@ -180,11 +190,6 @@ class params:
                 raise ValueError(
                     "Right boundary does not match the one from the hdf5 file"
                     + f" ({xmax_p})")
-            # if self.dt != dt_p or self.M != M_p:
-            #     print(
-            #         "Note that you are not using the same discretisation as "
-            #         + "used for the observation in the hdf5 file.")
-
             if self.data != "sim_everywhere":
                 for i in range(len(self.pos)):
                     if self.pos[i] not in pos_p:
@@ -305,9 +310,8 @@ class params:
 
         b_field = dist.Field(bases=xbasis)
 
-        # ---------------------------------------------------------------------
-        # SET INITIAL GUESS FOR BATHYMETRY.
-
+        ####################################################################
+        # --------------- SET INITIAL GUESS FOR BATHYMETRY. -------------- #
         # b_field['g'] = 0.1*np.exp(-((dist.local_grid(xbasis)-5)/0.7)**2)
         # b_field['g'] = b_exct_field["g"] + np.random.normal(0, .001, self.M)
         # b_field['g'] = b_exct_field["g"] \
@@ -315,6 +319,9 @@ class params:
         # b_field['g'] = b_exct_field["g"]*0.99# + 0.1
         # b_field['g'] = 0.05*np.sin(np.pi*dist.local_grid(xbasis))
         b_field['g'] = np.zeros(self.M)
+        # ---------------------------------------------------------------- #
+        ####################################################################
+
         if self.test:
             self.b_start = np.copy(self.b_exact)
         else:

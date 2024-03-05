@@ -13,7 +13,7 @@ from subprocess import call
 import importlib
 
 #####################################################################
-# Insert folder names here.
+# ---------------- Insert folder names here. ---------------------- #
 # E.g. folder1 = "2024_02_19_09_21_AM_obs_everywhere"
 folder1 = "2024_02_19_09_21_AM_obs_everywhere"  # Without noise.
 folder2 = "2024_02_19_09_22_AM_obs_everywhere_noise"  # With noise.
@@ -42,7 +42,7 @@ if pa1.data != pa2.data:
     raise ValueError("Observation type is not the same")
 
 #####################################################################
-# Set to True if you want to save the plots.
+# ------- Set to True if you want to save the plots. -------------- #
 save = True
 #####################################################################
 
