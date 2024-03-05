@@ -138,12 +138,10 @@ for i in range(1, len(pos)):
     plt.plot(t_array[:start+1], noise, "k--",
               label="measurement", linewidth=1)
     ax = plt.gca()
-    # ax.fill_between(t_array[:start+1], ciNoiseLeft,
-    #                 ciNoiseRight, alpha=0.3, facecolor="k",
-    #                 label="confidence interval")
-    ax.fill_between(t_array[:start+1], noise-stdBathy_cm,
-                    noise+stdBathy_cm, alpha=0.3, facecolor="k",
-                    label="confidence interval")
+    ax.fill_between(t_array[:start+1], ciNoiseLeft,
+                    ciNoiseRight, alpha=0.3, facecolor="k")
+    # ax.fill_between(t_array[:start+1], noise-stdBathy_cm,
+    #                 noise+stdBathy_cm, alpha=0.3, facecolor="k")
 
     ax.set_xlabel('Time [s]')
     ax.set_ylabel('h [cm]')
@@ -155,21 +153,27 @@ plt.show()
 
 for i in range(1, len(pos)):
 
-
+    # Plot noise with confidence interval (no bathymetry).
+    # Subtract H as we only want to see the noise. Change unit to cm.
+    noise = (mean[i, :start+1]-H)*100
+    ciNoiseLeft = (ciLeft[i, :start+1]-H)*100
+    ciNoiseRight = (ciRight[i, :start+1]-H)*100
 
     plt.figure()
-    for j in range(20):
-        # Subtract H as we only want to see the noise. Change unit to cm.
-        noise = (allObsBathyArray[j, i, :start+1]-H)*100
-        plt.plot(t_array[:start+1], noise, linewidth=1)
+    plt.plot(t_array[:start+1], noise, "k--",
+             label="measurement", linewidth=1)
     ax = plt.gca()
+    ax.fill_between(t_array[:start+1], ciNoiseLeft,
+                    ciNoiseRight, alpha=0.3, facecolor="k")
+
     ax.set_xlabel('Time [s]')
     ax.set_ylabel('h [cm]')
     plt.title(f"Sensor {i+1} at {pos[i]}m")
     plt.tight_layout()
-    # plt.savefig(path + f"/noise_bathy{i+1}.pdf")
+    # plt.savefig(path + f"/noise_{i+1}.pdf")
 
 plt.show()
+
 
 # --------------------- Write means into text files. --------------------------
 # lines = np.swapaxes((meanBathy-H)*100, 0, 1)  # Subtract H and convert to cm.
