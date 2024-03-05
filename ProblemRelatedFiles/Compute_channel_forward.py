@@ -27,10 +27,10 @@ logger = logging.getLogger(__name__)
 bathy = True
 
 if bathy:
-    # prefix = 'WaterchannelData/MitBathymetrie/'
-    # postfix = "meanBathy"
-    prefix = 'WaterchannelData/'
-    postfix = ""
+    prefix = 'WaterchannelData/MitBathymetrie/'
+    postfix = "_meanBathy"
+    # prefix = 'WaterchannelData/'
+    # postfix = ""
     # postfix = "_try=1"
 else:
     prefix = 'WaterchannelData/OhneBathymetrie/'
@@ -61,18 +61,18 @@ xmax = 15  # Set right boundary to 15m to simulate the 'beach' in the real
 # Nx = 70
 Nx = 100
 # T = 13
-T = 16
-# start = 32  # Number of seconds to cut off from beginning of experimental data.
-start = 0
+T = 10
+start = 32  # Number of seconds to cut off from beginning of experimental data.
+# start = 0
 # timestep = 5e-5
-timestep = 1e-4
-# timestep = 1e-3
+# timestep = 5e-4
+timestep = 1e-3
 N = int(T/abs(timestep))+1
 g = 9.81
 H = 0.3
 kappa = 0.2  # Makes amplitudes smaller and waves a bit smoother.
 dealias = 3/2
-save = True
+save = False
 
 # Bases and domain
 xcoord = d3.Coordinate('x')

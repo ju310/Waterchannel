@@ -22,14 +22,21 @@ from ProblemRelatedFiles.grad_descent_aux import OptProblem
 for system in ['subsystems', 'solvers']:
     logging.getLogger(system).setLevel(logging.WARNING)  # Suppress output.
 
-oldOptAgain = False  # Set to True if you want to run an old optimisation again
-# with exactly the same parameters.
+#####################################################################
+# Set 'oldOptAgain' to True if you want to run an old optimisation  #
+# again with exactly the same parameters.                           #
+oldOptAgain = False
 folder = "2024_01_31_11_18_AM_sim_sensor"  # Folder with old optimisation data.
+
+# Set 'save' to True if you want to save the optimisation data in a hdf5 file.
+save = True
+# Set 'saveall' to True if you want to save all forward and adjoint solutions
+# additionally.
+saveall = False
+#####################################################################
+
 params = importlib.import_module("ProblemRelatedFiles."
                                  + oldOptAgain*(folder + ".") + "params")
-
-save = True
-saveall = False
 pa = params.params()  # Object containing all parameters.
 P = OptProblem(pa, save)
 
@@ -184,15 +191,6 @@ else:
 
 # -----------------------------------------------------------------------------
 # ---------------------------- SAVE DATA --------------------------------------
-
-# Talyor test for gradient
-# for i in range(len(vs)):
-
-#     cg = CheckGradient(P.f, P.dx*vs[i], bs[i])
-#     # Need gradient*dx because of discrete scalar product
-#     # in taylortest.py.
-#     gradientchecks.append(cg.check_order_2())
-#     print(f"Iteration {i}: {cg.check_order_2()}")
 
 if save is True:
 
