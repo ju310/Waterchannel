@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Wed Nov 29 10:34:44 2023.
-Compare measurements of water heights in the water channel and plot those with
+Compare measurements of water heights in the water channel and plot them with
 confidence intervals.
 
 @author: Judith Angel
@@ -13,6 +13,7 @@ import h5py
 from matplotlib.animation import FuncAnimation
 from ProblemRelatedFiles.read_left_bc import data, leftbc
 
+# Define end time T_N, water height at rest H, sensor positions and time array.
 T_N = 42
 H = 0.3
 pos = [1.5, 3.5, 5.5, 7.5]
@@ -92,7 +93,7 @@ for i in range(1, len(pos)):
         H_sensor[start_sim:end_sim, i-1],
         "k:", label="simulation", linewidth=1)
     plt.plot(t_array[start:end], meanBathy[i, start:end], "k--",
-              label="measurement", linewidth=1)
+             label="measurement", linewidth=1)
     ax = plt.gca()
     ax.fill_between(t_array[start:end], ciBathyLeft[i, start:end],
                     ciBathyRight[i, start:end], alpha=0.3, facecolor="k",
@@ -105,7 +106,7 @@ for i in range(1, len(pos)):
 
 plt.show()
 
-# Plot difference of means with and without bathymetry with confidence interval.
+# Plot difference of means with /without bathymetry with confidence interval.
 for i in range(1, len(pos)):
 
     plt.figure()
@@ -133,15 +134,12 @@ for i in range(1, len(pos)):
     ciNoiseRight = (ciBathyRight[i, :start+1]-H)*100
     stdBathy_cm = stdBathy[i, start+1]*100
 
-
     plt.figure()
     plt.plot(t_array[:start+1], noise, "k--",
-              label="measurement", linewidth=1)
+             label="measurement", linewidth=1)
     ax = plt.gca()
     ax.fill_between(t_array[:start+1], ciNoiseLeft,
                     ciNoiseRight, alpha=0.3, facecolor="k")
-    # ax.fill_between(t_array[:start+1], noise-stdBathy_cm,
-    #                 noise+stdBathy_cm, alpha=0.3, facecolor="k")
 
     ax.set_xlabel('Time [s]')
     ax.set_ylabel('h [cm]')
