@@ -4,14 +4,20 @@
 Created on Wed Jan 24 14:41:09 2024.
 
 @author: Judith Angel
-Create plots for forward solution.
+Create plots for forward solution at sensor positions 2, 3, 4.
 """
 import numpy as np
 import h5py
 import matplotlib.pyplot as plt
 from ProblemRelatedFiles.read_left_bc import leftbc, data
 
+#####################################################################
+# --------------------- Insert file name here. -------------------- #
+# ------- It is the file name created from the script ------------- #
+# ------- "ProblemRelatedFiles/Compute_channel_forward.py". ------- #
 file = "nobathyTiefe=0,3_A=40_F=0,35_mean_kappa2e-01_T=13"
+#####################################################################
+
 path = "ProblemRelatedFiles/WaterchannelData/" + file
 
 if "sim_data_" in file:
@@ -26,7 +32,10 @@ filename = 'Tiefe=0,3_A=40_F=0,35_' + postfix
 lbc = leftbc(prefix+filename+".txt")
 dataObject = data(prefix+filename+".txt")
 
-save = True
+#####################################################################
+# ------- Set to True if you want to save the plots. -------------- #
+save = False
+#####################################################################
 
 with h5py.File(path+".hdf5", "r") as sol:
 

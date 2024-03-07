@@ -24,13 +24,14 @@ from read_left_bc import leftbc, data
 import logging
 logger = logging.getLogger(__name__)
 
+#####################################################################
+# Set to True if you want to compute the solution for SWE with bathymetry.
 bathy = True
+#####################################################################
 
 if bathy:
     prefix = 'WaterchannelData/MitBathymetrie/'
     postfix = "_meanBathy"
-    # prefix = 'WaterchannelData/'
-    # postfix = ""
     # postfix = "_try=1"
 else:
     prefix = 'WaterchannelData/OhneBathymetrie/'
@@ -57,6 +58,9 @@ pos = [3.5, 5.5, 7.5]
 xmin = 1.5  # First sensor is located at 1.5m.
 xmax = 15  # Set right boundary to 15m to simulate the 'beach' in the real
 # water channel.
+
+#####################################################################
+# --------- Choose variables for the discretisation here. --------- #
 # Nx = 17*4
 # Nx = 70
 Nx = 100
@@ -67,12 +71,19 @@ start = 32  # Number of seconds to cut off from beginning of experimental data.
 # timestep = 5e-5
 # timestep = 5e-4
 timestep = 1e-3
+# ----------------------------------------------------------------- #
+#####################################################################
+
 N = int(T/abs(timestep))+1
 g = 9.81
 H = 0.3
 kappa = 0.2  # Makes amplitudes smaller and waves a bit smoother.
 dealias = 3/2
+
+#####################################################################
+# ------- Set to True if you want to save the solution. ----------- #
 save = False
+#####################################################################
 
 # Bases and domain
 xcoord = d3.Coordinate('x')
@@ -125,19 +136,6 @@ solver = problem.build_solver(d3.RK443)
 solver.stop_wall_time = 15000
 solver.stop_iteration = N-1
 solver.stop_sim_time = T - 1e-13
-
-# Initial conditions/bathymetry
-
-
-# def source(x):
-#     x = np.array(x)
-#     if bathy:
-
-#         return 0.2*np.exp(-((x-4)/0.4)**2)  # Skateboard ramp bathymetry
-
-#     else:
-#         return np.zeros(x.size)
-
 
 # Measured points of the ramp.
 b_points = np.concatenate(

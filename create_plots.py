@@ -16,8 +16,10 @@ from dedalus.extras.plot_tools import quad_mesh, pad_limits
 import importlib
 
 #####################################################################
-# Insert folder name here, e.g. folder = "2024_02_22_09_12_AM_sensor234"
+# ------------------- Insert folder name here --------------------- #
+# E.g. folder = "2024_02_22_09_12_AM_sensor234"
 folder = "2024_02_22_09_12_AM_sensor234"
+# ----------------------------------------------------------------- #
 #####################################################################
 
 path = "ProblemRelatedFiles/" + folder

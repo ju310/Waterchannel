@@ -13,7 +13,6 @@ import h5py
 import os
 from datetime import datetime
 from timeit import default_timer as timer
-from taylortest import CheckGradient
 import logging
 import importlib
 
@@ -29,6 +28,8 @@ oldOptAgain = False
 folder = "2024_01_31_11_18_AM_sim_sensor"  # Folder with old optimisation data.
 
 # Set 'save' to True if you want to save the optimisation data in a hdf5 file.
+# A folder named in the format "Year_month_day_hour_minute_AM/PM" will be
+# created automatically.
 save = True
 # Set 'saveall' to True if you want to save all forward and adjoint solutions
 # additionally.
