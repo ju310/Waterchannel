@@ -1,0 +1,27 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: Waterchannel
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Judith
+    family-names: Angel
+    orcid: 'https://orcid.org/0009-0008-2098-4883'
+    email: judith.angel@tuhh.de
+    affiliation: Hamburg University of Technology
+  - given-names: Daniel
+    family-names: Ruprecht
+    email: ruprecht@tuhh.de
+    affiliation: Hamburg University of Technology
+    orcid: 'https://orcid.org/0000-0003-1904-2473'
+  - given-names: Sebastian
+    family-names: Götschel
+    email: sebastian.goetschel@tuhh.de
+    affiliation: Hamburg University of Technology
+    orcid: 'https://orcid.org/0000-0003-0287-2120'
+repository-code: 'https://github.com/ju310/Waterchannel'
+license: BSD-2-Clause

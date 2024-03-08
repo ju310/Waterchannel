@@ -24,7 +24,7 @@ for system in ['subsystems', 'solvers']:
 #####################################################################
 # Set 'useOtherParams' to True if you want use an existing parameter file.
 useOtherParams = False
-folder = "2024_01_31_11_18_AM_sim_sensor"  # Folder with parameter file.
+folder = "sim_obs_whole_domain"  # Folder with parameter file.
 
 # Set 'save' to True if you want to save the optimisation data in a hdf5 file.
 # A folder named in the format "Year_month_day_hour_minute_AM/PM" will be
