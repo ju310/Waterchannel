@@ -28,7 +28,7 @@ We provide the hdf5 files with optimisation data here (Link still to be added). 
 - Optional: Uncomment the code lines at the bottom to save the figure.
 
 ## Requirements
-Installation of [Dedalus](https://dedalus-project.readthedocs.io/en/latest/pages/installation.html) version 3.0.0 or newer is required. For the versions of NumPy, SciPy etc. see the file "requirements.txt".
+Installation of [Dedalus](https://dedalus-project.readthedocs.io/en/latest/pages/installation.html) version 3.0.0 or newer is required. For the versions of NumPy, SciPy etc. see the file `requirements.txt`.
 
 ## Acknowledgements
 This project has received funding from the European High-Performance Computing Joint Undertaking (JU) under grant agreement No 955701 (Time-X). The JU receives support from the European Union’s Horizon 2020 research and innovation programme and Belgium, France, Germany, and Switzerland. This project also received funding from the German Federal Ministry of Education and Research (BMBF) grant 16HPC048.
