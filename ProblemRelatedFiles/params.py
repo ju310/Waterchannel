@@ -11,7 +11,6 @@ import numpy as np
 import warnings
 import h5py
 import dedalus.public as d3
-from mpi4py import MPI
 from scipy import interpolate
 from ProblemRelatedFiles.read_left_bc import leftbc, data
 
@@ -219,7 +218,7 @@ class params:
         # ---------------------------------------------------------------------
         # Scale initial condition, observation and exact control.
         xcoord = d3.Coordinate('x')
-        dist = d3.Distributor(xcoord, comm=MPI.COMM_SELF, dtype=np.float64)
+        dist = d3.Distributor(xcoord, dtype=np.float64)
         xbasis = d3.Chebyshev(
             xcoord, size=self.M, bounds=(self.xmin, self.xmax), dealias=3/2)
         N = int(self.T_N/self.dt) + 1  # Number of points in time.

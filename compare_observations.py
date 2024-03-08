@@ -10,7 +10,6 @@ confidence intervals.
 import numpy as np
 import matplotlib.pyplot as plt
 import h5py
-from matplotlib.animation import FuncAnimation
 from ProblemRelatedFiles.read_left_bc import data, leftbc
 
 # Define end time T_N, water height at rest H, sensor positions and time array.
