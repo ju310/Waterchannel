@@ -3,6 +3,9 @@
 *.py[cod]
 *$py.class
 *.png
+!logo_eu.png
+!Logo_GRK2583.png
+!LogoTime-X.png
 *.hdf5
 *.gif
 *.mp4
