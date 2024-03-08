@@ -2,6 +2,7 @@
 
 ## Description
 This code reconstructs the bathymetry in a water channel using either simulated or experimental observation data. We use gradient descent to minimise an objective functional, where we compute the numerical solution of the continuous adjoint problem in order to determine the gradient. The forward problem is modelled by the nonlinear nonrotating shallow water equations and discretised with the spectral methods framework [Dedalus](https://dedalus-project.org/).
+
 ## How to reproduce the data and plots
 ### Solutions of the SWE
 - Go to the file ProblemRelatedFiles/Compute_channel_forward.py.
@@ -25,10 +26,10 @@ We provide the hdf5 files with optimisation data here (Link still to be added). 
 ### Plot of the bathymetry
 - Execute the file "plot_bathymetry.py".
 - Optional: Uncomment the code lines at the bottom to save the figure.
--------------
+
 ## Requirements
-Installation of Dedalus version 3.0.0 is required. See the file "requirements.txt".
-------------
+Installation of Dedalus version 3.0.0 is required. For the versions of NumPy, SciPy etc. see the file "requirements.txt".
+
 ## Acknowledgements
 This project has received funding from the European High-Performance Computing Joint Undertaking (JU) under grant agreement No 955701 (Time-X). The JU receives support from the European Union’s Horizon 2020 research and innovation programme and Belgium, France, Germany, and Switzerland. This project also received funding from the German Federal Ministry of Education and Research (BMBF) grant 16HPC048.
 The authors acknowledge the support by the Deutsche Forschungsgemeinschaft (DFG) within the Research Training Group GRK 2583 ``Modeling, Simulation and Optimization of Fluid Dynamic Applications''.
