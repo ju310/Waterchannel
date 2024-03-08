@@ -4,8 +4,9 @@
 This code reconstructs the bathymetry in a water channel using either simulated or experimental observation data. We use gradient descent to minimise an objective functional, where we compute the numerical solution of the continuous adjoint problem in order to determine the gradient. The forward problem is modelled by the nonlinear nonrotating shallow water equations and discretised with the spectral methods framework [Dedalus](https://dedalus-project.org/).
 
 ## How to reproduce the data and plots
+After cloning this repository, download the measurement data from the water flume here (link to be added). You can compute and save the mean of the measurements by uncommenting the lower lines in `compare_observations.py`. This file will also produce the plots of the means with confidence intervals.
 ### Solutions of the SWE
-- After cloning this repository, to the file `ProblemRelatedFiles/Compute_channel_forward.py`.
+- Go to the file `ProblemRelatedFiles/Compute_channel_forward.py`.
 - Set variables as needed. In particular, set `save = True`. To obtain the plots in the paper (link to be added), you may copy the parameters from [nobathyTiefe=0,3_A=40_F=0,35_mean_kappa2e-01_T=13.txt](./ProblemRelatedFiles/WaterchannelData/nobathyTiefe=0,3_A=40_F=0,35_mean_kappa2e-01_T=13.txt) and [sim_data_Tiefe=0,3_A=40_F=0,35_meanBathy_ExactRamp_T=13.txt](./ProblemRelatedFiles/WaterchannelData/sim_data_Tiefe=0,3_A=40_F=0,35_meanBathy_ExactRamp_T=13.txt).
 - Execute the file.
 ### Plots of the solution of the SWE
