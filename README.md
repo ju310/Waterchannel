@@ -5,8 +5,8 @@ This code reconstructs the bathymetry in a water channel using either simulated 
 
 ## How to reproduce the data and plots
 ### Solutions of the SWE
-- Go to the file `ProblemRelatedFiles/Compute_channel_forward.py`.
-- Set variables as needed. In particular, set `save = True`.
+- After cloning this repository, to the file `ProblemRelatedFiles/Compute_channel_forward.py`.
+- Set variables as needed. In particular, set `save = True`. To obtain the plots in the paper (link to be added), you may copy the parameters from [nobathyTiefe=0,3_A=40_F=0,35_mean_kappa2e-01_T=13.txt](./ProblemRelatedFiles/WaterchannelData/nobathyTiefe=0,3_A=40_F=0,35_mean_kappa2e-01_T=13.txt) and [sim_data_Tiefe=0,3_A=40_F=0,35_meanBathy_ExactRamp_T=13.txt](./ProblemRelatedFiles/WaterchannelData/sim_data_Tiefe=0,3_A=40_F=0,35_meanBathy_ExactRamp_T=13.txt).
 - Execute the file.
 ### Plots of the solution of the SWE
 - Go to the file `create_plots_forward.py`.
