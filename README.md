@@ -28,3 +28,6 @@ We provide the hdf5 files with optimisation data here (Link still to be added). 
 -------------
 ## Requirements
 Installation of Dedalus version 3.0.0 is required. See the file "requirements.txt".
+------------
+## Acknoledgements
+The authors acknowledge the support by the Deutsche Forschungsgemeinschaft (DFG) within the Research Training Group GRK 2583 ``Modeling, Simulation and Optimization of Fluid Dynamic Applications''.
