@@ -22,10 +22,9 @@ for system in ['subsystems', 'solvers']:
     logging.getLogger(system).setLevel(logging.WARNING)  # Suppress output.
 
 #####################################################################
-# Set 'oldOptAgain' to True if you want to run an old optimisation  #
-# again with exactly the same parameters.                           #
-oldOptAgain = False
-folder = "2024_01_31_11_18_AM_sim_sensor"  # Folder with old optimisation data.
+# Set 'useOtherParams' to True if you want use an existing parameter file.
+useOtherParams = False
+folder = "2024_01_31_11_18_AM_sim_sensor"  # Folder with parameter file.
 
 # Set 'save' to True if you want to save the optimisation data in a hdf5 file.
 # A folder named in the format "Year_month_day_hour_minute_AM/PM" will be
@@ -37,7 +36,7 @@ saveall = False
 #####################################################################
 
 params = importlib.import_module("ProblemRelatedFiles."
-                                 + oldOptAgain*(folder + ".") + "params")
+                                 + useOtherParams*(folder + ".") + "params")
 pa = params.params()  # Object containing all parameters.
 P = OptProblem(pa, save)
 
@@ -49,7 +48,7 @@ if save is True:
     os.mkdir("ProblemRelatedFiles/" + newfolder)
 
     # Save parameter file.
-    with open("ProblemRelatedFiles/" + oldOptAgain*(folder + "/")
+    with open("ProblemRelatedFiles/" + useOtherParams*(folder + "/")
               + "params.py", "r") as f:
         parameters = f.read()
 
@@ -221,5 +220,5 @@ if save is True:
                  + f"\nOutput gradient check: {gradientchecks}"
                  + f"\ntime step = {P.dt}"
                  + f"\ngrid points in space = {P.M}"
-                 + oldOptAgain*f"Reconstruction with parameters from {folder}"
+                 + useOtherParams*f"Reconstruction with parameters from {folder}"
                  + min_found*f"\nFound a minimum after {j} iterations.")
