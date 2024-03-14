@@ -337,7 +337,8 @@ Hmax = np.amax(H)
 fig10 = plt.figure()
 mask = obs == 0
 obs[mask] = np.nan
-start = np.argmin(abs(t-4))
+# start = np.argmin(abs(t-4))
+start = 0
 
 
 def update_plot10(i):
