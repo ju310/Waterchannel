@@ -126,39 +126,41 @@ plt.show()
 
 for i in range(1, len(pos)):
 
-    # Plot noise with confidence interval.
+    # Noise with confidence interval.
     # Subtract H as we only want to see the noise. Change unit to cm.
-    noise = (meanBathy[i, :start+1]-H)*100
-    ciNoiseLeft = (ciBathyLeft[i, :start+1]-H)*100
-    ciNoiseRight = (ciBathyRight[i, :start+1]-H)*100
-    stdBathy_cm = stdBathy[i, start+1]*100
+    noiseB = (meanBathy[i, :start+1]-H)*100
+    ciNoiseLeftB = (ciBathyLeft[i, :start+1]-H)*100
+    ciNoiseRightB = (ciBathyRight[i, :start+1]-H)*100
+    stdBathy_cmB = stdBathy[i, start+1]*100
 
-    plt.figure()
-    plt.plot(t_array[:start+1], noise, "k--",
-             label="measurement", linewidth=1)
-    ax = plt.gca()
-    ax.fill_between(t_array[:start+1], ciNoiseLeft,
-                    ciNoiseRight, alpha=0.3, facecolor="k")
-
-    ax.set_xlabel('Time [s]')
-    ax.set_ylabel('h [cm]')
-    plt.title(f"Sensor {i+1} at {pos[i]}m")
-    plt.tight_layout()
-    # plt.savefig(path + f"/noise_bathy{i+1}.pdf")
-
-plt.show()
-
-for i in range(1, len(pos)):
-
-    # Plot noise with confidence interval (no bathymetry).
+    # Noise with confidence interval (no bathymetry).
     # Subtract H as we only want to see the noise. Change unit to cm.
     noise = (mean[i, :start+1]-H)*100
     ciNoiseLeft = (ciLeft[i, :start+1]-H)*100
     ciNoiseRight = (ciRight[i, :start+1]-H)*100
 
+    noisemin = min(np.min(noiseB), np.min(noise))
+    noisemax = max(np.max(noiseB), np.max(noise))
+
+    plt.figure()
+    plt.plot(t_array[:start+1], noiseB, "k--",
+             label="measurement", linewidth=1)
+    plt.ylim([noisemin, noisemax])
+    ax = plt.gca()
+    ax.fill_between(t_array[:start+1], ciNoiseLeftB,
+                    ciNoiseRightB, alpha=0.3, facecolor="k")
+
+    ax.set_xlabel('Time [s]')
+    ax.set_ylabel('h [cm]')
+    plt.title(f"Sensor {i+1} at {pos[i]}m")
+    plt.tight_layout()
+    plt.savefig(path + f"/noise_bathy{i+1}.pdf")
+
+
     plt.figure()
     plt.plot(t_array[:start+1], noise, "k--",
              label="measurement", linewidth=1)
+    plt.ylim([noisemin, noisemax])
     ax = plt.gca()
     ax.fill_between(t_array[:start+1], ciNoiseLeft,
                     ciNoiseRight, alpha=0.3, facecolor="k")
@@ -167,7 +169,7 @@ for i in range(1, len(pos)):
     ax.set_ylabel('h [cm]')
     plt.title(f"Sensor {i+1} at {pos[i]}m")
     plt.tight_layout()
-    # plt.savefig(path + f"/noise_{i+1}.pdf")
+    plt.savefig(path + f"/noise_{i+1}.pdf")
 
 plt.show()
 
