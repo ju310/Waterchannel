@@ -126,7 +126,7 @@ class OptProblem:
             self.u_field['g'] = self.q[n, :, 1]
 
         self.b_field.change_scales(1)
-        self.b_field['g'] = self.PDE.current_b
+        self.b_field['g'] = control
         self.bx_field.change_scales(3/2)
         self.bx_field["g"] = d3.Differentiate(
             self.b_field, self.PDE.xcoord).evaluate()['g']
