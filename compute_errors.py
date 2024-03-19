@@ -5,8 +5,8 @@ Created on Fri Mar  1 17:08:17 2024.
 
 @author: Judith Angel
 Compute discrete L2 error, error in maximum norm, mean squared error, root mean
- squared error and normalised root mean squared error and write it into a text
- file.
+ squared error and normalised root mean squared error of the reconstructed
+bathymetry and write it into a text file.
 """
 import numpy as np
 import h5py
