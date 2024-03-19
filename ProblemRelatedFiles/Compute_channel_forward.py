@@ -58,17 +58,18 @@ pos = [3.5, 5.5, 7.5]
 xmin = 1.5  # First sensor is located at 1.5m.
 xmax = 15  # Set right boundary to 15m to simulate the 'beach' in the real
 # water channel.
+# xmax = 12
 
 #####################################################################
 # --------- Choose variables for the discretisation here. --------- #
-# Nx = 17*4
+Nx = 17*4
 # Nx = 70
-Nx = 100
+# Nx = 150
 # T = 13
 T = 10
-start = 32  # Number of seconds to cut off from beginning of experimental data.
+start = 30  # Number of seconds to cut off from beginning of experimental data.
 # start = 0
-# timestep = 5e-5
+# timestep = 1e-5
 # timestep = 5e-4
 timestep = 1e-3
 # ----------------------------------------------------------------- #
@@ -126,7 +127,7 @@ problem = d3.IVP([h, u, tau1, tau2], time=t, namespace=locals())
 problem.add_equation("dt(h) + lift(tau1, -1) + dx(u)"
                      + " =  - dx((h-1)*u)")
 problem.add_equation("dt(u) + lift(tau2, -1)"
-                     + " + g*dx(h) + kappa*u = - 2*u*dx(u) - g*dx(b)")
+                      + " + g*dx(h) + kappa*u = - 2*u*dx(u) - g*dx(b)")
 
 problem.add_equation("h(x='left') =  hl(t)")
 problem.add_equation("u(x='right') = 0")
@@ -207,16 +208,20 @@ else:
 
 Hmax = np.amax(H_array)
 Hmin = np.amin(H_array)
+H_meas = np.array([H+lbc.f(t_array+start),
+                   H+dataObject.f[0](t_array+start),
+                   H+dataObject.f[1](t_array+start),
+                   H+dataObject.f[2](t_array+start)])
 
 plt.figure()
-plt.plot(t_array, H+lbc.f(t_array+start), "k")
+plt.plot(t_array, H_meas[0], "k")
 plt.ylim([Hmin-0.001, Hmax+0.001])
 plt.title("Sensor 1, boundary condition")
 
 plt.figure()
 plt.plot(t_array, H_array[:, 0], "y",
          label="simulation")
-plt.plot(t_array, H+dataObject.f[0](t_array+start), "k",
+plt.plot(t_array, H_meas[1], "k",
          label="measurement")
 plt.legend()
 plt.ylim([Hmin-0.001, Hmax+0.001])
@@ -225,7 +230,7 @@ plt.title("Sensor 2")
 plt.figure()
 plt.plot(t_array, H_array[:, 1], "y",
          label="simulation")
-plt.plot(t_array, H+dataObject.f[1](t_array+start), "k",
+plt.plot(t_array, H_meas[2], "k",
          label="measurement")
 plt.legend()
 plt.ylim([Hmin-0.001, Hmax+0.001])
@@ -234,7 +239,7 @@ plt.title("Sensor 3")
 plt.figure()
 plt.plot(t_array, H_array[:, 2], "y",
          label="simulation")
-plt.plot(t_array, H+dataObject.f[2](t_array+start), "k",
+plt.plot(t_array, H_meas[3], "k",
          label="measurement")
 plt.legend()
 plt.ylim([Hmin-0.001, Hmax+0.001])
@@ -244,7 +249,7 @@ fig, axs = plt.subplots(3)
 fig.tight_layout(pad=2.0)
 axs[0].plot(t_array, H_array[:, 0], "y",
             label="simulation")
-axs[0].plot(t_array, H+dataObject.f[0](t_array+start), "k--",
+axs[0].plot(t_array, H_meas[1], "k--",
             label="measurement")
 axs[0].set_xlabel('Time [s]')
 axs[0].set_ylabel('H [m]')
@@ -252,7 +257,7 @@ axs[0].set_title(f"Sensor 2 at {pos[0]}m")
 
 axs[1].plot(t_array, H_array[:, 1], "y",
             label="simulation")
-axs[1].plot(t_array, H+dataObject.f[1](t_array+start), "k--",
+axs[1].plot(t_array, H_meas[2], "k--",
             label="measurement")
 axs[1].set_xlabel('Time [s]')
 axs[1].set_ylabel('H [m]')
@@ -260,7 +265,7 @@ axs[1].set_title(f"Sensor 3 at {pos[1]}m")
 
 axs[2].plot(t_array, H_array[:, 2], "y",
             label="simulation")
-axs[2].plot(t_array, H+dataObject.f[2](t_array+start), "k--",
+axs[2].plot(t_array, H_meas[3], "k--",
             label="measurement")
 axs[2].set_xlabel('Time [s]')
 axs[2].set_ylabel('H [m]')
@@ -268,6 +273,13 @@ axs[2].legend(loc="upper left")
 axs[2].set_title(f"Sensor 4 at {pos[2]}m")
 plt.tight_layout()
 plt.show()
+
+error = [np.linalg.norm(H_array[:, j]-H_meas[j+1]) for j in range(3)]
+print(error)
+print(np.mean(error))
+rel_error = [error[j]/np.linalg.norm(H_meas[j+1]) for j in range(3)]
+print(rel_error)
+print(np.mean(rel_error))
 
 # Save all data.
 if save:
