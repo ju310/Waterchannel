@@ -10,6 +10,7 @@ confidence intervals.
 import numpy as np
 import matplotlib.pyplot as plt
 import h5py
+from scipy import signal
 from ProblemRelatedFiles.read_left_bc import data, leftbc
 
 # Define end time T_N, water height at rest H, sensor positions and time array.
@@ -154,8 +155,7 @@ for i in range(1, len(pos)):
     ax.set_ylabel('h [cm]')
     plt.title(f"Sensor {i+1} at {pos[i]}m")
     plt.tight_layout()
-    plt.savefig(path + f"/noise_bathy{i+1}.pdf")
-
+    # plt.savefig(path + f"/noise_bathy{i+1}.pdf")
 
     plt.figure()
     plt.plot(t_array[:start+1], noise, "k--",
@@ -169,7 +169,28 @@ for i in range(1, len(pos)):
     ax.set_ylabel('h [cm]')
     plt.title(f"Sensor {i+1} at {pos[i]}m")
     plt.tight_layout()
-    plt.savefig(path + f"/noise_{i+1}.pdf")
+    # plt.savefig(path + f"/noise_{i+1}.pdf")
+
+    plt.figure()
+    sos = signal.butter(1, 0.01, 'lowpass', output='sos')
+    filtered = signal.sosfilt(sos, noise)
+    plt.plot(t_array[:start+1], filtered)
+    plt.ylim([noisemin, noisemax])
+    plt.title('After 0.01 Hz low-pass filter')
+    plt.xlabel('Time [s]')
+    plt.show()
+
+    plt.figure()
+    plt.specgram(noiseB)
+    plt.title(f"With bathymetry, sensor {i+1}")
+    plt.xlabel("Time [s]")
+    plt.ylabel("Freq. [Hz]")
+
+    plt.figure()
+    plt.specgram(noise)
+    plt.title(f"Without bathymetry, sensor {i+1}")
+    plt.xlabel("Time [s]")
+    plt.ylabel("Freq. [Hz]")
 
 plt.show()
 
