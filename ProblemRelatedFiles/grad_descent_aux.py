@@ -104,6 +104,14 @@ class OptProblem:
         p = np.flipud(self.PDE.solvepde(self.q, "adjoint"))
         self.p = p.copy()
 
+        if self.PDE.data != "sim_everywhere":
+            self.mismatch = self.PDE.gauss_peak(
+                self.PDE.H_array-self.y_d)
+        else:
+            self.y = self.q[:, :, 0]
+            self.y += np.tile(control, (self.y.shape[0], 1))
+            self.mismatch = self.y-self.y_d
+
         p2_x = np.zeros((self.p.shape[0], self.p.shape[1]))
         h_x = np.zeros((self.q.shape[0], self.q.shape[1]))
 
