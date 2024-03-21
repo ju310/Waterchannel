@@ -24,7 +24,8 @@ class params:
         # ------------ Set these parameters as you need them. ------------ #
         #
         # Turn on/off test for gradient descent method. Start with exact b.
-        self.test = False
+        self.test = True  # Does not work for measurements due to the
+        # discretisation error.
 
         # Use either measurement data, simulated data everywhere or
         # simulated data at sensor positions.
@@ -38,6 +39,10 @@ class params:
         # Put noise on observation.
         self.noise = 0
         # self.noise = 1
+
+        if self.test:
+            self.noise = 0
+
         # Set final time.
         self.T_N = 10
         # ---------------------------------------------------------------- #
@@ -48,7 +53,6 @@ class params:
 
         # Gravitational acceleration.
         self.g = 9.81
-
 
         if self.data != "measurements":
             path = "ProblemRelatedFiles/WaterchannelData/" \
@@ -81,8 +85,8 @@ class params:
         else:
             # self.lambd = 0.001
             # self.lambd = 1e-4
-            # self.lambd = 1e-5
-            self.lambd = 1e-6
+            self.lambd = 1e-5
+            # self.lambd = 1e-6
             # self.lambd = 0
 
             L2reg = True
@@ -104,7 +108,7 @@ class params:
 
         # Maximum number of iterations in gradient descent.
         if self.test:
-            self.jmax = 2
+            self.jmax = 1
         else:
             self.jmax = 2000
 
@@ -112,22 +116,20 @@ class params:
         self.dt = 1e-3
 
         # Number of grid points in space.
-        self.M = 17*4
-        # self.M = 70
-        # self.M = 100
+        # self.M = 68
+        self.M = 100
 
         if self.data == "measurements":
             positions = [3.5, 5.5, 7.5]  # Sensor positions
-            self.sensors = [1, 2]  # Indices of sensors to use.
+            self.sensors = [1]  # Indices of sensors in 'positions' to use.
             self.pos = []
             for i in self.sensors:
                 self.pos.append(positions[i])
             self.start = 30  # Number of seconds to cut off from beginning of
             # experimental data.
         elif self.data == "sim_sensor_pos":
-            # self.pos = [3.5, 5.5, 7.5]
-            # self.pos = [3.5, 6, 8.5]
-            self.pos = [5.5, 7.5]
+            self.pos = [3.5, 5.5, 7.5]
+            # self.pos = [3.5, 5.5]
             # self.pos = [2]
             # self.pos = [2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5]
             self.start = 0
