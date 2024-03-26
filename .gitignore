@@ -17,6 +17,7 @@
 *.synctex.gz
 *.toc
 *.out
+sim_data*
 ProblemRelatedFiles/WaterchannelData/MitBathymetrie/
 ProblemRelatedFiles/WaterchannelData/OhneBathymetrie/
 ProblemRelatedFiles/2023_*

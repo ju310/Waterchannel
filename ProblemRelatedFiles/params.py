@@ -24,7 +24,7 @@ class params:
         # ------------ Set these parameters as you need them. ------------ #
         #
         # Turn on/off test for gradient descent method. Start with exact b.
-        self.test = True  # Does not work for measurements due to the
+        self.test = False  # Does not work for measurements due to the
         # discretisation error.
 
         # Use either measurement data, simulated data everywhere or
@@ -55,9 +55,12 @@ class params:
         self.g = 9.81
 
         if self.data != "measurements":
+            # path = "ProblemRelatedFiles/WaterchannelData/" \
+            #     + "sim_data_Tiefe=0,3_A=40_F=0,35_meanBathy_ExactRamp" \
+            #     + "_T=10_M=140.hdf5"
             path = "ProblemRelatedFiles/WaterchannelData/" \
-                + "sim_data_Tiefe=0,3_A=40_F=0,35_ExactRamp_T=16.hdf5"
-        if self.data != "measurements":
+                + "sim_data_Tiefe=0,3_A=40_F=0,35_meanBathy_ExactRamp" \
+                + "_T=13.hdf5"
             # pathbc = "ProblemRelatedFiles/WaterchannelData/" \
             #     + "MitBathymetrie/Tiefe=0,3_A=40_F=0,35_meanBathy.txt"
             pathbc = "ProblemRelatedFiles/WaterchannelData/" \
@@ -83,10 +86,11 @@ class params:
             self.lambd = 0
             self.lambda_b = 0
         else:
-            # self.lambd = 0.001
             # self.lambd = 1e-4
-            self.lambd = 1e-5
-            # self.lambd = 1e-6
+            if self.noise == 1:
+                self.lambd = 1e-5
+            else:
+                self.lambd = 1e-6
             # self.lambd = 0
 
             L2reg = True
@@ -128,10 +132,10 @@ class params:
             self.start = 30  # Number of seconds to cut off from beginning of
             # experimental data.
         elif self.data == "sim_sensor_pos":
-            self.pos = [3.5, 5.5, 7.5]
+            # self.pos = [3.5, 5.5, 7.5]
             # self.pos = [3.5, 5.5]
-            # self.pos = [2]
-            # self.pos = [2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5]
+            self.pos = [3.5]
+            # self.pos = [5.5]
             self.start = 0
         # ---------------------------------------------------------------- #
         ####################################################################

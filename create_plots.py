@@ -18,7 +18,7 @@ import importlib
 #####################################################################
 # ------------------- Insert folder name here --------------------- #
 # E.g. folder = "2024_02_22_09_12_AM_sensor234"
-folder = "2024_02_19_09_26_AM_sim_sensor234_noise"
+folder = "2024_02_22_09_12_AM_sensor234"
 # ----------------------------------------------------------------- #
 #####################################################################
 
@@ -79,6 +79,7 @@ if saveall:
 b = bs[j]
 fs = 6
 lw = 0.8
+fh = 1.5
 
 # Plot values of objective functional.
 plt.figure()
@@ -93,7 +94,7 @@ if save:
     plt.savefig(path + "/values_f.pdf", bbox_inches='tight')
 
 # Plot relative error against iteration.
-fig, ax = plt.subplots(figsize=[1.95, 1.3])  # Size for paper.
+fig, ax = plt.subplots(figsize=[1.95, fh])  # Size for paper.
 ax.semilogy(range(j), b_errs[0:j], 'k:', linewidth=lw)
 ax.set_xlabel(r'Optimisation iteration $j$', fontsize=fs, labelpad=0.25)
 ax.set_ylabel(r"$||b_j-b_{ex}||_2 \ / \ ||b_{ex}||_2$", fontsize=fs,
@@ -130,7 +131,7 @@ if j > 1:
 x_10 = np.argmin(abs(x-10))  # Only plot until x=10m.
 
 # Plot reconstructed bathymetry after last iteration.
-fig, ax = plt.subplots(figsize=[3.79, 1.3])  # Size for paper.
+fig, ax = plt.subplots(figsize=[3.79, fh])  # Size for paper.
 ax.plot(x[:x_10], b_exact[:x_10], "-k", label="exact", linewidth=lw)
 ax.plot(x[:x_10], bs[j][:x_10], "k:", label="reconstructed", linewidth=lw)
 if pa.data != "sim_everywhere":
@@ -151,7 +152,7 @@ if save:
     call(["pdfcrop", filename, filename])
 
 # Create gif of bathymetries along iterations.
-fig1 = plt.figure(figsize=[6.4, 1.5])
+fig1 = plt.figure(figsize=[6.4, fh])
 
 
 def update_plot1(i):
@@ -167,6 +168,7 @@ def update_plot1(i):
     plt.xlabel('x [m]')
     plt.ylabel('b [m]')
     plt.legend()
+    plt.tight_layout()
     plt.title(f"Exact and computed bathymetry at j={i}")
 
 

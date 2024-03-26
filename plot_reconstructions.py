@@ -15,8 +15,8 @@ import importlib
 #####################################################################
 # ---------------- Insert folder names here. ---------------------- #
 # E.g. folder1 = "2024_02_19_09_21_AM_obs_everywhere"
-folder1 = "2024_02_19_09_21_AM_obs_everywhere"  # Without noise.
-folder2 = "2024_02_19_09_22_AM_obs_everywhere_noise"  # With noise.
+folder1 = "2024_02_19_09_25_AM_sim_sensor234"  # Without noise.
+folder2 = "2024_02_19_09_26_AM_sim_sensor234_noise"  # With noise.
 #####################################################################
 
 path1 = "ProblemRelatedFiles/" + folder1
@@ -120,9 +120,10 @@ ymax = max(np.max(obs1), np.max(obs2))
 
 fs = 5
 lw = 0.8
+fh = 1.5
 x_10 = np.argmin(abs(x1-10))  # Only plot until x=10m.
 # ----- Values of objective functional ----- #
-fig, ax = plt.subplots(figsize=[1.95, 1.3])  # Size for paper.
+fig, ax = plt.subplots(figsize=[1.95, fh])  # Size for paper.
 ax.semilogy(range(j1), b_errs1[0:j1], '--k', label="without noise",
             linewidth=lw)
 ax.semilogy(range(j2), b_errs2[0:j2], ':k', label="with noise", linewidth=lw)
@@ -140,7 +141,7 @@ if save:
 
 # ----- Bathymetries ----- #
 # Black and white.
-fig, ax = plt.subplots(figsize=[3.79, 1.3])  # Size for paper.
+fig, ax = plt.subplots(figsize=[3.79, fh])  # Size for paper.
 ax.plot(x1[:x_10], b_exact1[:x_10], "-k", label="exact", linewidth=lw)
 ax.plot(x1[:x_10], bs1[j1][:x_10], "--k", label="without noise", linewidth=lw)
 ax.plot(x2[:x_10], bs2[j2][:x_10], ":k", label="with noise", linewidth=lw)
