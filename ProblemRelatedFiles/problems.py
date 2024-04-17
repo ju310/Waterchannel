@@ -98,7 +98,7 @@ class nonlinSWE:
                                   + " =  - dx((h-1)*u)")
         self.problem.add_equation(
             "dt(u) + lift(tau2, -1) + g*dx(h) + kappa*u = "
-            + "- 2*u*dx(u) - g*dx(b)")
+            + "- u*dx(u) - g*dx(b)")
         self.problem.add_equation("h(x='left') =  hl(t)")
         self.problem.add_equation("u(x='right') = 0")
 
@@ -314,9 +314,9 @@ class nonlinSWE:
                 + " = U(t)*dx(p1) + gamma*H_H_obs(t)")
             self.adjproblem.add_equation(
                 "dt(p2) - dx(p1) + lift(taup2, -1)"
-                + " = (h_fwd(t)-1)*dx(p1) + 2*U(t)*dx(p2) - kappa*p2")
+                + " = (h_fwd(t)-1)*dx(p1) + U(t)*dx(p2) - kappa*p2")
             self.adjproblem.add_equation(
-                "p1(x='left') = - 2*p2(x='left')*udivhl(t)")
+                "p1(x='left') = - p2(x='left')*udivhl(t)")
             self.adjproblem.add_equation("p2(x='right') = 0")
 
             # Build solver

@@ -62,13 +62,13 @@ xmax = 15  # Set right boundary to 15m to simulate the 'beach' in the real
 #####################################################################
 # --------- Choose variables for the discretisation here. --------- #
 # Nx = 17*4
-# Nx = 100
-Nx = 110
+Nx = 100
+# Nx = 110
 # T = 13
 T = 10
 start = 30  # Number of seconds to cut off from beginning of experimental data.
 # start = 0
-timestep = 1e-5
+timestep = 5e-5
 # timestep = 1e-4
 # timestep = 1e-3
 # ----------------------------------------------------------------- #
@@ -141,7 +141,7 @@ problem = d3.IVP([h, u, tau1, tau2], time=t, namespace=locals())
 problem.add_equation("dt(h) + lift(tau1, -1) + dx(u)"
                      + " =  - dx((h-1)*u)")
 problem.add_equation("dt(u) + lift(tau2, -1)"
-                     + " + g*dx(h) + kappa*u = - 2*u*dx(u) - g*dx(b)")
+                     + " + g*dx(h) + kappa*u = - u*dx(u) - g*dx(b)")
 
 problem.add_equation("h(x='left') = hl(t)")
 problem.add_equation("u(x='right') = 0")
