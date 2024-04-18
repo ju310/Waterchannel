@@ -58,20 +58,13 @@ pos = [3.5, 5.5, 7.5]
 xmin = 1.5  # First sensor is located at 1.5m.
 xmax = 15  # Set right boundary to 15m to simulate the 'beach' in the real
 # water channel.
-# xmax = 12
 
 #####################################################################
 # --------- Choose variables for the discretisation here. --------- #
-# Nx = 128
-# Nx = 70
-Nx = 100
-# T = 13
-T = 16
+Nx = 128
+T = 10
 start = 30  # Number of seconds to cut off from beginning of experimental data.
-# start = 0
-# timestep = 5e-5
 timestep = 1e-4
-# timestep = 1e-3
 # ----------------------------------------------------------------- #
 #####################################################################
 
@@ -85,6 +78,21 @@ dealias = 3/2
 # ------- Set to True if you want to save the solution. ----------- #
 save = True
 #####################################################################
+
+if save:
+
+    if bathy:
+        path = "WaterchannelData/sim_data_" + filename\
+            + f"_ExactRamp_T={T}_M={Nx}"
+    else:
+        path = "WaterchannelData/nobathy" + filename\
+            + f"_kappa{kappa:.0e}_T={T}_M={Nx}"
+
+    with open(__file__, "r") as thisfile:
+        filetext = thisfile.read()
+
+    with open(path + ".txt", "w") as newfile:
+        newfile.write(filetext)
 
 # Bases and domain
 xcoord = d3.Coordinate('x')
@@ -127,9 +135,8 @@ problem = d3.IVP([h, u, tau1, tau2], time=t, namespace=locals())
 problem.add_equation("dt(h) + lift(tau1, -1) + dx(u)"
                      + " =  - dx((h-1)*u)")
 problem.add_equation("dt(u) + lift(tau2, -1)"
-                      + " + g*dx(h) + kappa*u = - u*dx(u) - g*dx(b)")
-
-problem.add_equation("h(x='left') =  hl(t)")
+                     + " + g*dx(h) + kappa*u = - u*dx(u) - g*dx(b)")
+problem.add_equation("h(x='left') = hl(t)")
 problem.add_equation("u(x='right') = 0")
 
 # Build solver
@@ -200,12 +207,6 @@ h_array_full = np.array(h_list_full)
 u_array_full = np.array(u_list_full)
 t_array = np.array(t_list)
 dx = (xmax-xmin)/Nx
-if bathy:
-    path = "WaterchannelData/sim_data_" + filename\
-        + f"_ExactRamp_T={T}_M={Nx}"
-else:
-    path = "WaterchannelData/nobathy" + filename\
-        + f"_kappa{kappa:.0e}_T={T}_M={Nx}"
 
 Hmax = np.amax(H_array)
 Hmin = np.amin(H_array)

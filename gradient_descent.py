@@ -128,7 +128,10 @@ while j < jmax:
     if np.amax(abs(v)) < pa.tol:
 
         min_found = True
-        print(f"Found a minimum after {j} iterations.")
+        if pa.test:
+            print("Test passed")
+        else:
+            print(f"Found a minimum after {j} iterations.")
         break
 
     # --- Value of functional for initial step size ---
@@ -180,13 +183,15 @@ while j < jmax:
 end = timer()
 
 print("Elapsed time:", end-start, "s")
+if pa.test is True and min_found is False:
+    print("Test failed")
 
 if np.linalg.norm(b_exact.flatten()) > 1e-16:
     print("Relative error (2-norm) to exact optimal control:",
           np.linalg.norm((b-b_exact).flatten())
           / np.linalg.norm(b_exact.flatten()))
 else:
-    print("Absolute error (max-norm)to exact optimal control:",
+    print("Absolute error (max-norm) to exact optimal control:",
           np.amax(b-b_exact))
 
 # -----------------------------------------------------------------------------

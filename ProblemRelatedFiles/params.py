@@ -81,14 +81,11 @@ class params:
             self.lambd = 0
             self.lambda_b = 0
         else:
+
             if self.noise == 1:
                 self.lambd = 1e-5
             else:
                 self.lambd = 1e-6
-            # self.lambd = 1e-4
-            # self.lambd = 1e-5
-            # self.lambd = 1e-6
-            # self.lambd = 0
 
             L2reg = True
             if L2reg:
@@ -129,10 +126,10 @@ class params:
             self.start = 30  # Number of seconds to cut off from beginning of
             # experimental data.
         elif self.data == "sim_sensor_pos":
-            self.pos = [3.5, 5.5, 7.5]
+            # self.pos = [3.5, 5.5, 7.5]
             # self.pos = [3.5, 5.5]
-            # self.pos = [2]
-            # self.pos = [2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5]
+            self.pos = [3.5]
+            # self.pos = [5.5]
             self.start = 0
         # ---------------------------------------------------------------- #
         ####################################################################
