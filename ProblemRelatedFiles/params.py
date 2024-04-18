@@ -24,14 +24,14 @@ class params:
         # ------------ Set these parameters as you need them. ------------ #
         #
         # Turn on/off test for gradient descent method. Start with exact b.
-        self.test = True  # Does not work for measurements due to the
+        self.test = False  # Does not work for measurements due to the
         # discretisation error.
 
         # Use either measurement data, simulated data everywhere or
         # simulated data at sensor positions.
         # self.data = "measurements"
-        # self.data = "sim_everywhere"
-        self.data = "sim_sensor_pos"
+        self.data = "sim_everywhere"
+        # self.data = "sim_sensor_pos"
 
         # Use mean of measurements.
         self.mean = True
@@ -56,12 +56,10 @@ class params:
 
         if self.data != "measurements":
             path = "ProblemRelatedFiles/WaterchannelData/" \
-                + "sim_data_Tiefe=0,3_A=40_F=0,35_ExactRamp_T=16.hdf5"
-        if self.data != "measurements":
-            # pathbc = "ProblemRelatedFiles/WaterchannelData/" \
-            #     + "MitBathymetrie/Tiefe=0,3_A=40_F=0,35_meanBathy.txt"
+                + "sim_data_Tiefe=0,3_A=40_F=0,35_meanBathy_" \
+                + "ExactRamp_T=10_M=128.hdf5"
             pathbc = "ProblemRelatedFiles/WaterchannelData/" \
-                + "Tiefe=0,3_A=40_F=0,35.txt"
+                + "MitBathymetrie/Tiefe=0,3_A=40_F=0,35_meanBathy.txt"
         else:
             # In this case, pathbc is used for the observation and bc.
             if self.mean:
@@ -83,9 +81,12 @@ class params:
             self.lambd = 0
             self.lambda_b = 0
         else:
-            # self.lambd = 0.001
+            if self.noise == 1:
+                self.lambd = 1e-5
+            else:
+                self.lambd = 1e-6
             # self.lambd = 1e-4
-            self.lambd = 1e-5
+            # self.lambd = 1e-5
             # self.lambd = 1e-6
             # self.lambd = 0
 
@@ -110,14 +111,14 @@ class params:
         if self.test:
             self.jmax = 1
         else:
-            self.jmax = 2000
+            self.jmax = 1
 
         # Time step.
         self.dt = 1e-3
 
         # Number of grid points in space.
-        # self.M = 68
-        self.M = 100
+        self.M = 64
+        # self.M = 100
 
         if self.data == "measurements":
             positions = [3.5, 5.5, 7.5]  # Sensor positions
