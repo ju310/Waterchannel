@@ -94,28 +94,23 @@ class params:
 
         # Parameters for Armijo rule/Wolfe conditions.
         self.alpha = 128
-        # self.alpha = 1
         self.beta = 0.5
 
         # Parameters for cost functional (observation over [0,T]).
         self.gamma = 0.5
-        # self.gamma = 0.25
-        # self.gamma = 0
-        # self.gamma = 1
         self.delta = 1 - self.gamma
 
         # Maximum number of iterations in gradient descent.
         if self.test:
             self.jmax = 1
         else:
-            self.jmax = 1
+            self.jmax = 2000
 
         # Time step.
         self.dt = 1e-3
 
         # Number of grid points in space.
         self.M = 64
-        # self.M = 100
 
         if self.data == "measurements":
             positions = [3.5, 5.5, 7.5]  # Sensor positions
