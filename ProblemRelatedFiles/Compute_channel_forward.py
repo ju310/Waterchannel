@@ -127,7 +127,7 @@ problem = d3.IVP([h, u, tau1, tau2], time=t, namespace=locals())
 problem.add_equation("dt(h) + lift(tau1, -1) + dx(u)"
                      + " =  - dx((h-1)*u)")
 problem.add_equation("dt(u) + lift(tau2, -1)"
-                      + " + g*dx(h) + kappa*u = - 2*u*dx(u) - g*dx(b)")
+                      + " + g*dx(h) + kappa*u = - u*dx(u) - g*dx(b)")
 
 problem.add_equation("h(x='left') =  hl(t)")
 problem.add_equation("u(x='right') = 0")
