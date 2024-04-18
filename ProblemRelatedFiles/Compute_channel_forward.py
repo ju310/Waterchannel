@@ -25,7 +25,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 #####################################################################
-# Set to True if you want to compute the solution for SWE with bathymetry.
+# Set to True if you want to compute the solution for the SWE with bathymetry.
 bathy = True
 #####################################################################
 
@@ -62,16 +62,16 @@ xmax = 15  # Set right boundary to 15m to simulate the 'beach' in the real
 
 #####################################################################
 # --------- Choose variables for the discretisation here. --------- #
-Nx = 17*4
+# Nx = 128
 # Nx = 70
-# Nx = 150
+Nx = 100
 # T = 13
-T = 10
+T = 16
 start = 30  # Number of seconds to cut off from beginning of experimental data.
 # start = 0
-# timestep = 1e-5
-# timestep = 5e-4
-timestep = 1e-3
+# timestep = 5e-5
+timestep = 1e-4
+# timestep = 1e-3
 # ----------------------------------------------------------------- #
 #####################################################################
 
@@ -83,7 +83,7 @@ dealias = 3/2
 
 #####################################################################
 # ------- Set to True if you want to save the solution. ----------- #
-save = False
+save = True
 #####################################################################
 
 # Bases and domain
@@ -188,7 +188,8 @@ try:
             break
         if solver.iteration % 1000 == 0:
             logger.info(
-                'Iteration: %i, Time: %e, dt: %e' %(solver.iteration, solver.sim_time, timestep))
+                'Iteration: %i, Time: %e, dt: %e' %(
+                    solver.iteration, solver.sim_time, timestep))
 except:
     logger.error('Exception raised, triggering end of main loop.')
     raise
@@ -201,10 +202,10 @@ t_array = np.array(t_list)
 dx = (xmax-xmin)/Nx
 if bathy:
     path = "WaterchannelData/sim_data_" + filename\
-        + f"_ExactRamp_T={T}"
+        + f"_ExactRamp_T={T}_M={Nx}"
 else:
     path = "WaterchannelData/nobathy" + filename\
-        + f"_kappa{kappa:.0e}_T={T}"
+        + f"_kappa{kappa:.0e}_T={T}_M={Nx}"
 
 Hmax = np.amax(H_array)
 Hmin = np.amin(H_array)
@@ -308,6 +309,11 @@ if save:
         f.attrs["H"] = H
         f.attrs["kappa"] = kappa
         f.attrs["M"] = Nx
+
+    with open(path + "errors.txt", "w") as newfile:
+
+        newfile.write(f"Relative l2-error at sensor positions: {rel_error}, "
+                      + f"mean of the errors: {np.mean(rel_error)}")
 
     with open(__file__, "r") as thisfile:
 
