@@ -61,16 +61,16 @@ xmax = 15  # Set right boundary to 15m to simulate the 'beach' in the real
 
 #####################################################################
 # --------- Choose variables for the discretisation here. --------- #
-# Nx = 17*4
-Nx = 100
+Nx = 64
+# Nx = 128
 # Nx = 110
 # T = 13
 T = 10
 start = 30  # Number of seconds to cut off from beginning of experimental data.
 # start = 0
-timestep = 5e-5
+# timestep = 5e-5
 # timestep = 1e-4
-# timestep = 1e-3
+timestep = 1e-3
 # ----------------------------------------------------------------- #
 #####################################################################
 
@@ -82,7 +82,7 @@ dealias = 3/2
 
 #####################################################################
 # ------- Set to True if you want to save the solution. ----------- #
-save = True
+save = False
 #####################################################################
 
 if save:
@@ -92,7 +92,7 @@ if save:
             + f"_ExactRamp_T={T}_M={Nx}"
     else:
         path = "WaterchannelData/nobathy" + filename\
-            + f"_kappa{kappa:.0e}_T={T}"
+            + f"_kappa{kappa:.0e}_T={T}_M={Nx}"
 
     with open(__file__, "r") as thisfile:
         filetext = thisfile.read()
