@@ -108,7 +108,7 @@ class OptProblem:
             self.mismatch = self.PDE.gauss_peak(
                 self.PDE.H_array-self.y_d)
         else:
-            self.y = self.q[:, :, 0]
+            self.y = np.copy(self.q[:, :, 0])
             self.y += np.tile(control, (self.y.shape[0], 1))
             self.mismatch = self.y-self.y_d
 
