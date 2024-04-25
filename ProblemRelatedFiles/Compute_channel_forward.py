@@ -25,7 +25,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 #####################################################################
-# Set to True if you want to compute the solution for SWE with bathymetry.
+# Set to True if you want to compute the solution for the SWE with bathymetry.
 bathy = True
 #####################################################################
 
@@ -61,16 +61,10 @@ xmax = 15  # Set right boundary to 15m to simulate the 'beach' in the real
 
 #####################################################################
 # --------- Choose variables for the discretisation here. --------- #
-# Nx = 17*4
-Nx = 100
-# Nx = 110
-# T = 13
+Nx = 128
 T = 10
 start = 30  # Number of seconds to cut off from beginning of experimental data.
-# start = 0
-timestep = 5e-5
-# timestep = 1e-4
-# timestep = 1e-3
+timestep = 1e-4
 # ----------------------------------------------------------------- #
 #####################################################################
 
@@ -92,7 +86,7 @@ if save:
             + f"_ExactRamp_T={T}_M={Nx}"
     else:
         path = "WaterchannelData/nobathy" + filename\
-            + f"_kappa{kappa:.0e}_T={T}"
+            + f"_kappa{kappa:.0e}_T={T}_M={Nx}"
 
     with open(__file__, "r") as thisfile:
         filetext = thisfile.read()
@@ -142,7 +136,6 @@ problem.add_equation("dt(h) + lift(tau1, -1) + dx(u)"
                      + " =  - dx((h-1)*u)")
 problem.add_equation("dt(u) + lift(tau2, -1)"
                      + " + g*dx(h) + kappa*u = - u*dx(u) - g*dx(b)")
-
 problem.add_equation("h(x='left') = hl(t)")
 problem.add_equation("u(x='right') = 0")
 
@@ -202,7 +195,8 @@ try:
             break
         if solver.iteration % 1000 == 0:
             logger.info(
-                'Iteration: %i, Time: %e, dt: %e' %(solver.iteration, solver.sim_time, timestep))
+                'Iteration: %i, Time: %e, dt: %e' %(
+                    solver.iteration, solver.sim_time, timestep))
 except:
     logger.error('Exception raised, triggering end of main loop.')
     raise
@@ -213,6 +207,7 @@ h_array_full = np.array(h_list_full)
 u_array_full = np.array(u_list_full)
 t_array = np.array(t_list)
 dx = (xmax-xmin)/Nx
+
 Hmax = np.amax(H_array)
 Hmin = np.amin(H_array)
 H_meas = np.array([H+lbc.f(t_array+start),
@@ -320,3 +315,11 @@ if save:
 
         newfile.write(f"Relative l2-error at sensor positions: {rel_error}, "
                       + f"mean of the errors: {np.mean(rel_error)}")
+
+    with open(__file__, "r") as thisfile:
+
+        filetext = thisfile.read()
+
+    with open(path + ".txt", "w") as newfile:
+
+        newfile.write(filetext)

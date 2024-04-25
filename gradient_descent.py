@@ -225,5 +225,6 @@ if save is True:
                  + f"\nOutput gradient check: {gradientchecks}"
                  + f"\ntime step = {P.dt}"
                  + f"\ngrid points in space = {P.M}"
-                 + useOtherParams*f"Reconstruction with parameters from {folder}"
+                 + useOtherParams
+                 * f"Reconstruction with parameters from {folder}"
                  + min_found*f"\nFound a minimum after {j} iterations.")

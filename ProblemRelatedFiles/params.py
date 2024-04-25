@@ -30,8 +30,8 @@ class params:
         # Use either measurement data, simulated data everywhere or
         # simulated data at sensor positions.
         # self.data = "measurements"
-        # self.data = "sim_everywhere"
-        self.data = "sim_sensor_pos"
+        self.data = "sim_everywhere"
+        # self.data = "sim_sensor_pos"
 
         # Use mean of measurements.
         self.mean = True
@@ -55,16 +55,11 @@ class params:
         self.g = 9.81
 
         if self.data != "measurements":
-            # path = "ProblemRelatedFiles/WaterchannelData/" \
-            #     + "sim_data_Tiefe=0,3_A=40_F=0,35_meanBathy_ExactRamp" \
-            #     + "_T=10_M=140.hdf5"
             path = "ProblemRelatedFiles/WaterchannelData/" \
-                + "sim_data_Tiefe=0,3_A=40_F=0,35_meanBathy_ExactRamp" \
-                + "_T=13.hdf5"
-            # pathbc = "ProblemRelatedFiles/WaterchannelData/" \
-            #     + "MitBathymetrie/Tiefe=0,3_A=40_F=0,35_meanBathy.txt"
+                + "sim_data_Tiefe=0,3_A=40_F=0,35_meanBathy_" \
+                + "ExactRamp_T=10_M=128.hdf5"
             pathbc = "ProblemRelatedFiles/WaterchannelData/" \
-                + "Tiefe=0,3_A=40_F=0,35.txt"
+                + "MitBathymetrie/Tiefe=0,3_A=40_F=0,35_meanBathy.txt"
         else:
             # In this case, pathbc is used for the observation and bc.
             if self.mean:
@@ -86,12 +81,11 @@ class params:
             self.lambd = 0
             self.lambda_b = 0
         else:
-            # self.lambd = 1e-4
+
             if self.noise == 1:
                 self.lambd = 1e-5
             else:
                 self.lambd = 1e-6
-            # self.lambd = 0
 
             L2reg = True
             if L2reg:
@@ -100,14 +94,10 @@ class params:
 
         # Parameters for Armijo rule/Wolfe conditions.
         self.alpha = 128
-        # self.alpha = 1
         self.beta = 0.5
 
         # Parameters for cost functional (observation over [0,T]).
         self.gamma = 0.5
-        # self.gamma = 0.25
-        # self.gamma = 0
-        # self.gamma = 1
         self.delta = 1 - self.gamma
 
         # Maximum number of iterations in gradient descent.
@@ -120,8 +110,7 @@ class params:
         self.dt = 1e-3
 
         # Number of grid points in space.
-        # self.M = 68
-        self.M = 100
+        self.M = 64
 
         if self.data == "measurements":
             positions = [3.5, 5.5, 7.5]  # Sensor positions
