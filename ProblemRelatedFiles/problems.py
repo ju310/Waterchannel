@@ -171,7 +171,7 @@ class nonlinSWE:
                 u_list.append(np.copy(self.u_field['g']))
                 t_list.append(solver.sim_time)
                 if np.max(self.h_field['g']) > 100:
-                    warnings.warn("Solution instable")
+                    warnings.warn("Solution unstable (forward problem)")
                     break
 
             h_array = np.array(h_list)
@@ -351,7 +351,7 @@ class nonlinSWE:
                 p2_list.append(np.copy(self.p2_field['g']))
                 t_list.append(solver.sim_time)
                 if np.max(self.p1_field['g']) > 100:
-                    warnings.warn("Solution instable")
+                    warnings.warn("Solution unstable (adjoint)")
                     break
 
             p1_array = np.array(p1_list)
