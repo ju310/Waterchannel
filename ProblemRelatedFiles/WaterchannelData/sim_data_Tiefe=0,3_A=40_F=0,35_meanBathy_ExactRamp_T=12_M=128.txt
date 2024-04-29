@@ -2,12 +2,14 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue May 23 13:47:22 2023
-
-@author: Judith Angel
 Sensor 1 at 1.5m.
 Sensor 2 at 3.5m.
 Sensor 3 at 5.5m.
 Sensor 4 at 7.5m.
+Compute the solution of the forward problem with boundary condition taken from
+the measurements at the wave flume. The solution will be saved in a hdf5 file.
+
+@author: Judith Angel
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -22,17 +24,20 @@ from read_left_bc import leftbc, data
 import logging
 logger = logging.getLogger(__name__)
 
+#####################################################################
+# Set to True if you want to compute the solution for the SWE with bathymetry.
 bathy = True
+#####################################################################
 
 if bathy:
     prefix = 'WaterchannelData/MitBathymetrie/'
-    postfix = "meanBathy"
-    # postfix = "try=1"
+    postfix = "_meanBathy"
+    # postfix = "_try=1"
 else:
     prefix = 'WaterchannelData/OhneBathymetrie/'
-    postfix = "mean"
+    postfix = "_mean"
 
-filename = 'Tiefe=0,3_A=40_F=0,35_' + postfix
+filename = 'Tiefe=0,3_A=40_F=0,35' + postfix
 
 lbc = leftbc(prefix+filename+".txt")
 dataObject = data(prefix+filename+".txt")
@@ -53,20 +58,41 @@ pos = [3.5, 5.5, 7.5]
 xmin = 1.5  # First sensor is located at 1.5m.
 xmax = 15  # Set right boundary to 15m to simulate the 'beach' in the real
 # water channel.
-# Nx = 17*4
-# Nx = 70
-Nx = 100
-T = 13
-start = 32  # Number of seconds to cut off from beginning of experimental data.
-# timestep = 1e-4
+
+#####################################################################
+# --------- Choose variables for the discretisation here. --------- #
+Nx = 128
+T = 12
+start = 30  # Number of seconds to cut off from beginning of experimental data.
 timestep = 5e-5
-# timestep = 1e-3
+# ----------------------------------------------------------------- #
+#####################################################################
+
 N = int(T/abs(timestep))+1
 g = 9.81
 H = 0.3
 kappa = 0.2  # Makes amplitudes smaller and waves a bit smoother.
 dealias = 3/2
+
+#####################################################################
+# ------- Set to True if you want to save the solution. ----------- #
 save = True
+#####################################################################
+
+if save:
+
+    if bathy:
+        path = "WaterchannelData/sim_data_" + filename\
+            + f"_ExactRamp_T={T}_M={Nx}"
+    else:
+        path = "WaterchannelData/nobathy" + filename\
+            + f"_kappa{kappa:.0e}_T={T}_M={Nx}"
+
+    with open(__file__, "r") as thisfile:
+        filetext = thisfile.read()
+
+    with open(path + ".txt", "w") as newfile:
+        newfile.write(filetext)
 
 # Bases and domain
 xcoord = d3.Coordinate('x')
@@ -109,9 +135,8 @@ problem = d3.IVP([h, u, tau1, tau2], time=t, namespace=locals())
 problem.add_equation("dt(h) + lift(tau1, -1) + dx(u)"
                      + " =  - dx((h-1)*u)")
 problem.add_equation("dt(u) + lift(tau2, -1)"
-                     + " + g*dx(h) + kappa*u = - 2*u*dx(u) - g*dx(b)")
-
-problem.add_equation("h(x='left') =  hl(t)")
+                     + " + g*dx(h) + kappa*u = - u*dx(u) - g*dx(b)")
+problem.add_equation("h(x='left') = hl(t)")
 problem.add_equation("u(x='right') = 0")
 
 # Build solver
@@ -119,19 +144,6 @@ solver = problem.build_solver(d3.RK443)
 solver.stop_wall_time = 15000
 solver.stop_iteration = N-1
 solver.stop_sim_time = T - 1e-13
-
-# Initial conditions/bathymetry
-
-
-# def source(x):
-#     x = np.array(x)
-#     if bathy:
-
-#         return 0.2*np.exp(-((x-4)/0.4)**2)  # Skateboard ramp bathymetry
-
-#     else:
-#         return np.zeros(x.size)
-
 
 # Measured points of the ramp.
 b_points = np.concatenate(
@@ -183,7 +195,8 @@ try:
             break
         if solver.iteration % 1000 == 0:
             logger.info(
-                'Iteration: %i, Time: %e, dt: %e' %(solver.iteration, solver.sim_time, timestep))
+                'Iteration: %i, Time: %e, dt: %e' %(
+                    solver.iteration, solver.sim_time, timestep))
 except:
     logger.error('Exception raised, triggering end of main loop.')
     raise
@@ -194,25 +207,23 @@ h_array_full = np.array(h_list_full)
 u_array_full = np.array(u_list_full)
 t_array = np.array(t_list)
 dx = (xmax-xmin)/Nx
-if bathy:
-    path = "WaterchannelData/sim_data_" + filename\
-        + f"_ExactRamp_T={T}"
-else:
-    path = "WaterchannelData/nobathy" + filename\
-        + f"_kappa{kappa:.0e}_T={T}"
 
 Hmax = np.amax(H_array)
 Hmin = np.amin(H_array)
+H_meas = np.array([H+lbc.f(t_array+start),
+                   H+dataObject.f[0](t_array+start),
+                   H+dataObject.f[1](t_array+start),
+                   H+dataObject.f[2](t_array+start)])
 
 plt.figure()
-plt.plot(t_array, H+lbc.f(t_array+start), "k")
+plt.plot(t_array, H_meas[0], "k")
 plt.ylim([Hmin-0.001, Hmax+0.001])
 plt.title("Sensor 1, boundary condition")
 
 plt.figure()
 plt.plot(t_array, H_array[:, 0], "y",
          label="simulation")
-plt.plot(t_array, H+dataObject.f[0](t_array+start), "k",
+plt.plot(t_array, H_meas[1], "k",
          label="measurement")
 plt.legend()
 plt.ylim([Hmin-0.001, Hmax+0.001])
@@ -221,7 +232,7 @@ plt.title("Sensor 2")
 plt.figure()
 plt.plot(t_array, H_array[:, 1], "y",
          label="simulation")
-plt.plot(t_array, H+dataObject.f[1](t_array+start), "k",
+plt.plot(t_array, H_meas[2], "k",
          label="measurement")
 plt.legend()
 plt.ylim([Hmin-0.001, Hmax+0.001])
@@ -230,7 +241,7 @@ plt.title("Sensor 3")
 plt.figure()
 plt.plot(t_array, H_array[:, 2], "y",
          label="simulation")
-plt.plot(t_array, H+dataObject.f[2](t_array+start), "k",
+plt.plot(t_array, H_meas[3], "k",
          label="measurement")
 plt.legend()
 plt.ylim([Hmin-0.001, Hmax+0.001])
@@ -240,7 +251,7 @@ fig, axs = plt.subplots(3)
 fig.tight_layout(pad=2.0)
 axs[0].plot(t_array, H_array[:, 0], "y",
             label="simulation")
-axs[0].plot(t_array, H+dataObject.f[0](t_array+start), "k--",
+axs[0].plot(t_array, H_meas[1], "k--",
             label="measurement")
 axs[0].set_xlabel('Time [s]')
 axs[0].set_ylabel('H [m]')
@@ -248,7 +259,7 @@ axs[0].set_title(f"Sensor 2 at {pos[0]}m")
 
 axs[1].plot(t_array, H_array[:, 1], "y",
             label="simulation")
-axs[1].plot(t_array, H+dataObject.f[1](t_array+start), "k--",
+axs[1].plot(t_array, H_meas[2], "k--",
             label="measurement")
 axs[1].set_xlabel('Time [s]')
 axs[1].set_ylabel('H [m]')
@@ -256,7 +267,7 @@ axs[1].set_title(f"Sensor 3 at {pos[1]}m")
 
 axs[2].plot(t_array, H_array[:, 2], "y",
             label="simulation")
-axs[2].plot(t_array, H+dataObject.f[2](t_array+start), "k--",
+axs[2].plot(t_array, H_meas[3], "k--",
             label="measurement")
 axs[2].set_xlabel('Time [s]')
 axs[2].set_ylabel('H [m]')
@@ -264,6 +275,13 @@ axs[2].legend(loc="upper left")
 axs[2].set_title(f"Sensor 4 at {pos[2]}m")
 plt.tight_layout()
 plt.show()
+
+error = [np.linalg.norm(H_array[:, j]-H_meas[j+1]) for j in range(3)]
+print(error)
+print(np.mean(error))
+rel_error = [error[j]/np.linalg.norm(H_meas[j+1]) for j in range(3)]
+print(rel_error)
+print(np.mean(rel_error))
 
 # Save all data.
 if save:
@@ -292,6 +310,11 @@ if save:
         f.attrs["H"] = H
         f.attrs["kappa"] = kappa
         f.attrs["M"] = Nx
+
+    with open(path + "errors.txt", "w") as newfile:
+
+        newfile.write(f"Relative l2-error at sensor positions: {rel_error}, "
+                      + f"mean of the errors: {np.mean(rel_error)}")
 
     with open(__file__, "r") as thisfile:
 

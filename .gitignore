@@ -18,7 +18,9 @@
 *.toc
 *.out
 sim_data*
+!sim_data_Tiefe=0,3_A=40_F=0,35_meanBathy_ExactRamp_T=12_M=128.txt
 ProblemRelatedFiles/WaterchannelData/MitBathymetrie/
 ProblemRelatedFiles/WaterchannelData/OhneBathymetrie/
+ProblemRelatedFiles/WaterchannelData/Tiefe*
 ProblemRelatedFiles/2023_*
 ProblemRelatedFiles/2024_*
