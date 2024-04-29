@@ -51,7 +51,7 @@ allObsArray = np.array(allObs)
 
 # Load simulation of SWE with bathymetry.
 sim_file = "ProblemRelatedFiles/WaterchannelData/" \
-    + "sim_data_Tiefe=0,3_A=40_F=0,35_meanBathy_ExactRamp_T=13.hdf5"
+    + "sim_data_Tiefe=0,3_A=40_F=0,35_meanBathy_ExactRamp_T=12_M=128.hdf5"
 
 with h5py.File(sim_file, "r") as sol:
 
@@ -102,7 +102,7 @@ for i in range(1, len(pos)):
     ax.set_ylabel('H [m]')
     plt.legend()
     plt.title(f"Sensor {i+1} at {pos[i]}m")
-    # plt.savefig(path + f"/sim_mean_bathy{i+1}.pdf")
+    plt.savefig(path + f"/sim_mean_bathy{i+1}.pdf")
 
 plt.show()
 

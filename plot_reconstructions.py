@@ -15,8 +15,8 @@ import importlib
 #####################################################################
 # ---------------- Insert folder names here. ---------------------- #
 # E.g. folder1 = "2024_02_19_09_21_AM_obs_everywhere"
-folder1 = "2024_02_19_09_25_AM_sim_sensor234"  # Without noise.
-folder2 = "2024_02_19_09_26_AM_sim_sensor234_noise"  # With noise.
+folder1 = "2024_04_18_03_15_PM_sim_sensor234"  # Without noise.
+folder2 = "2024_04_18_03_17_PM_sim_sensor234_noise"  # With noise.
 #####################################################################
 
 path1 = "ProblemRelatedFiles/" + folder1
@@ -132,6 +132,9 @@ ax.set_ylabel(r"$||b_j-b_{ex}||_2 \ / \ ||b_{ex}||_2$", fontsize=fs,
               labelpad=0.5)
 ax.tick_params(axis='both', which='major', labelsize=fs, pad=2)
 ax.tick_params(axis='both', which='minor', labelsize=fs, pad=2)
+# !!! Comment line below if needed.
+plt.ylim(bottom=0.275)  # Use this for reconstructions from simulated
+# observations to unify the two corresponding figures in the paper.
 plt.legend(loc="upper right", fontsize=fs)
 plt.tight_layout()
 if save:

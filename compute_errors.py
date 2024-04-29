@@ -18,7 +18,7 @@ import importlib
 
 #####################################################################
 # ----------------- Insert folder name here. ---------------------- #
-folder = "2024_02_19_09_21_AM_obs_everywhere"
+folder = "2024_04_18_03_27_PM_sensor234"
 #####################################################################
 
 path = "ProblemRelatedFiles/" + folder
@@ -30,7 +30,7 @@ if pa.data != "sim_everywhere":
 
 #####################################################################
 # ------- Set to True if you want to save the text file. ---------- #
-save = True
+save = False
 #####################################################################
 
 with h5py.File(path+"/opt_data.hdf5", "r") as sol:
@@ -40,7 +40,9 @@ with h5py.File(path+"/opt_data.hdf5", "r") as sol:
     x = np.array(sol["x"][:])
     j = sol.attrs.get("jmax")
 
-ximax = np.argmin(abs(x-10))  # Only consider bathymetry until length of 10m.
+xend = 15
+ximax = np.argmin(abs(x-xend))  # Possibility to compute errors only on a
+# subinterval, but for the results in the paper, xend = 15.
 b = bs[j]
 bmin = np.min(b_exact[:ximax])
 bmax = np.max(b_exact[:ximax])

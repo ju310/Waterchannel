@@ -57,7 +57,7 @@ class params:
         if self.data != "measurements":
             path = "ProblemRelatedFiles/WaterchannelData/" \
                 + "sim_data_Tiefe=0,3_A=40_F=0,35_meanBathy_" \
-                + "ExactRamp_T=10_M=128.hdf5"
+                + "ExactRamp_T=12_M=128.hdf5"
             pathbc = "ProblemRelatedFiles/WaterchannelData/" \
                 + "MitBathymetrie/Tiefe=0,3_A=40_F=0,35_meanBathy.txt"
         else:
@@ -82,7 +82,7 @@ class params:
             self.lambda_b = 0
         else:
 
-            if self.noise == 1:
+            if self.noise == 1 or self.data == "measurements":
                 self.lambd = 1e-5
             else:
                 self.lambd = 1e-6
@@ -114,7 +114,7 @@ class params:
 
         if self.data == "measurements":
             positions = [3.5, 5.5, 7.5]  # Sensor positions
-            self.sensors = [1]  # Indices of sensors in 'positions' to use.
+            self.sensors = [0, 1, 2]  # Indices of sensors in 'positions' to use.
             self.pos = []
             for i in self.sensors:
                 self.pos.append(positions[i])
@@ -123,9 +123,8 @@ class params:
         elif self.data == "sim_sensor_pos":
             # self.pos = [3.5, 5.5, 7.5]
             # self.pos = [3.5, 5.5]
-            self.pos = [3.5]
-            # self.pos = [5.5]
-            self.start = 0
+            # self.pos = [3.5]
+            self.pos = [5.5]
         # ---------------------------------------------------------------- #
         ####################################################################
 

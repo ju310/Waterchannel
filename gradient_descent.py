@@ -29,7 +29,7 @@ folder = "sim_obs_whole_domain"  # Folder with parameter file.
 # Set 'save' to True if you want to save the optimisation data in a hdf5 file.
 # A folder named in the format "Year_month_day_hour_minute_AM/PM" will be
 # created automatically.
-save = True
+save = False
 # Set 'saveall' to True if you want to save all forward and adjoint solutions
 # additionally.
 saveall = False
