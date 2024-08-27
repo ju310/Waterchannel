@@ -178,13 +178,12 @@ while j < jmax:
 
     # --- Value of functional for initial step size ---
     if alpha_j < pa.alpha:
-        alpha_j = pa.alpha  # ???
+        alpha_j *= 2
 
-    f_new = P.f(b - alpha_j*d)  # TODO: Would be nice to use this for
-    # the next gradient. The forward problem is being solved for this control
-    # twice.
+    f_new = P.f(b - alpha_j*d)
 
     # --- Backtracking line search with Armijo rule ---
+    # TODO: Change to Wolfe conditions.
 
     while f_new > f_vals[j] + 1e-5*alpha_j*P.dx*P.dt*np.linalg.norm(d)**2 \
             or np.isnan(f_new):
