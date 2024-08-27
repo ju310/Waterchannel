@@ -56,9 +56,11 @@ class OptProblem:
             Value of objective functional for given control.
 
         """
-        self.y = self.PDE.solvepde(control, "primal")[:, :, 0]
+        self.q = self.PDE.solvepde(control, "primal")
+        self.y = np.copy(self.q[:, :, 0])
         self.y += np.tile(control, (self.y.shape[0], 1))
 
+        self.bathy_to_check = control.copy()
         self.b_field.change_scales(1)
         self.b_field['g'] = np.copy(control)
         self.bx_field.change_scales(3/2)
@@ -100,17 +102,19 @@ class OptProblem:
             Reduced gradient of the cost functional.
 
         """
-        self.q = self.PDE.solvepde(control, "primal")
-        p = np.flipud(self.PDE.solvepde(self.q, "adjoint"))
-        self.p = p.copy()
+        if np.amax(abs(self.bathy_to_check-control)) > 1e-16:
 
-        if self.PDE.data != "sim_everywhere":
-            self.mismatch = self.PDE.gauss_peak(
-                self.PDE.H_array-self.y_d)
-        else:
-            self.y = np.copy(self.q[:, :, 0])
-            self.y += np.tile(control, (self.y.shape[0], 1))
-            self.mismatch = self.y-self.y_d
+            self.q = self.PDE.solvepde(control, "primal")
+            p = np.flipud(self.PDE.solvepde(self.q, "adjoint"))
+            self.p = p.copy()
+
+            if self.PDE.data != "sim_everywhere":
+                self.mismatch = self.PDE.gauss_peak(
+                    self.PDE.H_array-self.y_d)
+            else:
+                self.y = np.copy(self.q[:, :, 0])
+                self.y += np.tile(control, (self.y.shape[0], 1))
+                self.mismatch = self.y-self.y_d
 
         p2_x = np.zeros((self.p.shape[0], self.p.shape[1]))
         h_x = np.zeros((self.q.shape[0], self.q.shape[1]))
