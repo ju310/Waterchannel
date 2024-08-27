@@ -10,19 +10,31 @@ confidence intervals.
 import numpy as np
 import matplotlib.pyplot as plt
 import h5py
-from scipy import signal
+from scipy import signal, interpolate
 from ProblemRelatedFiles.read_left_bc import data, leftbc
 
-# Define end time T_N, water height at rest H, sensor positions and time array.
-T_N = 42
+# Define water height at rest H, sensor positions and time array.
 H = 0.3
 pos = [1.5, 3.5, 5.5, 7.5]
-t_array = np.arange(0, T_N+0.01, 0.01)
 allObsBathy = []
 allObs = []
 
 # Load measurement data.
 path = "ProblemRelatedFiles/WaterchannelData/Comparison"
+
+# Load simulation of SWE with bathymetry.
+sim_file = "ProblemRelatedFiles/WaterchannelData/" \
+    + "sim_data_Tiefe=0,3_A=40_F=0,35_meanBathy_ExactRamp_T=12_M=128.hdf5"
+
+with h5py.File(sim_file, "r") as sol:
+
+    H_sensor = np.array(sol["H_sensor"][:])
+    t_start_sim = sol.attrs.get("start")
+    t_array_sim = np.array(sol["t_array"][:])
+
+# Define end time T_N
+T_N = round(t_start_sim + t_array_sim[-1])
+t_array = np.arange(0, T_N+0.01, 0.01)
 
 for i in range(20):
 
@@ -49,16 +61,6 @@ for i in range(20):
 allObsBathyArray = np.array(allObsBathy)
 allObsArray = np.array(allObs)
 
-# Load simulation of SWE with bathymetry.
-sim_file = "ProblemRelatedFiles/WaterchannelData/" \
-    + "sim_data_Tiefe=0,3_A=40_F=0,35_meanBathy_ExactRamp_T=12_M=128.hdf5"
-
-with h5py.File(sim_file, "r") as sol:
-
-    H_sensor = np.array(sol["H_sensor"][:])
-    t_start_sim = sol.attrs.get("start")
-    t_array_sim = np.array(sol["t_array"][:])
-
 # Compute mean and standard deviation.
 meanBathy = np.mean(allObsBathyArray, axis=0)
 stdBathy = np.std(allObsBathyArray, axis=0)
@@ -79,9 +81,9 @@ ciLeftDiff = mean - meanBathy - 1/np.sqrt(10)*tValue38*stdDiff
 ciRightDiff = mean - meanBathy + 1/np.sqrt(10)*tValue38*stdDiff
 
 # meanmax = np.max(meanBathy-mean)
-start = np.argmin(abs(t_array-32))
+start = np.argmin(abs(t_array-t_start_sim))
 end = np.argmin(abs(t_array-T_N))
-start_sim = np.argmin(abs(t_array_sim-32+t_start_sim))
+start_sim = np.argmin(abs(t_array_sim-t_start_sim+t_start_sim))
 end_sim = np.argmin(abs(t_array_sim-T_N+t_start_sim))
 
 # Plot simulation and mean of measurements with confidence interval.
@@ -102,7 +104,7 @@ for i in range(1, len(pos)):
     ax.set_ylabel('H [m]')
     plt.legend()
     plt.title(f"Sensor {i+1} at {pos[i]}m")
-    plt.savefig(path + f"/sim_mean_bathy{i+1}.pdf")
+    # plt.savefig(path + f"/sim_mean_bathy{i+1}.pdf")
 
 plt.show()
 
@@ -194,6 +196,23 @@ for i in range(1, len(pos)):
 
 plt.show()
 
+# Plot difference of mean of measurements and simulation.
+H_func = interpolate.CubicSpline(t_array_sim, H_sensor, axis=0)
+for i in range(1, len(pos)):
+
+    plt.figure()
+    plt.plot(t_array[start:end],
+             H_func(t_array[start:end]-t_array[start])[:, i-1]
+             - meanBathy[i, start:end],
+             "k--", linewidth=1, label=r"$H(b_{ex})-sim$")
+    ax = plt.gca()
+    ax.set_xlabel('Time [s]')
+    ax.set_ylabel('H [m]')
+    plt.legend()
+    plt.tight_layout()
+    plt.title(f"Sensor {i+1} at {pos[i]}m")
+    # plt.savefig(path + f"/confidence_sim_diff{i+1}.pdf", bbox_inches='tight')
+plt.show()
 
 # --------------------- Write means into text files. --------------------------
 # lines = np.swapaxes((meanBathy-H)*100, 0, 1)  # Subtract H and convert to cm.
