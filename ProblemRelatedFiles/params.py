@@ -29,16 +29,16 @@ class params:
 
         # Use either measurement data, simulated data everywhere or
         # simulated data at sensor positions.
-        # self.data = "measurements"
-        self.data = "sim_everywhere"
+        self.data = "measurements"
+        # self.data = "sim_everywhere"
         # self.data = "sim_sensor_pos"
 
         # Use mean of measurements.
         self.mean = True
 
         # Put noise on observation.
-        self.noise = 0
-        # self.noise = 1
+        # self.noise = 0
+        self.noise = 1
 
         if self.test:
             self.noise = 0
@@ -84,6 +84,7 @@ class params:
 
             if self.noise == 1 or self.data == "measurements":
                 self.lambd = 1e-5
+                # self.lambd = 1e-4
             else:
                 self.lambd = 1e-6
 
@@ -93,7 +94,8 @@ class params:
                 self.lambda_b = 1e-7
 
         # Parameters for Armijo rule/Wolfe conditions.
-        self.alpha = 128
+        # self.alpha = 128
+        self.alpha = 1
         self.beta = 0.5
 
         # Parameters for cost functional (observation over [0,T]).
@@ -107,7 +109,8 @@ class params:
             self.jmax = 2000
 
         # Time step.
-        self.dt = 1e-3
+        # self.dt = 1e-3
+        self.dt = 5e-4
 
         # Number of grid points in space.
         self.M = 64
@@ -121,10 +124,11 @@ class params:
             self.start = 30  # Number of seconds to cut off from beginning of
             # experimental data.
         elif self.data == "sim_sensor_pos":
+            self.pos = [2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5,
+                        9, 9.5]
             # self.pos = [3.5, 5.5, 7.5]
-            # self.pos = [3.5, 5.5]
             # self.pos = [3.5]
-            self.pos = [5.5]
+            # self.pos = [5.5]
         # ---------------------------------------------------------------- #
         ####################################################################
 
