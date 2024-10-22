@@ -13,8 +13,11 @@ from datetime import datetime
 from mpi4py import MPI
 import logging
 import importlib
+from timeit import default_timer as timer
 
 from ProblemRelatedFiles.grad_descent_aux import OptProblem
+from ProblemRelatedFiles.wolfe_line_search import strongWolfe
+from ProblemRelatedFiles.armijo_line_search import Armijo
 
 for system in ['subsystems', 'solvers']:
     logging.getLogger(system).setLevel(logging.WARNING)  # Suppress output.
@@ -53,8 +56,6 @@ def two_loop_recursion(gradient, s_stored, y_stored, m):
 
 
 comm = MPI.COMM_WORLD
-rank = comm.Get_rank()
-size = comm.Get_size()
 save = True
 saveall = False
 if not save:
@@ -65,22 +66,22 @@ bathy = []
 m = 5  # Number of previous gradients to save.
 
 P = OptProblem(pa, save)
+L = strongWolfe(pa.c1, pa.c2, pa.alpha_max, pa.i_max)
+# L = Armijo(pa.alpha, pa.beta, comm)
 
 # Create folder for plots and data.
 if save is True:
 
-    if rank == 0:
+    newfolder = datetime.now().strftime("%Y_%m_%d_%I_%M_%p")
+    os.mkdir("ProblemRelatedFiles/" + newfolder)
 
-        newfolder = datetime.now().strftime("%Y_%m_%d_%I_%M_%p")
-        os.mkdir("ProblemRelatedFiles/" + newfolder)
+    # Save parameter file.
+    with open("ProblemRelatedFiles/" + oldOptAgain*(folder + "/")
+              + "params.py", "r") as f:
+        parameters = f.read()
 
-        # Save parameter file.
-        with open("ProblemRelatedFiles/" + oldOptAgain*(folder + "/")
-                  + "params.py", "r") as f:
-            parameters = f.read()
-
-        with open(f"ProblemRelatedFiles/{newfolder}/params.py", "w") as file:
-            file.write(parameters)
+    with open(f"ProblemRelatedFiles/{newfolder}/params.py", "w") as file:
+        file.write(parameters)
 
 b = pa.b_start
 y_d = P.y_d
@@ -88,12 +89,10 @@ y_d = P.y_d
 # --- Exact solution, if available. ---
 b_exact = pa.b_exact
 f_b_exct = P.f(b_exact)
-if rank == 0:
-    print("f(b_exact) =", f_b_exct)
-    print("Regularisation term: ", P.f_reg)
+print("f(b_exact) =", f_b_exct)
+print("Regularisation term: ", P.f_reg)
 
-comm.Barrier()
-start = MPI.Wtime()
+start = timer()
 j = 0
 jmax = pa.jmax
 
@@ -111,17 +110,17 @@ breaker = False
 min_found = False
 x_coord = P.PDE.dist.local_grid(P.PDE.xbasis)
 
-if size > 1 and saveall:
+if saveall:
 
     qs = []
     ps = []
 
-if save and rank == 0:
+if save:
 
     f = h5py.File("ProblemRelatedFiles/" + newfolder
                   + "/opt_data.hdf5", "w")
 
-    if saveall and size == 1:
+    if saveall:
 
         qs = f.create_dataset(
             "qs", shape=(jmax, pa.t_array.size, b.size, 2),
@@ -136,6 +135,8 @@ if save and rank == 0:
     f.create_dataset("f_b_exct", data=f_b_exct)
     alpha_js = f.create_dataset("alpha_js", shape=(jmax,), dtype=np.float64)
     v_norms = f.create_dataset("v_norms", shape=(jmax,), dtype=np.float64)
+    vs = f.create_dataset("vs", shape=(jmax, b.size), dtype=np.float64)
+    dirs = f.create_dataset("dirs", shape=(jmax, b.size), dtype=np.float64)
     f.create_dataset("b_exact", data=b_exact)
     bs = f.create_dataset("bs", shape=(jmax+1, b.size), dtype=np.float64)
 
@@ -157,50 +158,26 @@ while j < jmax:
         v = P.compute_gradient(b)
 
         if saveall:
-            if size == 1:
-                qs[j] = P.q
-                ps[j] = P.p
-            elif size > 1 and rank == 0:
-                qs.append(P.q)
-                ps.append(P.p)
+            qs[j] = P.q
+            ps[j] = P.p
         d = v.copy()
     else:
         m_ = min(j, m)
         d = two_loop_recursion(
             v, np.array(s_stored), np.array(y_stored), m_)
 
-    if np.amax(abs(d)) < pa.tol:
+    if save:
+        vs[j] = v
+        dirs[j] = d
+
+    if np.amax(abs(v)) < pa.tol:
         min_found = True
-        if rank == 0:
-            print(f"Found a minimum after {j} iterations.")
-            min_found = comm.bcast(min_found, root=0)
-            break
+        print(f"Found a minimum after {j} iterations.")
+        break
 
-    # --- Value of functional for initial step size ---
-    if alpha_j < pa.alpha:
-        alpha_j *= 2
+    grad_old = v.copy()
 
-    f_new = P.f(b - alpha_j*d)
-
-    # --- Backtracking line search with Armijo rule ---
-    # TODO: Change to Wolfe conditions.
-
-    while f_new > f_vals[j] + 1e-5*alpha_j*P.dx*P.dt*np.linalg.norm(d)**2 \
-            or np.isnan(f_new):
-
-        alpha_j *= pa.beta
-
-        if alpha_j < 1e-10:
-
-            breaker = True
-            if rank == 0:
-                print("Bad search direction")
-                breaker = comm.bcast(breaker, root=0)
-
-            if breaker:
-                break
-
-        f_new = P.f(b - alpha_j*d)
+    alpha_j, f_vals[j+1], v, breaker = L.line_search(P, b, d, f_vals[j], v)
 
     s_stored.append(-alpha_j*d)
     grad_old = v.copy()
@@ -209,7 +186,7 @@ while j < jmax:
         s_stored.pop(0)
         y_stored.pop(0)
 
-    if save and rank == 0:
+    if save:
         alpha_js[j] = alpha_j
         v_norms[j] = np.amax(abs(v))
 
@@ -217,41 +194,38 @@ while j < jmax:
         break
 
     j += 1
-    if j % 20 == 0 and rank == 0:
-        print(f"Iteration {j}, f(b)={f_new}\n")
+    if j % 20 == 0:
+        print(f"Iteration {j}, f(b)={f_vals[j]}\n")
     P.PDE.j = j
-    f_vals[j] = f_new
     b = b - alpha_j*d
-    v = P.compute_gradient(b)
     y_stored.append(v-grad_old)
 
-    if save and rank == 0:
+    if saveall:
+        qs.append(P.q)
+        ps.append(P.p)
+
+    if save:
         f_err1s[j] = P.f_err1
         f_err2s[j] = P.f_err2
         f_regs[j] = P.f_reg
         bs[j] = b
 
-    if min_found is True:
-        break
+end = timer()
 
-end = MPI.Wtime()
+print("Elapsed time:", end-start, "s")
 
-if rank == 0:
-
-    print("Elapsed time:", end-start, "s")
-
-    if np.linalg.norm(b_exact.flatten()) > 1e-16:
-        print("Relative error (2-norm) to exact optimal control:",
-              np.linalg.norm((b-b_exact).flatten())
-              / np.linalg.norm(b_exact.flatten()))
-        if save:
-            with open(f"ProblemRelatedFiles/{newfolder}/info.txt", "w") as ft:
-                ft.write("Relative error (2-norm) to exact optimal control:" +
-                         str(np.linalg.norm((b-b_exact).flatten())
-                             / np.linalg.norm(b_exact.flatten())))
-    else:
-        print("Absolute error (max-norm) to exact optimal control:",
-              np.amax(b-b_exact))
+if np.linalg.norm(b_exact.flatten()) > 1e-16:
+    print("Relative error (2-norm) to exact optimal control:",
+          np.linalg.norm((b-b_exact).flatten())
+          / np.linalg.norm(b_exact.flatten()))
+    if save:
+        with open(f"ProblemRelatedFiles/{newfolder}/info.txt", "w") as ft:
+            ft.write("Relative error (2-norm) to exact optimal control:" +
+                     str(np.linalg.norm((b-b_exact).flatten())
+                         / np.linalg.norm(b_exact.flatten())))
+else:
+    print("Absolute error (max-norm) to exact optimal control:",
+          np.amax(b-b_exact))
 
 # -----------------------------------------------------------------------------
 # -------------------- CREATE PLOTS AND SAVE DATA -----------------------------
@@ -262,82 +236,15 @@ if rank == 0:
 
 if save is True:
 
-    if size == 1:
+    if not saveall:
+        f.create_dataset("q", data=P.q)
+        f.create_dataset("p", data=P.p)
 
-        if not saveall:
-            f.create_dataset("q", data=P.q)
-            f.create_dataset("p", data=P.p)
+    f.create_dataset("f_vals", data=f_vals)
+    f.attrs["jmax"] = j
+    f.close()
 
-    else:
-
-        if saveall:
-
-            allqs = []
-            allps = []
-            for i in range(j):
-
-                qBuf = np.zeros((P.t_array.size, pa.M, 2))
-                comm.Gather(qs[i][1:], qBuf[1:], root=0)
-                qBuf[0, :, 0] = P.PDE.ic
-                allqs.append(qBuf)
-
-                pBuf = np.zeros((P.t_array.size, pa.M, 2))
-                if rank == size-1:
-                    comm.Send(ps[i][-1], dest=0)
-                if rank == 0:
-                    comm.Recv(pBuf[-1], source=size-1)
-                pTimeSlice = ps[i][:-1]
-                comm.Gather(pTimeSlice, pBuf[:-1], root=0)
-                allps.append(pBuf)
-
-            if rank == 0:
-
-                qs = allqs.copy()
-                ps = allps.copy()
-
-        else:
-
-            qBuf = np.zeros((P.t_array.size, pa.M, 2))
-            comm.Gather(P.q[1:], qBuf[1:], root=0)
-            qBuf[0, :, 0] = P.PDE.ic
-            pBuf = np.zeros((P.t_array.size, pa.M, 2))
-            if rank == size-1:
-                comm.Send(P.p[-1], dest=0)
-            if rank == 0:
-                comm.Recv(pBuf[-1], source=size-1)
-            pTimeSlice = P.p[:-1]
-            comm.Gather(pTimeSlice, pBuf[:-1], root=0)
-
-            if rank == 0:
-                f.create_dataset("q", data=qBuf)
-                f.create_dataset("p", data=pBuf)
-                f.attrs["c"] = pa.c
-
-        comm.Barrier()
-
-    if rank == 0:
-
-        if size > 1 and saveall:
-
-            f.create_dataset("qs", data=qs)
-            f.create_dataset("ps", data=ps)
-
-        f.create_dataset("f_vals", data=f_vals)
-        f.attrs["jmax"] = j
-        f.close()
-
-# if size == 1 and P.PDE.bc == "waterchannel":
-#     # Somehow the gradient test does not work in parallel.
-
-#     for i in range(len(vs)):
-
-#         cg = CheckGradient(P.f, P.dx*vs[i], bs[i])
-#         # Need gradient*dx because of discrete scalar product
-#         # in gradienttest.py.
-#         gradientchecks.append(cg.check_order_2())
-#         print(f"Iteration {i}: {cg.check_order_2()}")
-
-if save and rank == 0:
+if save:
 
     with open("ProblemRelatedFiles/" + newfolder + "/info.txt", "w") as f2:
 
