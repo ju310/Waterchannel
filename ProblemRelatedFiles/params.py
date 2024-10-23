@@ -97,6 +97,10 @@ class params:
         # self.alpha = 128
         self.alpha = 1
         self.beta = 0.5
+        self.c1 = 1e-4
+        self.c2 = 0.9
+        self.alpha_max = 100
+        self.i_max = 100
 
         # Parameters for cost functional (observation over [0,T]).
         self.gamma = 0.5
