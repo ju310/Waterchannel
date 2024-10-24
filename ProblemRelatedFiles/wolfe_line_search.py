@@ -91,5 +91,7 @@ class strongWolfe:
 
             if j == self.i_max-1:
                 self.breaker = True
+                alpha = 0
+                grad_j = np.zeros(self.b.shape)
 
         return alpha, f_new, grad_j

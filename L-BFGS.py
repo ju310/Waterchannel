@@ -180,7 +180,6 @@ while j < jmax:
     alpha_j, f_vals[j+1], v, breaker = L.line_search(P, b, d, f_vals[j], v)
 
     s_stored.append(-alpha_j*d)
-    grad_old = v.copy()
 
     if j > m:
         s_stored.pop(0)
