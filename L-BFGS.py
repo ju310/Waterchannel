@@ -261,4 +261,6 @@ if save:
                  + f"\ntime step = {P.dt}"
                  + f"\ngrid points in space = {P.M}"
                  + oldOptAgain*"\n Reconstruction with parameters from"
-                 + f" {folder}")
+                 + f" {folder}"
+                 + min_found*f"\nFound a minimum after {j} iterations."
+                 + "Used optimisation algorithm is L-BFGS.")
