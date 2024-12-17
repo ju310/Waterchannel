@@ -4,10 +4,10 @@
 This code reconstructs the bathymetry in a water channel using either simulated or experimental observation data. We use gradient descent to minimise an objective functional, where we compute the numerical solution of the continuous adjoint problem in order to determine the gradient. The forward problem is modelled by the nonlinear nonrotating shallow water equations and discretised with the spectral methods framework [Dedalus](https://dedalus-project.org/).
 
 ## How to reproduce the data and plots
-After cloning this repository, download the measurement data from the water flume [here](https://doi.org/10.15480/882.9601). You can compute and save the mean of the measurements by uncommenting the lower lines in `compare_observations.py`. This file will also produce the plots of the means with confidence intervals.
+After cloning this repository, download the measurement data from the water flume [here](https://doi.org/10.15480/882.9601). You can compute and save the mean of the measurements by uncommenting the lower lines in `compare_observations.py`. This file will also produce the plots of the means with confidence intervals. Please change line 41 in `compare_observations.py` to 'postfix = f"{i+1}' and line 43 to '+ 'Heat' + postfix + ".txt"'.
 ### Solutions of the SWE
 - Go to the file `ProblemRelatedFiles/Compute_channel_forward.py`.
-- Set variables as needed. In particular, set `save = True`. To obtain the plots in the paper (link to be added), you may copy the parameters from [sim_data_Tiefe=0,3_A=40_F=0,35_meanBathy_ExactRamp_T=12_M=128.txt](./ProblemRelatedFiles/WaterchannelData/sim_data_Tiefe=0,3_A=40_F=0,35_meanBathy_ExactRamp_T=12_M=128.txt).
+- Set variables as needed. In particular, set `save = True`. To obtain the plots in the [paper](https://doi.org/10.1016/j.compfluid.2024.106321), you may copy the parameters from [sim_data_Tiefe=0,3_A=40_F=0,35_meanBathy_ExactRamp_T=12_M=128.txt](./ProblemRelatedFiles/WaterchannelData/sim_data_Tiefe=0,3_A=40_F=0,35_meanBathy_ExactRamp_T=12_M=128.txt).
 - Execute the file.
 ### Plots of the solution of the SWE
 - Go to the file `create_plots_forward.py`.
@@ -15,7 +15,7 @@ After cloning this repository, download the measurement data from the water flum
 - Set `save = True`.
 - Execute the file.
 ### Optimisation results
-We provide the hdf5 files with optimisation data here (Link still to be added). In that case, create a folder for each in `ProblemRelatedFiles` and copy the data in this folder. If you want to compute those yourself, use the file gradient_descent.py as follows.
+If you want to generate the optimisation results, use the file gradient_descent.py as follows.
 - Set `useOtherParams = True` if you want to reproduce the data from the paper.
 - If you set `useOtherParams = True`: Set `folder` to one of the folders with parameters, e.g. `sim_obs_sensor_pos`.
 - If you don't want to use one of the predefined parameter files, change the indicated variables in `ProblemRelatedFiles/params.py` as needed.
