@@ -5,7 +5,7 @@ Created on Tue Oct 15 14:09:39 2024
 
 @author: judith
 """
-
+import numpy as np
 
 class strongWolfe:
 
