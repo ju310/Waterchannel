@@ -71,7 +71,7 @@ class params:
 
         ####################################################################
         # ------------ Set these parameters as you need them. ------------ #
-        # Set tolerance for stopping criterion in gradient descent.
+        # Set tolerance for stopping criterion in gradient descent/L-BFGS.
         # self.tol = 7e-8
         self.tol = 1e-7
         # self.tol = 1e-6
@@ -113,15 +113,15 @@ class params:
             self.jmax = 2000
 
         # Time step.
-        # self.dt = 1e-3
-        self.dt = 5e-4
+        self.dt = 1e-3
+        # self.dt = 5e-4
 
         # Number of grid points in space.
         self.M = 64
 
         if self.data == "measurements":
             positions = [3.5, 5.5, 7.5]  # Sensor positions
-            self.sensors = [0, 1, 2]  # Indices of sensors in 'positions' to use.
+            self.sensors = [0, 1]  # Indices of sensors in 'positions' to use.
             self.pos = []
             for i in self.sensors:
                 self.pos.append(positions[i])
