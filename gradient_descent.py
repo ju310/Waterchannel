@@ -227,4 +227,5 @@ if save is True:
                  + f"\ngrid points in space = {P.M}"
                  + useOtherParams
                  * f"Reconstruction with parameters from {folder}"
-                 + min_found*f"\nFound a minimum after {j} iterations.")
+                 + min_found*f"\nFound a minimum after {j} iterations."
+                 + "Used optimisation algorithm is gradient descent.")
