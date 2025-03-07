@@ -141,7 +141,7 @@ while j < jmax:
 
     # --- Backtracking line search with Armijo rule ---
 
-    while f_new > f_vals[j] + 1e-5*alpha_j*P.dx*P.dt*np.linalg.norm(v)**2 \
+    while f_new > f_vals[j] - 1e-5*alpha_j*P.dx*P.dt*np.linalg.norm(v)**2 \
             or np.isnan(f_new):
 
         alpha_j *= pa.beta
