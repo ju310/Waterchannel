@@ -32,12 +32,12 @@ bathy = True
 if bathy:
     prefix = 'WaterchannelData/MitBathymetrie/'
     postfix = "_meanBathy"
-    # postfix = "_try=1"
+    # postfix = "1"
 else:
     prefix = 'WaterchannelData/OhneBathymetrie/'
     postfix = "_mean"
 
-filename = 'Tiefe=0,3_A=40_F=0,35' + postfix
+filename = 'Heat' + postfix
 
 lbc = leftbc(prefix+filename+".txt")
 dataObject = data(prefix+filename+".txt")
@@ -61,10 +61,10 @@ xmax = 15  # Set right boundary to 15m to simulate the 'beach' in the real
 
 #####################################################################
 # --------- Choose variables for the discretisation here. --------- #
-Nx = 128
+Nx = 100
 T = 10
 start = 30  # Number of seconds to cut off from beginning of experimental data.
-timestep = 1e-4
+timestep = 1e-3
 # ----------------------------------------------------------------- #
 #####################################################################
 
