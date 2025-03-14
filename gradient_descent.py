@@ -23,13 +23,13 @@ for system in ['subsystems', 'solvers']:
 
 #####################################################################
 # Set 'useOtherParams' to True if you want use an existing parameter file.
-useOtherParams = False
-folder = "sim_obs_whole_domain"  # Folder with parameter file.
+useOtherParams = True
+folder = "2024_04_18_03_19_PM_sim_sensor23_noise"  # Folder with parameter file.
 
 # Set 'save' to True if you want to save the optimisation data in a hdf5 file.
 # A folder named in the format "Year_month_day_hour_minute_AM/PM" will be
 # created automatically.
-save = False
+save = True
 # Set 'saveall' to True if you want to save all forward and adjoint solutions
 # additionally.
 saveall = False
@@ -226,6 +226,6 @@ if save is True:
                  + f"\ntime step = {P.dt}"
                  + f"\ngrid points in space = {P.M}"
                  + useOtherParams
-                 * f"Reconstruction with parameters from {folder}"
+                 * f"\nReconstruction with parameters from {folder}"
                  + min_found*f"\nFound a minimum after {j} iterations."
-                 + "Used optimisation algorithm is gradient descent.")
+                 + "\nUsed optimisation algorithm is gradient descent.")
