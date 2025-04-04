@@ -23,24 +23,24 @@ allObs = []
 path = "ProblemRelatedFiles/WaterchannelData/Comparison"
 
 # Load simulation of SWE with bathymetry.
-sim_file = "ProblemRelatedFiles/WaterchannelData/" \
-    + "sim_data_Tiefe=0,3_A=40_F=0,35_meanBathy_ExactRamp_T=12_M=128.hdf5"
+# sim_file = "ProblemRelatedFiles/WaterchannelData/your_simulated_solution.hdf5"
 
-with h5py.File(sim_file, "r") as sol:
+# with h5py.File(sim_file, "r") as sol:
 
-    H_sensor = np.array(sol["H_sensor"][:])
-    t_start_sim = sol.attrs.get("start")
-    t_array_sim = np.array(sol["t_array"][:])
+#     H_sensor = np.array(sol["H_sensor"][:])
+#     t_start_sim = sol.attrs.get("start")
+#     t_array_sim = np.array(sol["t_array"][:])
 
 # Define end time T_N
-T_N = round(t_start_sim + t_array_sim[-1])
+# T_N = round(t_start_sim + t_array_sim[-1])
+T_N = 10
 t_array = np.arange(0, T_N+0.01, 0.01)
 
 for i in range(20):
 
-    postfix = f"try={i+1}"
+    postfix = f"{i+1}"
     fileBathy = 'ProblemRelatedFiles/WaterchannelData/MitBathymetrie/' \
-        + 'Tiefe=0,3_A=40_F=0,35_' + postfix + ".txt"
+        + 'Heat' + postfix + ".txt"
     dataObjectBathy = data(fileBathy)
     bcBathy = leftbc(fileBathy).f
     H_obsBathy = [H+bcBathy(t_array)]
@@ -81,51 +81,51 @@ ciLeftDiff = mean - meanBathy - 1/np.sqrt(10)*tValue38*stdDiff
 ciRightDiff = mean - meanBathy + 1/np.sqrt(10)*tValue38*stdDiff
 
 # meanmax = np.max(meanBathy-mean)
-start = np.argmin(abs(t_array-t_start_sim))
-end = np.argmin(abs(t_array-T_N))
-start_sim = np.argmin(abs(t_array_sim-t_start_sim+t_start_sim))
-end_sim = np.argmin(abs(t_array_sim-T_N+t_start_sim))
+# start = np.argmin(abs(t_array-t_start_sim))
+# end = np.argmin(abs(t_array-T_N))
+# start_sim = np.argmin(abs(t_array_sim-t_start_sim+t_start_sim))
+# end_sim = np.argmin(abs(t_array_sim-T_N+t_start_sim))
 
 # Plot simulation and mean of measurements with confidence interval.
-for i in range(1, len(pos)):
+# for i in range(1, len(pos)):
 
-    plt.figure()
-    plt.plot(
-        t_array_sim[start_sim:end_sim]+t_start_sim,
-        H_sensor[start_sim:end_sim, i-1],
-        "k:", label="simulation", linewidth=1)
-    plt.plot(t_array[start:end], meanBathy[i, start:end], "k--",
-             label="measurement", linewidth=1)
-    ax = plt.gca()
-    ax.fill_between(t_array[start:end], ciBathyLeft[i, start:end],
-                    ciBathyRight[i, start:end], alpha=0.3, facecolor="k",
+#     plt.figure()
+#     plt.plot(
+#         t_array_sim[start_sim:end_sim]+t_start_sim,
+#         H_sensor[start_sim:end_sim, i-1],
+#         "k:", label="simulation", linewidth=1)
+#     plt.plot(t_array[start:end], meanBathy[i, start:end], "k--",
+#              label="measurement", linewidth=1)
+#     ax = plt.gca()
+#     ax.fill_between(t_array[start:end], ciBathyLeft[i, start:end],
+#                     ciBathyRight[i, start:end], alpha=0.3, facecolor="k",
                     label="confidence interval")
-    ax.set_xlabel('Time [s]')
-    ax.set_ylabel('H [m]')
-    plt.legend()
-    plt.title(f"Sensor {i+1} at {pos[i]}m")
+#     ax.set_xlabel('Time [s]')
+#     ax.set_ylabel('H [m]')
+#     plt.legend()
+#     plt.title(f"Sensor {i+1} at {pos[i]}m")
     # plt.savefig(path + f"/sim_mean_bathy{i+1}.pdf")
 
-plt.show()
+# plt.show()
 
 # Plot difference of means with /without bathymetry with confidence interval.
-for i in range(1, len(pos)):
+# for i in range(1, len(pos)):
 
-    plt.figure()
-    plt.plot(t_array[start:end], diff[i, start:end], "k--", linewidth=1,
-             label=r"$H(b_{ex})-H(0)$")
-    ax = plt.gca()
-    ax.fill_between(t_array[start:end], ciLeftDiff[i, start:end],
-                    ciRightDiff[i, start:end], alpha=0.3, facecolor="k",
-                    label="confidence interval")
-    ax.set_xlabel('Time [s]')
-    ax.set_ylabel('H [m]')
-    plt.legend()
-    plt.tight_layout()
-    plt.title(f"Sensor {i+1} at {pos[i]}m")
+#     plt.figure()
+#     plt.plot(t_array[start:end], diff[i, start:end], "k--", linewidth=1,
+#              label=r"$H(b_{ex})-H(0)$")
+#     ax = plt.gca()
+#     ax.fill_between(t_array[start:end], ciLeftDiff[i, start:end],
+#                     ciRightDiff[i, start:end], alpha=0.3, facecolor="k",
+#                     label="confidence interval")
+#     ax.set_xlabel('Time [s]')
+#     ax.set_ylabel('H [m]')
+#     plt.legend()
+#     plt.tight_layout()
+#    plt.title(f"Sensor {i+1} at {pos[i]}m")
     # plt.savefig(path + f"/confidence_diff{i+1}.pdf", bbox_inches='tight')
 
-plt.show()
+# plt.show()
 
 for i in range(1, len(pos)):
 
