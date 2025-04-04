@@ -29,9 +29,9 @@ class params:
 
         # Use either measurement data, simulated data everywhere or
         # simulated data at sensor positions.
-        self.data = "measurements"
+        # self.data = "measurements"
         # self.data = "sim_everywhere"
-        # self.data = "sim_sensor_pos"
+        self.data = "sim_sensor_pos"
 
         # Use mean of measurements.
         self.mean = True
@@ -59,15 +59,15 @@ class params:
                 + "sim_data_Tiefe=0,3_A=40_F=0,35_meanBathy_" \
                 + "ExactRamp_T=12_M=128.hdf5"
             pathbc = "ProblemRelatedFiles/WaterchannelData/" \
-                + "MitBathymetrie/Tiefe=0,3_A=40_F=0,35_meanBathy.txt"
+                + "MitBathymetrie/Heat_meanBathy.txt"
         else:
             # In this case, pathbc is used for the observation and bc.
             if self.mean:
                 pathbc = "ProblemRelatedFiles/WaterchannelData/" \
-                    + "MitBathymetrie/Tiefe=0,3_A=40_F=0,35_meanBathy.txt"
+                    + "MitBathymetrie/Heat_meanBathy.txt"
             else:
                 pathbc = "ProblemRelatedFiles/WaterchannelData/" \
-                    + "MitBathymetrie/Tiefe=0,3_A=40_F=0,35_try=1.txt"
+                    + "MitBathymetrie/Heat1.txt"
 
         ####################################################################
         # ------------ Set these parameters as you need them. ------------ #
@@ -94,8 +94,8 @@ class params:
                 self.lambda_b = 1e-7
 
         # Parameters for Armijo rule/Wolfe conditions.
-        # self.alpha = 128
-        self.alpha = 1
+        self.alpha = 128
+        # self.alpha = 1
         self.beta = 0.5
         self.c1 = 1e-4
         self.c2 = 0.9
@@ -113,6 +113,7 @@ class params:
             self.jmax = 2000
 
         # Time step.
+        # self.dt = 1e-2
         self.dt = 1e-3
         # self.dt = 5e-4
 
@@ -128,9 +129,9 @@ class params:
             self.start = 30  # Number of seconds to cut off from beginning of
             # experimental data.
         elif self.data == "sim_sensor_pos":
-            self.pos = [2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5,
-                        9, 9.5]
-            # self.pos = [3.5, 5.5, 7.5]
+            # self.pos = [2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5,
+            #             9, 9.5]
+            self.pos = [3.5, 5.5, 7.5]
             # self.pos = [3.5]
             # self.pos = [5.5]
         # ---------------------------------------------------------------- #
@@ -292,13 +293,17 @@ class params:
         # Add noise to the observation.
         if self.data == "sim_sensor_pos":
 
+            #------------------- SET NOISE FACTOR -------------------------
+            # noisefactor = 0.01
+            noisefactor = 0.05
+
             # The noise depends on the local wave height.
             for p in range(len(self.pos)):
 
                 i = np.argmin(abs(x-self.pos[p]))
                 self.y_d[2:, i] += self.noise \
                     * np.random.normal(
-                        0, .05*(np.max(self.y_d[:, i]-self.H)), N-2)
+                        0, noisefactor*(np.max(self.y_d[:, i]-self.H)), N-2)
 
         elif self.data == "sim_everywhere":
 
