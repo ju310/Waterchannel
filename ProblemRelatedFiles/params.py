@@ -129,8 +129,8 @@ class params:
             self.start = 30  # Number of seconds to cut off from beginning of
             # experimental data.
         elif self.data == "sim_sensor_pos":
-            # self.pos = [2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5,
-            #             9, 9.5]
+            # self.pos = [2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8,
+            #             8.5, 9, 9.5]
             self.pos = [3.5, 5.5, 7.5]
             # self.pos = [3.5]
             # self.pos = [5.5]
@@ -293,7 +293,7 @@ class params:
         # Add noise to the observation.
         if self.data == "sim_sensor_pos":
 
-            #------------------- SET NOISE FACTOR -------------------------
+            # ------------------- SET NOISE FACTOR -------------------------
             # noisefactor = 0.01
             noisefactor = 0.05
 
